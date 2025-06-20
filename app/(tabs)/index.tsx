@@ -13,7 +13,7 @@ export default function HomeScreen() {
   ];
 
   const quickActions = [
-    { title: 'Start Workout', subtitle: 'Begin your fitness journey', color: '#3B82F6' },
+    { title: 'Start Workout1', subtitle: 'Begin your fitness journey', color: '#3B82F6' },
     { title: 'Log Food', subtitle: 'Track your nutrition', color: '#10B981' },
     { title: 'Sleep Tracker', subtitle: 'Monitor your rest', color: '#8B5CF6' },
   ];

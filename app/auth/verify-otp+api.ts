@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       
       return Response.json({
         success: true,
-        message: 'OTP verified successfully',
+        message: 'OTP verified successfully3',
         authToken: mockAuthToken,
         user: {
           userID,
@@ -37,6 +37,9 @@ export async function POST(request: Request) {
       );
     }
   } catch (error) {
+    // Log the actual error to your Expo terminal/debugger console
+    console.error('Error in verify-otp+api:', error);
+
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       {

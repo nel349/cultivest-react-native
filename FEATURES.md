@@ -195,6 +195,50 @@ Given the custodial wallet approach, robust security for private key storage is 
 - **Netlify**: Will host the Cultivest web frontend, built with React Native for Web via Expo Router.
 - **Expo Router**: Enables 90% code sharing between mobile (iOS/Android) and web, simplifying development for both platforms.
 
+### Server-Side API Endpoints
+
+This section outlines the primary API endpoints and their functionalities that will be implemented on the Vercel-hosted Node.js backend.
+
+#### 1. User Management & Authentication
+- **`POST /auth/signup`**: Handles phone-based user registration with OTP. Creates user record and initiates custodial wallet creation.
+- **`POST /auth/verify-otp`**: Verifies OTP to complete signup/login.
+- **`POST /auth/login`**: Handles user login with phone and OTP.
+- **`POST /user/kyc`**: Processes MoonPay KYC-light integration; updates user KYC status.
+- **`GET /user/profile`**: Retrieves basic user profile data.
+
+#### 2. Wallet Management (Custodial)
+- **`POST /wallet/create`**: (Internal/Automated) Creates and securely stores a new custodial Algorand wallet for a new user.
+- **`GET /wallet/balance`**: Fetches current USDCa balance for the user's custodial wallet.
+
+#### 3. Fiat-to-USDCa Deposit
+- **`POST /deposit/initiate`**: Initiates a fiat deposit via Flutterwave or MoonPay.
+- **`POST /deposit/webhook`**: (Webhook Endpoint) Receives status updates from Flutterwave/MoonPay; processes successful fiat receipts to convert/transfer USDCa to user wallet.
+
+#### 4. Yield Investment
+- **`POST /investment/initiate`**: Allows a user to invest USDCa into the Tinyman pool. Handles transaction signing and broadcasting.
+- **`GET /investment/positions`**: Retrieves a user's active investment positions.
+- **Background Job / Cron Job (Daily/Hourly)**: Calculates and credits daily yield; updates user balances and records transactions.
+
+#### 5. Gamified Dashboard
+- **`GET /dashboard/data`**: Provides aggregated data for the user dashboard (balance, yield, money tree status, badges).
+- **`POST /badge/award`**: (Internal/Automated) Awards a badge to a user upon meeting criteria.
+
+#### 6. Educational Components
+- **`GET /education/content`**: Retrieves educational video/quiz details.
+- **`POST /education/quiz/submit`**: Submits user quiz results; awards badges if criteria met.
+
+#### 7. Withdrawal
+- **`POST /withdrawal/initiate`**: Initiates a withdrawal of USDCa to fiat; transfers USDCa to treasury wallet.
+- **`POST /withdrawal/process_fiat`**: (Internal/Automated) Processes fiat payout via MoonPay/Flutterwave after USDCa is received.
+- **`POST /withdrawal/webhook`**: (Webhook Endpoint) Receives fiat payout status updates; updates transaction status.
+- **`POST /transaction/receipt/send`**: Sends transaction receipts via email.
+
+#### 8. Notifications
+- **`POST /notifications/send_daily_yield`**: (Internal/Automated) Sends daily yield push notifications via Firebase Cloud Messaging.
+
+#### 9. AI Integration
+- **`POST /ai/roundup_suggestion`**: Gets round-up investment suggestions from Claude 4 API.
+
 ### Claude 4 Round-Up Suggestions
 - Mocked Claude 4 API analyzes spending patterns (e.g., $3.50 coffee → $0.50 round-up).  
 - Returns JSON: `{ amount: 0.50, suggestedInvestment: "Tinyman USDCa 2.5% APY" }`.  
@@ -214,13 +258,33 @@ Given the custodial wallet approach, robust security for private key storage is 
 - Deployed on Netlify with `expo start --web`, tested for <2s load.
 
 ### Acceptance Criteria
-- **Onboarding**: 90% of 10 users (5 U.S./5 Nigeria) complete phone signup and KYC-light in <2 min (mobile: emulators; web: Chrome).  
-- **Deposit**: 10 test deposits ($5 each) convert to USDCa, confirmed via Algorand explorer.  
-- **Yield Investment**: 10 investments ($5) lock in Tinyman 2.5% APY pool, verified on testnet.  
-- **Dashboard**: 90% of 10 users confirm intuitive UX (mobile/web) via X poll.  
-- **Education**: 90% of 10 users rate video/quiz clear (X poll).  
-- **Withdrawal**: 10 withdrawals ($2) complete via MoonPay/Flutterwave, confirmed by API logs.
 
+Here are the expected scenarios that, when successfully demonstrated, indicate the feature meets its acceptance criteria:
+
+-   **Onboarding**:
+    *   **Scenario 1 (Mobile)**: A user in the US successfully completes phone signup and MoonPay KYC-light on an iOS/Android emulator within 2 minutes.
+    *   **Scenario 2 (Web)**: A user in Nigeria successfully completes phone signup and MoonPay KYC-light on a Chrome browser (hosted on Netlify) within 2 minutes.
+    *   **Verification**: 90% of 10 test users (5 U.S., 5 Nigeria) successfully complete their respective onboarding flows.
+
+-   **Deposit**:
+    *   **Scenario**: A user successfully deposits $5 (fiat) via Flutterwave (Nigeria) or MoonPay (US) and the corresponding USDCa appears in their Cultivest wallet, verified on the Algorand explorer.
+    *   **Verification**: 10 test deposits ($5 each) are confirmed to convert to USDCa and reflect correctly in the user's custodial wallet.
+
+-   **Yield Investment**:
+    *   **Scenario**: A user invests $5 of USDCa, which is successfully locked into the Tinyman 2.5% APY pool, and this investment is verifiable on the Algorand testnet.
+    *   **Verification**: 10 investments ($5 each) are verified to be locked in the Tinyman pool on the testnet.
+
+-   **Dashboard**:
+    *   **Scenario**: A user logs into the mobile or web dashboard and accurately views their current balance ($5), daily yield ($0.003), and observes the "money tree" animation with 5 leaves, along with the "First Investor!" badge.
+    *   **Verification**: 90% of 10 test users (mobile/web) confirm the dashboard UX is intuitive and data is accurate via an X (Twitter) poll.
+
+-   **Education**:
+    *   **Scenario**: A user watches the 30-second video on USDCa/GENIUS Act safety and successfully completes the 3-question quiz, unlocking the "Safe Saver" badge.
+    *   **Verification**: 90% of 10 test users complete the video and quiz, rating the content as clear via an X (Twitter) poll.
+
+-   **Withdrawal**:
+    *   **Scenario**: A user initiates a $2 withdrawal from their USDCa balance to their bank account via MoonPay/Flutterwave, and the funds are successfully received, confirmed by API logs.
+    *   **Verification**: 10 test withdrawals ($2 each) complete successfully via MoonPay/Flutterwave, confirmed by backend API logs.
 
 ### Findings
 - https://medium.com/@drichar/using-algosdk-v3-and-algokit-utils-in-react-native-3160c79ad7fc for Algorand SDK React Native support

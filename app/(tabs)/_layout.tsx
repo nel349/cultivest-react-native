@@ -1,24 +1,25 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Dumbbell, User } from 'lucide-react-native';
+import { Home, TrendingUp, Wallet, User } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarActiveTintColor: '#00D4AA',
+        tabBarInactiveTintColor: '#8B9DC3',
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: '#0D1421',
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
-          paddingTop: 5,
-          paddingBottom: 5,
-          height: 60,
+          borderTopColor: '#2A3441',
+          paddingTop: 8,
+          paddingBottom: 8,
+          height: 70,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          marginTop: 4,
         },
       }}>
       <Tabs.Screen
@@ -31,11 +32,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="workouts"
+        name="invest"
         options={{
-          title: 'Workouts',
+          title: 'Invest',
           tabBarIcon: ({ size, color }) => (
-            <Dumbbell size={size} color={color} />
+            <TrendingUp size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="portfolio"
+        options={{
+          title: 'Portfolio',
+          tabBarIcon: ({ size, color }) => (
+            <Wallet size={size} color={color} />
           ),
         }}
       />

@@ -1,65 +1,79 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { TrendingUp, Shield, DollarSign, Leaf } from 'lucide-react-native';
+import { Leaf, Sprout, TreePine, Flower, Star, ArrowRight } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const features = [
     {
-      icon: DollarSign,
-      title: 'Start with $1',
-      description: 'Micro-investments in stable yields'
+      icon: Sprout,
+      title: 'Plant Your First Dollar',
+      description: 'Start with just $1 and watch it grow',
+      color: '#58CC02'
     },
     {
-      icon: TrendingUp,
-      title: '2-5% APY',
-      description: 'Earn consistent returns on USDCa'
+      icon: TreePine,
+      title: 'Grow Your Garden',
+      description: 'Earn 2-5% APY on stablecoins',
+      color: '#00D4AA'
     },
     {
-      icon: Shield,
-      title: 'GENIUS Act Safe',
-      description: 'Regulated stablecoin investments'
+      icon: Flower,
+      title: 'Daily Blooms',
+      description: 'See your earnings flower every day',
+      color: '#FF9500'
     },
     {
-      icon: Leaf,
-      title: 'Watch It Grow',
-      description: 'Your money tree grows with yields'
+      icon: Star,
+      title: 'Level Up',
+      description: 'Unlock achievements as you grow',
+      color: '#FFD900'
     }
   ];
 
   return (
     <LinearGradient
-      colors={['#0D1421', '#1A2332', '#0D1421']}
+      colors={['#89E5AB', '#58CC02', '#46A302']}
       style={styles.container}
     >
+      {/* Decorative Plants */}
+      <View style={styles.decorationContainer}>
+        <View style={[styles.plantDecor, { top: 60, left: 20 }]}>
+          <Leaf size={24} color="rgba(255,255,255,0.3)" />
+        </View>
+        <View style={[styles.plantDecor, { top: 100, right: 30 }]}>
+          <Sprout size={20} color="rgba(255,255,255,0.2)" />
+        </View>
+        <View style={[styles.plantDecor, { top: 140, left: width - 60 }]}>
+          <Flower size={18} color="rgba(255,255,255,0.25)" />
+        </View>
+      </View>
+
       <View style={styles.content}>
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <View style={styles.logoContainer}>
-            <LinearGradient
-              colors={['#00D4AA', '#00B4D8']}
-              style={styles.logoGradient}
-            >
-              <Leaf size={32} color="#FFFFFF" />
-            </LinearGradient>
+            <View style={styles.logoBackground}>
+              <Leaf size={40} color="#FFFFFF" />
+            </View>
           </View>
           
           <Text style={styles.title}>Cultivest</Text>
           <Text style={styles.subtitle}>
-            Grow your savings with{'\n'}stablecoin micro-investments
+            Grow your wealth, one seed at a time 🌱
           </Text>
           
-          {/* Money Tree Illustration */}
+          {/* Main Illustration */}
           <View style={styles.illustrationContainer}>
-            <LinearGradient
-              colors={['#00D4AA20', '#00B4D820']}
-              style={styles.treeBackground}
-            >
-              <Leaf size={64} color="#00D4AA" />
-            </LinearGradient>
-            <Text style={styles.illustrationText}>$0.003 earned today</Text>
+            <View style={styles.treeContainer}>
+              <TreePine size={80} color="#2E7D32" />
+              <View style={styles.coinBadge}>
+                <Text style={styles.coinText}>+$0.03</Text>
+              </View>
+            </View>
+            <Text style={styles.illustrationText}>Your money tree is ready to grow!</Text>
           </View>
         </View>
 
@@ -67,8 +81,8 @@ export default function WelcomeScreen() {
         <View style={styles.featuresContainer}>
           {features.map((feature, index) => (
             <View key={index} style={styles.featureCard}>
-              <View style={[styles.featureIcon, { backgroundColor: `#00D4AA${Math.floor(255 * 0.1).toString(16)}` }]}>
-                <feature.icon size={20} color="#00D4AA" />
+              <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
+                <feature.icon size={24} color="#FFFFFF" />
               </View>
               <Text style={styles.featureTitle}>{feature.title}</Text>
               <Text style={styles.featureDescription}>{feature.description}</Text>
@@ -83,15 +97,16 @@ export default function WelcomeScreen() {
             onPress={() => router.push('/(auth)/signup')}
           >
             <LinearGradient
-              colors={['#00D4AA', '#00B4D8']}
+              colors={['#FFFFFF', '#F0F0F0']}
               style={styles.buttonGradient}
             >
-              <Text style={styles.primaryButtonText}>Start Growing</Text>
+              <Text style={styles.primaryButtonText}>Start Growing Today</Text>
+              <ArrowRight size={20} color="#58CC02" />
             </LinearGradient>
           </TouchableOpacity>
           
           <Text style={styles.disclaimer}>
-            FDIC insured • GENIUS Act compliant • Start with just $1
+            🌿 FDIC insured • GENIUS Act compliant • Start with just $1
           </Text>
         </View>
       </View>
@@ -103,10 +118,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  decorationContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  plantDecor: {
+    position: 'absolute',
+    opacity: 0.6,
+  },
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 80,
     paddingBottom: 40,
   },
   heroSection: {
@@ -114,43 +138,65 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  logoGradient: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  logoBackground: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: 36,
+    fontWeight: '800',
     color: '#FFFFFF',
     marginBottom: 8,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   subtitle: {
     fontSize: 18,
-    color: '#8B9DC3',
+    color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 32,
+    marginBottom: 30,
+    fontWeight: '500',
   },
   illustrationContainer: {
     alignItems: 'center',
+    marginBottom: 20,
   },
-  treeBackground: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    justifyContent: 'center',
+  treeContainer: {
+    position: 'relative',
     alignItems: 'center',
     marginBottom: 12,
   },
+  coinBadge: {
+    position: 'absolute',
+    top: -10,
+    right: -20,
+    backgroundColor: '#FFD900',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  coinText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
   illustrationText: {
-    fontSize: 14,
-    color: '#00D4AA',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
     fontWeight: '600',
+    textAlign: 'center',
   },
   featuresContainer: {
     flexDirection: 'row',
@@ -160,54 +206,70 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: '48%',
-    backgroundColor: '#1A2332',
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 20,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   featureIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
   featureTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 4,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 6,
+    textAlign: 'center',
   },
   featureDescription: {
     fontSize: 14,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
     lineHeight: 18,
+    textAlign: 'center',
   },
   ctaSection: {
     marginTop: 'auto',
+    alignItems: 'center',
   },
   primaryButton: {
-    borderRadius: 12,
+    borderRadius: 20,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonGradient: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 40,
+    borderRadius: 20,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   primaryButtonText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#58CC02',
   },
   disclaimer: {
     fontSize: 12,
-    color: '#8B9DC3',
+    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
     lineHeight: 16,
+    fontWeight: '500',
   },
 });

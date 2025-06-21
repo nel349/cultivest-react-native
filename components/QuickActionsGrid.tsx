@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { LucideIcon } from 'lucide-react-native';
+import { Video as LucideIcon } from 'lucide-react-native';
 
 interface QuickAction {
   title: string;

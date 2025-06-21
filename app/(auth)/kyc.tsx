@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Shield, CheckCircle, ArrowRight, Wallet } from 'lucide-react-native';
+import { Shield, CircleCheck as CheckCircle, ArrowRight, Wallet } from 'lucide-react-native';
 
 export default function KYCScreen() {
   const [isLoading, setIsLoading] = useState(false);

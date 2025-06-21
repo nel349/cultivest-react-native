@@ -1,9 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { 
-  Settings, Award, Bell, Shield, HelpCircle, LogOut, 
-  User, Mail, Phone, ChevronRight, Star 
-} from 'lucide-react-native';
+import { Settings, Award, Bell, Shield, CircleHelp as HelpCircle, LogOut, User, Mail, Phone, ChevronRight, Star } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const userProfile = {

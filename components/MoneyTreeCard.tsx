@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Leaf } from 'lucide-react-native';
+import { TreePine } from 'lucide-react-native';
 
 interface MoneyTreeCardProps {
   leaves: number;
@@ -11,21 +11,18 @@ export function MoneyTreeCard({ leaves, weeklyGrowth }: MoneyTreeCardProps) {
   return (
     <TouchableOpacity style={styles.container}>
       <LinearGradient
-        colors={['#1A2332', '#2A3441']}
+        colors={['#FFFFFF', '#F8F8F8']}
         style={styles.card}
       >
         <View style={styles.iconContainer}>
-          <LinearGradient
-            colors={['#00D4AA20', '#00B4D820']}
-            style={styles.iconBackground}
-          >
-            <Leaf size={24} color="#00D4AA" />
-          </LinearGradient>
+          <View style={styles.iconBackground}>
+            <TreePine size={24} color="#58CC02" />
+          </View>
         </View>
 
-        <Text style={styles.title}>Money Tree</Text>
+        <Text style={styles.title}>Money Tree 🌳</Text>
         <Text style={styles.leavesCount}>{leaves} leaves</Text>
-        <Text style={styles.growth}>+{weeklyGrowth}% this week</Text>
+        <Text style={styles.growth}>+{weeklyGrowth}% growth</Text>
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -36,37 +33,41 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
     height: 140,
   },
   iconContainer: {
     marginBottom: 12,
   },
   iconBackground: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E8F5E8',
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
-    fontSize: 14,
-    color: '#8B9DC3',
-    fontWeight: '500',
+    fontSize: 16,
+    color: '#2E7D32',
+    fontWeight: '700',
     marginBottom: 4,
   },
   leavesCount: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#2E7D32',
     marginBottom: 4,
   },
   growth: {
-    fontSize: 12,
-    color: '#00D4AA',
+    fontSize: 14,
+    color: '#58CC02',
     fontWeight: '600',
   },
 });

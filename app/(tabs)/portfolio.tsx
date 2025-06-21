@@ -1,211 +1,244 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrendingUp, TrendingDown, Wallet, Calendar, ArrowUpRight } from 'lucide-react-native';
+import { 
+  TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, 
+  Leaf, TreePine, Sprout, Flower, Calendar, DollarSign 
+} from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function PortfolioScreen() {
-  const [timeframe, setTimeframe] = useState('1W');
-
+  const [selectedPeriod, setSelectedPeriod] = useState('1W');
+  
   const portfolioData = {
     totalValue: 127.45,
     totalGain: 12.87,
-    gainPercentage: 11.2,
-    positions: [
-      {
-        id: '1',
-        name: 'USDCa Yield Pool',
-        amount: 102.45,
-        apy: 2.5,
-        dailyYield: 0.007,
-        status: 'active',
-        startDate: '2024-01-15'
-      },
-      {
-        id: '2',
-        name: 'ALGO Staking',
-        amount: 25.00,
-        apy: 4.2,
-        dailyYield: 0.003,
-        status: 'active',
-        startDate: '2024-01-20'
-      }
-    ],
-    recentYields: [
-      { date: '2024-01-25', amount: 0.31 },
-      { date: '2024-01-24', amount: 0.29 },
-      { date: '2024-01-23', amount: 0.28 },
-      { date: '2024-01-22', amount: 0.30 },
-      { date: '2024-01-21', amount: 0.27 }
-    ]
+    totalGainPercent: 11.2,
+    dailyChange: 0.31,
+    dailyChangePercent: 0.24
   };
 
-  const timeframes = ['1D', '1W', '1M', '3M', '1Y'];
+  const timePeriods = ['1D', '1W', '1M', '3M', '1Y'];
+
+  const holdings = [
+    {
+      id: 'stable-garden',
+      name: 'Stable Garden 🌿',
+      amount: 85.20,
+      shares: 85.20,
+      apy: '2.5%',
+      gain: 7.40,
+      gainPercent: 9.5,
+      color: '#58CC02',
+      icon: Leaf
+    },
+    {
+      id: 'growth-sprouts',
+      name: 'Growth Sprouts 🌱',
+      amount: 42.25,
+      shares: 40.12,
+      apy: '4.2%',
+      gain: 5.47,
+      gainPercent: 14.9,
+      color: '#00D4AA',
+      icon: Sprout
+    }
+  ];
+
+  const recentHarvests = [
+    {
+      id: '1',
+      type: 'yield',
+      amount: 0.31,
+      description: 'Daily yield from Stable Garden',
+      date: '2 hours ago',
+      icon: Leaf,
+      color: '#58CC02'
+    },
+    {
+      id: '2',
+      type: 'yield',
+      amount: 0.18,
+      description: 'Daily yield from Growth Sprouts',
+      date: '2 hours ago',
+      icon: Sprout,
+      color: '#00D4AA'
+    },
+    {
+      id: '3',
+      type: 'plant',
+      amount: 25.00,
+      description: 'New seeds planted in Stable Garden',
+      date: 'Yesterday',
+      icon: Leaf,
+      color: '#58CC02'
+    }
+  ];
 
   return (
     <LinearGradient
-      colors={['#0D1421', '#1A2332']}
+      colors={['#89E5AB', '#58CC02', '#46A302']}
       style={styles.container}
     >
+      {/* Floating Plant Decorations */}
+      <View style={styles.decorationContainer}>
+        <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+          <TreePine size={22} color="#FFFFFF" />
+        </View>
+        <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+          <Flower size={18} color="#FFFFFF" />
+        </View>
+        <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
+          <Sprout size={20} color="#FFFFFF" />
+        </View>
+      </View>
+
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Portfolio</Text>
-          <TouchableOpacity style={styles.calendarButton}>
-            <Calendar size={24} color="#8B9DC3" />
-          </TouchableOpacity>
+          <Text style={styles.title}>Your Garden Portfolio 🌻</Text>
+          <Text style={styles.subtitle}>Watch your investments bloom</Text>
         </View>
 
-        {/* Portfolio Summary */}
-        <View style={styles.section}>
+        {/* Portfolio Value Card */}
+        <View style={styles.portfolioCard}>
           <LinearGradient
-            colors={['#1A2332', '#2A3441']}
-            style={styles.summaryCard}
+            colors={['#FFFFFF', '#F8F8F8']}
+            style={styles.portfolioCardGradient}
           >
-            <View style={styles.summaryHeader}>
-              <Text style={styles.summaryLabel}>Total Portfolio Value</Text>
-              <View style={styles.gainIndicator}>
-                <TrendingUp size={16} color="#00D4AA" />
-                <Text style={styles.gainText}>
-                  +${portfolioData.totalGain.toFixed(2)} ({portfolioData.gainPercentage.toFixed(1)}%)
-                </Text>
+            <View style={styles.portfolioHeader}>
+              <View style={styles.portfolioIcon}>
+                <TreePine size={24} color="#58CC02" />
               </View>
+              <Text style={styles.portfolioLabel}>Total Garden Value</Text>
             </View>
-            <Text style={styles.totalValue}>
+            
+            <Text style={styles.portfolioValue}>
               ${portfolioData.totalValue.toFixed(2)}
             </Text>
             
-            {/* Timeframe Selector */}
-            <View style={styles.timeframeSelector}>
-              {timeframes.map((tf) => (
-                <TouchableOpacity
-                  key={tf}
-                  style={[
-                    styles.timeframeButton,
-                    timeframe === tf && styles.timeframeButtonActive
-                  ]}
-                  onPress={() => setTimeframe(tf)}
-                >
-                  <Text style={[
-                    styles.timeframeText,
-                    timeframe === tf && styles.timeframeTextActive
-                  ]}>
-                    {tf}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            <View style={styles.portfolioGains}>
+              <View style={styles.gainItem}>
+                <TrendingUp size={16} color="#58CC02" />
+                <Text style={styles.gainText}>
+                  +${portfolioData.totalGain.toFixed(2)} ({portfolioData.totalGainPercent}%)
+                </Text>
+              </View>
+              <View style={styles.gainItem}>
+                <Text style={styles.dailyChangeLabel}>Today:</Text>
+                <Text style={[
+                  styles.dailyChangeValue,
+                  { color: portfolioData.dailyChange >= 0 ? '#58CC02' : '#FF4444' }
+                ]}>
+                  {portfolioData.dailyChange >= 0 ? '+' : ''}${portfolioData.dailyChange.toFixed(2)}
+                </Text>
+              </View>
             </View>
           </LinearGradient>
         </View>
 
-        {/* Active Positions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Active Positions</Text>
-          {portfolioData.positions.map((position) => (
-            <TouchableOpacity key={position.id} style={styles.positionCard}>
-              <LinearGradient
-                colors={['#1A2332', '#2A3441']}
-                style={styles.positionCardGradient}
+        {/* Time Period Selector */}
+        <View style={styles.periodSelector}>
+          <Text style={styles.sectionTitle}>Performance 📈</Text>
+          <View style={styles.periodButtons}>
+            {timePeriods.map((period) => (
+              <TouchableOpacity
+                key={period}
+                style={[
+                  styles.periodButton,
+                  selectedPeriod === period && styles.periodButtonActive
+                ]}
+                onPress={() => setSelectedPeriod(period)}
               >
-                <View style={styles.positionHeader}>
-                  <View style={styles.positionInfo}>
-                    <Text style={styles.positionName}>{position.name}</Text>
-                    <Text style={styles.positionDate}>
-                      Since {new Date(position.startDate).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <View style={styles.positionStats}>
-                    <Text style={styles.positionAmount}>
-                      ${position.amount.toFixed(2)}
-                    </Text>
-                    <Text style={styles.positionApy}>
-                      {position.apy}% APY
-                    </Text>
-                  </View>
-                </View>
-                
-                <View style={styles.positionFooter}>
-                  <View style={styles.dailyYield}>
-                    <Text style={styles.dailyYieldLabel}>Daily Yield</Text>
-                    <Text style={styles.dailyYieldAmount}>
-                      +${position.dailyYield.toFixed(3)}
-                    </Text>
-                  </View>
-                  <View style={styles.positionStatus}>
-                    <View style={styles.statusDot} />
-                    <Text style={styles.statusText}>Active</Text>
-                  </View>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
+                <Text style={[
+                  styles.periodButtonText,
+                  selectedPeriod === period && styles.periodButtonTextActive
+                ]}>
+                  {period}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Holdings Section */}
+        <View style={styles.holdingsSection}>
+          <Text style={styles.sectionTitle}>Your Gardens 🌱</Text>
+          
+          {holdings.map((holding) => (
+            <View key={holding.id} style={styles.holdingCard}>
+              <View style={[styles.holdingIcon, { backgroundColor: holding.color }]}>
+                <holding.icon size={24} color="#FFFFFF" />
+              </View>
+              
+              <View style={styles.holdingInfo}>
+                <Text style={styles.holdingName}>{holding.name}</Text>
+                <Text style={styles.holdingShares}>
+                  {holding.shares.toFixed(2)} shares • {holding.apy} APY
+                </Text>
+              </View>
+              
+              <View style={styles.holdingValues}>
+                <Text style={styles.holdingAmount}>
+                  ${holding.amount.toFixed(2)}
+                </Text>
+                <Text style={[
+                  styles.holdingGain,
+                  { color: holding.gain >= 0 ? '#58CC02' : '#FF4444' }
+                ]}>
+                  {holding.gain >= 0 ? '+' : ''}${holding.gain.toFixed(2)} ({holding.gainPercent}%)
+                </Text>
+              </View>
+            </View>
           ))}
         </View>
 
-        {/* Recent Yields */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Yields</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllButton}>See All</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <LinearGradient
-            colors={['#1A2332', '#2A3441']}
-            style={styles.yieldsCard}
-          >
-            {portfolioData.recentYields.map((yield_, index) => (
-              <View
-                key={yield_.date}
-                style={[
-                  styles.yieldItem,
-                  index < portfolioData.recentYields.length - 1 && styles.yieldItemBorder
-                ]}
-              >
-                <View style={styles.yieldLeft}>
-                  <View style={styles.yieldIcon}>
-                    <TrendingUp size={16} color="#00D4AA" />
-                  </View>
-                  <View>
-                    <Text style={styles.yieldDate}>
-                      {new Date(yield_.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </Text>
-                    <Text style={styles.yieldDescription}>Daily yield earned</Text>
-                  </View>
-                </View>
-                <Text style={styles.yieldAmount}>
-                  +${yield_.amount.toFixed(2)}
-                </Text>
-              </View>
-            ))}
-          </LinearGradient>
-        </View>
-
         {/* Quick Actions */}
-        <View style={styles.section}>
-          <View style={styles.quickActions}>
-            <TouchableOpacity style={styles.quickActionButton}>
-              <LinearGradient
-                colors={['#00D4AA', '#00B4D8']}
-                style={styles.quickActionGradient}
-              >
-                <Text style={styles.quickActionText}>Add Funds</Text>
-                <ArrowUpRight size={16} color="#FFFFFF" />
-              </LinearGradient>
+        <View style={styles.quickActionsSection}>
+          <Text style={styles.sectionTitle}>Quick Actions 🚀</Text>
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#E8F5E8' }]}>
+              <View style={[styles.quickActionIcon, { backgroundColor: '#58CC02' }]}>
+                <ArrowUpRight size={20} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickActionText}>Plant More</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.quickActionButton}>
-              <LinearGradient
-                colors={['#1A2332', '#2A3441']}
-                style={[styles.quickActionGradient, styles.secondaryAction]}
-              >
-                <Text style={[styles.quickActionText, styles.secondaryActionText]}>
-                  Withdraw
-                </Text>
-                <ArrowUpRight size={16} color="#8B9DC3" />
-              </LinearGradient>
+            <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#FFF3E0' }]}>
+              <View style={[styles.quickActionIcon, { backgroundColor: '#FF9500' }]}>
+                <ArrowDownLeft size={20} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickActionText}>Harvest</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Recent Activity */}
+        <View style={styles.activitySection}>
+          <Text style={styles.sectionTitle}>Recent Harvests 🌾</Text>
+          <View style={styles.activityContainer}>
+            {recentHarvests.map((activity) => (
+              <View key={activity.id} style={styles.activityItem}>
+                <View style={[styles.activityIcon, { backgroundColor: `${activity.color}20` }]}>
+                  <activity.icon size={20} color={activity.color} />
+                </View>
+                
+                <View style={styles.activityContent}>
+                  <Text style={styles.activityDescription}>{activity.description}</Text>
+                  <Text style={styles.activityDate}>{activity.date}</Text>
+                </View>
+                
+                <View style={styles.activityAmount}>
+                  <Text style={[
+                    styles.activityAmountText,
+                    { color: activity.type === 'yield' ? '#58CC02' : '#FF9500' }
+                  ]}>
+                    {activity.type === 'yield' ? '+' : ''}${activity.amount.toFixed(2)}
+                  </Text>
+                </View>
+              </View>
+            ))}
           </View>
         </View>
 
@@ -219,256 +252,272 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  decorationContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+  },
+  plantDecor: {
+    position: 'absolute',
+  },
   scrollView: {
     flex: 1,
+    zIndex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 20,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
-  calendarButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#1A2332',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2A3441',
+  subtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+    fontWeight: '500',
   },
-  section: {
-    paddingHorizontal: 24,
+  portfolioCard: {
+    marginHorizontal: 24,
     marginBottom: 24,
-  },
-  summaryCard: {
     borderRadius: 20,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  summaryHeader: {
+  portfolioCardGradient: {
+    borderRadius: 20,
+    padding: 20,
+  },
+  portfolioHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
   },
-  summaryLabel: {
-    fontSize: 16,
-    color: '#8B9DC3',
-    fontWeight: '500',
+  portfolioIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E8F5E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
-  gainIndicator: {
+  portfolioLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2E7D32',
+  },
+  portfolioValue: {
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#2E7D32',
+    marginBottom: 16,
+  },
+  portfolioGains: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  gainItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   gainText: {
-    fontSize: 14,
-    color: '#00D4AA',
+    fontSize: 16,
     fontWeight: '600',
+    color: '#58CC02',
   },
-  totalValue: {
-    fontSize: 36,
+  dailyChangeLabel: {
+    fontSize: 14,
+    color: '#5A5A5A',
+    fontWeight: '500',
+  },
+  dailyChangeValue: {
+    fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+  },
+  periodSelector: {
     marginBottom: 24,
-  },
-  timeframeSelector: {
-    flexDirection: 'row',
-    backgroundColor: '#0D1421',
-    borderRadius: 12,
-    padding: 4,
-  },
-  timeframeButton: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  timeframeButtonActive: {
-    backgroundColor: '#00D4AA',
-  },
-  timeframeText: {
-    fontSize: 14,
-    color: '#8B9DC3',
-    fontWeight: '600',
-  },
-  timeframeTextActive: {
-    color: '#FFFFFF',
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
+    marginHorizontal: 24,
     marginBottom: 16,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  sectionHeader: {
+  periodButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    paddingHorizontal: 24,
+    gap: 8,
   },
-  seeAllButton: {
-    fontSize: 14,
-    color: '#00D4AA',
-    fontWeight: '600',
-  },
-  positionCard: {
+  periodButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  periodButtonActive: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+  },
+  periodButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.8)',
+  },
+  periodButtonTextActive: {
+    color: '#58CC02',
+  },
+  holdingsSection: {
+    marginBottom: 24,
+  },
+  holdingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 24,
     marginBottom: 12,
-  },
-  positionCardGradient: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  positionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  positionInfo: {
-    flex: 1,
-  },
-  positionName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  positionDate: {
-    fontSize: 12,
-    color: '#8B9DC3',
-  },
-  positionStats: {
-    alignItems: 'flex-end',
-  },
-  positionAmount: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  positionApy: {
-    fontSize: 12,
-    color: '#00D4AA',
-    fontWeight: '600',
-  },
-  positionFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  dailyYield: {
-    flex: 1,
-  },
-  dailyYieldLabel: {
-    fontSize: 12,
-    color: '#8B9DC3',
-    marginBottom: 2,
-  },
-  dailyYieldAmount: {
-    fontSize: 14,
-    color: '#00D4AA',
-    fontWeight: '600',
-  },
-  positionStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#00D4AA',
-  },
-  statusText: {
-    fontSize: 12,
-    color: '#8B9DC3',
-  },
-  yieldsCard: {
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A3441',
-  },
-  yieldItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  yieldItemBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#2A3441',
-  },
-  yieldLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  yieldIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#00D4AA20',
+  holdingIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  yieldDate: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+  holdingInfo: {
+    flex: 1,
+  },
+  holdingName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 4,
+  },
+  holdingShares: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '500',
+  },
+  holdingValues: {
+    alignItems: 'flex-end',
+  },
+  holdingAmount: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2E7D32',
     marginBottom: 2,
   },
-  yieldDescription: {
+  holdingGain: {
     fontSize: 12,
-    color: '#8B9DC3',
-  },
-  yieldAmount: {
-    fontSize: 14,
     fontWeight: '600',
-    color: '#00D4AA',
   },
-  quickActions: {
+  quickActionsSection: {
+    marginBottom: 24,
+  },
+  quickActionsGrid: {
     flexDirection: 'row',
+    paddingHorizontal: 24,
     gap: 12,
   },
-  quickActionButton: {
+  quickActionCard: {
     flex: 1,
-    borderRadius: 12,
-  },
-  quickActionGradient: {
-    flexDirection: 'row',
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  secondaryAction: {
-    borderWidth: 1,
-    borderColor: '#2A3441',
+  quickActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   quickActionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#2E7D32',
   },
-  secondaryActionText: {
-    color: '#8B9DC3',
+  activitySection: {
+    marginBottom: 24,
+  },
+  activityContainer: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    marginHorizontal: 24,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  activityIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityDescription: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2E7D32',
+    marginBottom: 2,
+  },
+  activityDate: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '500',
+  },
+  activityAmount: {
+    alignItems: 'flex-end',
+  },
+  activityAmountText: {
+    fontSize: 16,
+    fontWeight: '700',
   },
   bottomSpacing: {
     height: 100,

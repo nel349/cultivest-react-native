@@ -20,42 +20,39 @@ export default function KYCScreen() {
   const kycSteps = [
     {
       icon: Shield,
-      title: 'Identity Verification',
+      title: 'Identity Verification 🛡️',
       description: 'Quick 2-minute process with MoonPay',
       status: 'pending'
     },
     {
       icon: Wallet,
-      title: 'Wallet Creation',
-      description: 'Secure custodial wallet setup',
+      title: 'Garden Wallet Setup 🌱',
+      description: 'Secure custodial wallet for your seeds',
       status: 'pending'
     },
     {
       icon: CheckCircle,
-      title: 'Ready to Invest',
-      description: 'Start with just $1 in USDCa yields',
+      title: 'Ready to Plant! 🌿',
+      description: 'Start growing with just $1',
       status: 'pending'
     }
   ];
 
   return (
     <LinearGradient
-      colors={['#0D1421', '#1A2332']}
+      colors={['#89E5AB', '#58CC02', '#46A302']}
       style={styles.container}
     >
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <View style={styles.headerSection}>
-            <LinearGradient
-              colors={['#00D4AA20', '#00B4D820']}
-              style={styles.iconContainer}
-            >
-              <Shield size={40} color="#00D4AA" />
-            </LinearGradient>
+            <View style={styles.iconContainer}>
+              <Shield size={40} color="#58CC02" />
+            </View>
             
-            <Text style={styles.title}>Almost there!</Text>
+            <Text style={styles.title}>Almost Ready to Grow! 🌱</Text>
             <Text style={styles.subtitle}>
-              Complete your profile to start investing in stablecoin yields
+              Complete your garden setup to start planting seeds and growing your wealth
             </Text>
           </View>
 
@@ -63,7 +60,7 @@ export default function KYCScreen() {
             {kycSteps.map((step, index) => (
               <View key={index} style={styles.stepCard}>
                 <View style={styles.stepIcon}>
-                  <step.icon size={24} color="#00D4AA" />
+                  <step.icon size={24} color="#58CC02" />
                 </View>
                 <View style={styles.stepContent}>
                   <Text style={styles.stepTitle}>{step.title}</Text>
@@ -77,19 +74,19 @@ export default function KYCScreen() {
           </View>
 
           <View style={styles.benefitsSection}>
-            <Text style={styles.benefitsTitle}>Why verify?</Text>
+            <Text style={styles.benefitsTitle}>Why complete setup? 🌟</Text>
             <View style={styles.benefitsList}>
               <View style={styles.benefitItem}>
-                <CheckCircle size={16} color="#00D4AA" />
+                <CheckCircle size={16} color="#58CC02" />
                 <Text style={styles.benefitText}>GENIUS Act compliant</Text>
               </View>
               <View style={styles.benefitItem}>
-                <CheckCircle size={16} color="#00D4AA" />
-                <Text style={styles.benefitText}>Secure fund transfers</Text>
+                <CheckCircle size={16} color="#58CC02" />
+                <Text style={styles.benefitText}>Secure seed transfers</Text>
               </View>
               <View style={styles.benefitItem}>
-                <CheckCircle size={16} color="#00D4AA" />
-                <Text style={styles.benefitText}>Higher investment limits</Text>
+                <CheckCircle size={16} color="#58CC02" />
+                <Text style={styles.benefitText}>Higher planting limits</Text>
               </View>
             </View>
           </View>
@@ -100,18 +97,18 @@ export default function KYCScreen() {
             disabled={isLoading}
           >
             <LinearGradient
-              colors={isLoading ? ['#666', '#666'] : ['#00D4AA', '#00B4D8']}
+              colors={isLoading ? ['#C0C0C0', '#C0C0C0'] : ['#FFFFFF', '#F0F0F0']}
               style={styles.buttonGradient}
             >
               <Text style={styles.continueButtonText}>
-                {isLoading ? 'Setting up...' : 'Complete Setup'}
+                {isLoading ? 'Planting seeds...' : 'Start Growing! 🌱'}
               </Text>
-              {!isLoading && <ArrowRight size={20} color="#FFFFFF" />}
+              {!isLoading && <ArrowRight size={20} color="#58CC02" />}
             </LinearGradient>
           </TouchableOpacity>
 
           <Text style={styles.disclaimer}>
-            Your data is encrypted and protected. We partner with MoonPay for 
+            Your data is encrypted and protected like seeds in fertile soil. We partner with MoonPay for 
             secure identity verification and comply with all financial regulations.
           </Text>
         </View>
@@ -140,21 +137,27 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#FFFFFF',
     marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   subtitle: {
     fontSize: 16,
-    color: '#8B9DC3',
+    color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
     lineHeight: 22,
+    fontWeight: '500',
   },
   stepsContainer: {
     marginBottom: 32,
@@ -162,18 +165,21 @@ const styles = StyleSheet.create({
   stepCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A2332',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   stepIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#00D4AA20',
+    backgroundColor: '#E8F5E8',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -183,13 +189,14 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#2E7D32',
     marginBottom: 4,
   },
   stepDescription: {
     fontSize: 14,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
+    fontWeight: '500',
   },
   stepStatus: {
     marginLeft: 12,
@@ -198,20 +205,23 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#8B9DC3',
+    backgroundColor: '#58CC02',
   },
   benefitsSection: {
-    backgroundColor: '#1A2332',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 16,
     padding: 20,
     marginBottom: 32,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   benefitsTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#2E7D32',
     marginBottom: 16,
   },
   benefitsList: {
@@ -223,12 +233,18 @@ const styles = StyleSheet.create({
   },
   benefitText: {
     fontSize: 14,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
     marginLeft: 12,
+    fontWeight: '500',
   },
   continueButton: {
-    borderRadius: 12,
+    borderRadius: 20,
     marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -237,19 +253,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 18,
+    borderRadius: 20,
     gap: 8,
   },
   continueButtonText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#58CC02',
   },
   disclaimer: {
     fontSize: 12,
-    color: '#8B9DC3',
+    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
     lineHeight: 16,
+    fontWeight: '500',
   },
 });

@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrendingUp, Shield, Info, ArrowRight } from 'lucide-react-native';
+import { TrendingUp, Shield, Info, ArrowRight, Leaf, Sprout, TreePine, Star, Zap } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function InvestScreen() {
   const [investmentAmount, setInvestmentAmount] = useState('');
@@ -10,46 +12,119 @@ export default function InvestScreen() {
   const investmentPools = [
     {
       id: 'usdca-pool',
-      name: 'USDCa Yield Pool',
+      name: 'Stable Garden 🌿',
       apy: '2.5%',
       risk: 'Low',
-      description: 'Stable returns from USDCa lending',
+      description: 'Steady growth from stable yields',
       tvl: '$2.4M',
-      color: '#00D4AA'
+      color: '#58CC02',
+      icon: Leaf,
+      bgColor: '#E8F5E8'
     },
     {
       id: 'algo-pool',
-      name: 'ALGO Staking',
+      name: 'Growth Sprouts 🌱',
       apy: '4.2%',
       risk: 'Medium',
-      description: 'Algorand consensus rewards',
+      description: 'Higher yields with moderate risk',
       tvl: '$1.8M',
-      color: '#00B4D8'
+      color: '#00D4AA',
+      icon: Sprout,
+      bgColor: '#E0F7FA'
+    },
+    {
+      id: 'premium-pool',
+      name: 'Money Tree Forest 🌳',
+      apy: '6.8%',
+      risk: 'High',
+      description: 'Premium yields for experienced gardeners',
+      tvl: '$960K',
+      color: '#FF9500',
+      icon: TreePine,
+      bgColor: '#FFF3E0'
     }
   ];
 
-  const quickAmounts = [1, 5, 10, 25, 50];
+  const quickAmounts = ['$10', '$25', '$50', '$100'];
 
-  const calculateYield = (amount: number, apy: number) => {
-    return (amount * apy / 100 / 365).toFixed(4);
+  const selectedPoolData = investmentPools.find(pool => pool.id === selectedPool);
+
+  const calculateEstimate = () => {
+    const amount = parseFloat(investmentAmount) || 0;
+    const apy = parseFloat(selectedPoolData?.apy || '0') / 100;
+    const dailyRate = apy / 365;
+    return {
+      daily: amount * dailyRate,
+      monthly: amount * (apy / 12),
+      yearly: amount * apy
+    };
   };
+
+  const estimates = calculateEstimate();
 
   return (
     <LinearGradient
-      colors={['#0D1421', '#1A2332']}
+      colors={['#89E5AB', '#58CC02', '#46A302']}
       style={styles.container}
     >
+      {/* Floating Plant Decorations */}
+      <View style={styles.decorationContainer}>
+        <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+          <Leaf size={20} color="#FFFFFF" />
+        </View>
+        <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+          <Sprout size={16} color="#FFFFFF" />
+        </View>
+        <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
+          <TreePine size={18} color="#FFFFFF" />
+        </View>
+      </View>
+
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Invest</Text>
-          <Text style={styles.subtitle}>
-            Start earning yields on your stablecoins
-          </Text>
+          <Text style={styles.title}>Grow Your Garden 🌱</Text>
+          <Text style={styles.subtitle}>Plant seeds and watch your wealth bloom</Text>
         </View>
 
-        {/* Investment Pools */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Choose Investment Pool</Text>
+        {/* Investment Amount Card */}
+        <View style={styles.amountCard}>
+          <LinearGradient
+            colors={['#FFFFFF', '#F8F8F8']}
+            style={styles.amountCardGradient}
+          >
+            <Text style={styles.amountLabel}>How much would you like to plant?</Text>
+            
+            <View style={styles.amountInputContainer}>
+              <Text style={styles.dollarSign}>$</Text>
+              <TextInput
+                style={styles.amountInput}
+                value={investmentAmount}
+                onChangeText={setInvestmentAmount}
+                placeholder="0"
+                placeholderTextColor="#C0C0C0"
+                keyboardType="numeric"
+              />
+            </View>
+
+            <View style={styles.quickAmountsContainer}>
+              {quickAmounts.map((amount) => (
+                <TouchableOpacity
+                  key={amount}
+                  style={styles.quickAmountButton}
+                  onPress={() => setInvestmentAmount(amount.substring(1))}
+                >
+                  <Text style={styles.quickAmountText}>{amount}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </LinearGradient>
+        </View>
+
+        {/* Garden Selection */}
+        <View style={styles.poolsSection}>
+          <Text style={styles.sectionTitle}>Choose Your Garden 🌻</Text>
+          
           {investmentPools.map((pool) => (
             <TouchableOpacity
               key={pool.id}
@@ -59,123 +134,91 @@ export default function InvestScreen() {
               ]}
               onPress={() => setSelectedPool(pool.id)}
             >
-              <LinearGradient
-                colors={['#1A2332', '#2A3441']}
-                style={styles.poolCardGradient}
-              >
+              <View style={[styles.poolCardContent, { backgroundColor: pool.bgColor }]}>
                 <View style={styles.poolHeader}>
+                  <View style={[styles.poolIcon, { backgroundColor: pool.color }]}>
+                    <pool.icon size={24} color="#FFFFFF" />
+                  </View>
                   <View style={styles.poolInfo}>
                     <Text style={styles.poolName}>{pool.name}</Text>
                     <Text style={styles.poolDescription}>{pool.description}</Text>
                   </View>
                   <View style={styles.poolStats}>
-                    <Text style={[styles.poolApy, { color: pool.color }]}>
-                      {pool.apy} APY
-                    </Text>
-                    <Text style={styles.poolRisk}>{pool.risk} Risk</Text>
+                    <Text style={styles.poolApy}>{pool.apy}</Text>
+                    <Text style={styles.poolApyLabel}>APY</Text>
                   </View>
                 </View>
-                <View style={styles.poolFooter}>
-                  <Text style={styles.poolTvl}>TVL: {pool.tvl}</Text>
-                  <View style={styles.poolBadge}>
-                    <Shield size={12} color="#00D4AA" />
-                    <Text style={styles.poolBadgeText}>GENIUS Act</Text>
+                
+                <View style={styles.poolDetails}>
+                  <View style={styles.poolDetail}>
+                    <Shield size={16} color="#5A5A5A" />
+                    <Text style={styles.poolDetailText}>Risk: {pool.risk}</Text>
+                  </View>
+                  <View style={styles.poolDetail}>
+                    <TrendingUp size={16} color="#5A5A5A" />
+                    <Text style={styles.poolDetailText}>TVL: {pool.tvl}</Text>
                   </View>
                 </View>
-              </LinearGradient>
+
+                {selectedPool === pool.id && (
+                  <View style={styles.selectedIndicator}>
+                    <Star size={16} color="#58CC02" />
+                    <Text style={styles.selectedText}>Selected Garden</Text>
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Investment Amount */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Investment Amount</Text>
-          
-          <LinearGradient
-            colors={['#1A2332', '#2A3441']}
-            style={styles.amountCard}
-          >
-            <View style={styles.amountInput}>
-              <Text style={styles.currencySymbol}>$</Text>
-              <TextInput
-                style={styles.amountTextInput}
-                value={investmentAmount}
-                onChangeText={setInvestmentAmount}
-                placeholder="0.00"
-                placeholderTextColor="#8B9DC3"
-                keyboardType="numeric"
-              />
-              <Text style={styles.currencyLabel}>USD</Text>
-            </View>
-            
-            <View style={styles.quickAmounts}>
-              {quickAmounts.map((amount) => (
-                <TouchableOpacity
-                  key={amount}
-                  style={styles.quickAmountButton}
-                  onPress={() => setInvestmentAmount(amount.toString())}
-                >
-                  <Text style={styles.quickAmountText}>${amount}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/* Investment Summary */}
+        {/* Growth Estimates */}
         {investmentAmount && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Investment Summary</Text>
-            
+          <View style={styles.estimatesCard}>
             <LinearGradient
-              colors={['#1A2332', '#2A3441']}
-              style={styles.summaryCard}
+              colors={['#FFFFFF', '#F8F8F8']}
+              style={styles.estimatesCardGradient}
             >
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Investment Amount</Text>
-                <Text style={styles.summaryValue}>${investmentAmount}</Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Expected Daily Yield</Text>
-                <Text style={styles.summaryValue}>
-                  ${calculateYield(parseFloat(investmentAmount) || 0, 2.5)}
-                </Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>APY</Text>
-                <Text style={[styles.summaryValue, { color: '#00D4AA' }]}>2.5%</Text>
+              <View style={styles.estimatesHeader}>
+                <Zap size={20} color="#58CC02" />
+                <Text style={styles.estimatesTitle}>Growth Forecast</Text>
               </View>
               
-              <View style={styles.riskDisclaimer}>
-                <Info size={16} color="#F59E0B" />
-                <Text style={styles.disclaimerText}>
-                  Investments carry risk. Past performance doesn't guarantee future results.
-                </Text>
+              <View style={styles.estimatesGrid}>
+                <View style={styles.estimateItem}>
+                  <Text style={styles.estimateLabel}>Daily</Text>
+                  <Text style={styles.estimateValue}>+${estimates.daily.toFixed(3)}</Text>
+                </View>
+                <View style={styles.estimateItem}>
+                  <Text style={styles.estimateLabel}>Monthly</Text>
+                  <Text style={styles.estimateValue}>+${estimates.monthly.toFixed(2)}</Text>
+                </View>
+                <View style={styles.estimateItem}>
+                  <Text style={styles.estimateLabel}>Yearly</Text>
+                  <Text style={styles.estimateValue}>+${estimates.yearly.toFixed(2)}</Text>
+                </View>
               </View>
             </LinearGradient>
           </View>
         )}
 
         {/* Invest Button */}
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={[
-              styles.investButton,
-              !investmentAmount && styles.investButtonDisabled
-            ]}
-            disabled={!investmentAmount}
+        <TouchableOpacity
+          style={[
+            styles.investButton,
+            (!investmentAmount || parseFloat(investmentAmount) <= 0) && styles.investButtonDisabled
+          ]}
+          disabled={!investmentAmount || parseFloat(investmentAmount) <= 0}
+        >
+          <LinearGradient
+            colors={['#FFFFFF', '#F0F0F0']}
+            style={styles.investButtonGradient}
           >
-            <LinearGradient
-              colors={investmentAmount ? ['#00D4AA', '#00B4D8'] : ['#666', '#666']}
-              style={styles.investButtonGradient}
-            >
-              <Text style={styles.investButtonText}>
-                Invest ${investmentAmount || '0.00'}
-              </Text>
-              <ArrowRight size={20} color="#FFFFFF" />
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+            <Text style={styles.investButtonText}>
+              Plant ${investmentAmount || '0'} Seeds 🌱
+            </Text>
+            <ArrowRight size={20} color="#58CC02" />
+          </LinearGradient>
+        </TouchableOpacity>
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
@@ -187,198 +230,271 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  decorationContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+  },
+  plantDecor: {
+    position: 'absolute',
+  },
   scrollView: {
     flex: 1,
+    zIndex: 1,
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 20,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#FFFFFF',
     marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   subtitle: {
     fontSize: 16,
-    color: '#8B9DC3',
+    color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+    fontWeight: '500',
   },
-  section: {
-    paddingHorizontal: 24,
+  amountCard: {
+    marginHorizontal: 24,
+    marginBottom: 24,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  amountCardGradient: {
+    borderRadius: 20,
+    padding: 20,
+  },
+  amountLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2E7D32',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  amountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  dollarSign: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#58CC02',
+    marginRight: 8,
+  },
+  amountInput: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#2E7D32',
+    textAlign: 'center',
+    minWidth: 120,
+  },
+  quickAmountsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  quickAmountButton: {
+    flex: 1,
+    backgroundColor: '#E8F5E8',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#58CC02',
+  },
+  quickAmountText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#58CC02',
+  },
+  poolsSection: {
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#FFFFFF',
+    marginHorizontal: 24,
     marginBottom: 16,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   poolCard: {
-    borderRadius: 16,
+    marginHorizontal: 24,
     marginBottom: 12,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  poolCardSelected: {
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  poolCardContent: {
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  poolCardSelected: {
-    borderColor: '#00D4AA',
-  },
-  poolCardGradient: {
-    borderRadius: 14,
-    padding: 20,
-  },
   poolHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
+  },
+  poolIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   poolInfo: {
     flex: 1,
   },
   poolName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2E7D32',
     marginBottom: 4,
   },
   poolDescription: {
     fontSize: 14,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
+    fontWeight: '500',
   },
   poolStats: {
     alignItems: 'flex-end',
   },
   poolApy: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 2,
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#2E7D32',
   },
-  poolRisk: {
+  poolApyLabel: {
     fontSize: 12,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
+    fontWeight: '600',
   },
-  poolFooter: {
+  poolDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  poolTvl: {
-    fontSize: 12,
-    color: '#8B9DC3',
-  },
-  poolBadge: {
+  poolDetail: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#00D4AA20',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
     gap: 4,
   },
-  poolBadgeText: {
-    fontSize: 10,
-    color: '#00D4AA',
-    fontWeight: '600',
+  poolDetailText: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '500',
   },
-  amountCard: {
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A3441',
-  },
-  amountInput: {
+  selectedIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    gap: 6,
   },
-  currencySymbol: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginRight: 8,
-  },
-  amountTextInput: {
-    flex: 1,
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    padding: 0,
-  },
-  currencyLabel: {
-    fontSize: 16,
-    color: '#8B9DC3',
+  selectedText: {
+    fontSize: 14,
     fontWeight: '600',
+    color: '#58CC02',
   },
-  quickAmounts: {
+  estimatesCard: {
+    marginHorizontal: 24,
+    marginBottom: 24,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  estimatesCardGradient: {
+    borderRadius: 20,
+    padding: 20,
+  },
+  estimatesHeader: {
     flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
     gap: 8,
   },
-  quickAmountButton: {
-    backgroundColor: '#2A3441',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  estimatesTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2E7D32',
   },
-  quickAmountText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  summaryCard: {
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A3441',
-  },
-  summaryRow: {
+  estimatesGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  estimateItem: {
     alignItems: 'center',
-    marginBottom: 12,
   },
-  summaryLabel: {
+  estimateLabel: {
     fontSize: 14,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
+    fontWeight: '500',
+    marginBottom: 4,
   },
-  summaryValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  riskDisclaimer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#F59E0B20',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 8,
-    gap: 8,
-  },
-  disclaimerText: {
-    fontSize: 12,
-    color: '#F59E0B',
-    flex: 1,
-    lineHeight: 16,
+  estimateValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#58CC02',
   },
   investButton: {
-    borderRadius: 12,
+    marginHorizontal: 24,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
   investButtonDisabled: {
     opacity: 0.5,
   },
   investButtonGradient: {
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
     gap: 8,
   },
   investButtonText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#58CC02',
   },
   bottomSpacing: {
     height: 100,

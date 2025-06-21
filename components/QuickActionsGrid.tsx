@@ -17,7 +17,7 @@ interface QuickActionsGridProps {
 export function QuickActionsGrid({ actions }: QuickActionsGridProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
+      <Text style={styles.sectionTitle}>Quick Actions 🚀</Text>
       <View style={styles.grid}>
         {actions.map((action, index) => (
           <TouchableOpacity
@@ -26,7 +26,7 @@ export function QuickActionsGrid({ actions }: QuickActionsGridProps) {
             onPress={action.onPress}
           >
             <LinearGradient
-              colors={['#1A2332', '#2A3441']}
+              colors={['#FFFFFF', '#F8F8F8']}
               style={styles.card}
             >
               <View style={[styles.iconContainer, { backgroundColor: `${action.color}20` }]}>
@@ -52,6 +52,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 16,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   grid: {
     flexDirection: 'row',
@@ -65,26 +68,30 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#2A3441',
     height: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
   actionTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#2E7D32',
     marginBottom: 2,
   },
   actionSubtitle: {
     fontSize: 12,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
+    fontWeight: '500',
   },
 });

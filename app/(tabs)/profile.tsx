@@ -1,196 +1,192 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Settings, Award, Bell, Shield, CircleHelp as HelpCircle, LogOut, User, Mail, Phone, ChevronRight, Star } from 'lucide-react-native';
+import { 
+  User, Settings, Bell, Shield, HelpCircle, LogOut, 
+  ChevronRight, TreePine, Trophy, Target, Star,
+  Leaf, Sprout, Flower, Crown
+} from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {
-  const userProfile = {
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@email.com',
-    phone: '+1 (555) 123-4567',
-    joinDate: 'January 2024',
-    kycStatus: 'verified',
-    totalInvested: 127.45,
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  
+  const userStats = {
+    level: 3,
+    plantsGrown: 8,
     totalEarned: 12.87,
-    badges: 8,
-    streak: 12
+    streakDays: 12,
+    joinDate: 'March 2024'
   };
 
   const achievements = [
-    {
-      id: '1',
-      title: 'First Investor',
-      description: 'Made your first investment',
-      icon: Star,
-      color: '#F59E0B',
-      earned: true
-    },
-    {
-      id: '2',
-      title: 'Safe Saver',
-      description: 'Completed stablecoin education',
-      icon: Shield,
-      color: '#00D4AA',
-      earned: true
-    },
-    {
-      id: '3',
-      title: 'Streak Master',
-      description: '10+ day investment streak',
-      icon: Award,
-      color: '#8B5CF6',
-      earned: true
-    }
+    { id: '1', title: 'First Seed', description: 'Made your first investment', icon: Sprout, unlocked: true },
+    { id: '2', title: 'Growing Tree', description: 'Reached $100 invested', icon: TreePine, unlocked: true },
+    { id: '3', title: 'First Bloom', description: 'Earned your first yield', icon: Flower, unlocked: true },
+    { id: '4', title: 'Week Warrior', description: '7 day investment streak', icon: Target, unlocked: true },
+    { id: '5', title: 'Money Master', description: 'Reach $500 invested', icon: Crown, unlocked: false },
+    { id: '6', title: 'Garden Guru', description: '30 day streak', icon: Star, unlocked: false },
   ];
 
-  const settingsItems = [
-    {
-      title: 'Account Settings',
-      icon: User,
-      onPress: () => {},
-      hasArrow: true
-    },
-    {
-      title: 'Notifications',
-      icon: Bell,
-      onPress: () => {},
-      hasArrow: true
-    },
-    {
-      title: 'Security & Privacy',
-      icon: Shield,
-      onPress: () => {},
-      hasArrow: true
-    },
-    {
-      title: 'Help & Support',
-      icon: HelpCircle,
-      onPress: () => {},
-      hasArrow: true
-    }
+  const menuItems = [
+    { title: 'Account Settings', icon: Settings, action: () => {} },
+    { title: 'Notifications', icon: Bell, action: () => {}, toggle: true },
+    { title: 'Security & Privacy', icon: Shield, action: () => {} },
+    { title: 'Help & Support', icon: HelpCircle, action: () => {} },
+    { title: 'Sign Out', icon: LogOut, action: () => {}, danger: true },
   ];
 
   return (
     <LinearGradient
-      colors={['#0D1421', '#1A2332']}
+      colors={['#89E5AB', '#58CC02', '#46A302']}
       style={styles.container}
     >
+      {/* Floating Plant Decorations */}
+      <View style={styles.decorationContainer}>
+        <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+          <Crown size={20} color="#FFFFFF" />
+        </View>
+        <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+          <Star size={18} color="#FFFFFF" />
+        </View>
+        <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
+          <Trophy size={22} color="#FFFFFF" />
+        </View>
+      </View>
+
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Settings size={24} color="#8B9DC3" />
-          </TouchableOpacity>
+          <Text style={styles.title}>Your Garden Profile 👤</Text>
+          <Text style={styles.subtitle}>Master gardener in training</Text>
         </View>
 
         {/* Profile Card */}
-        <View style={styles.section}>
+        <View style={styles.profileCard}>
           <LinearGradient
-            colors={['#1A2332', '#2A3441']}
-            style={styles.profileCard}
+            colors={['#FFFFFF', '#F8F8F8']}
+            style={styles.profileCardGradient}
           >
             <View style={styles.profileHeader}>
               <View style={styles.avatarContainer}>
-                <Image
-                  source={{ uri: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=2' }}
-                  style={styles.avatar}
-                />
-                <View style={styles.verifiedBadge}>
-                  <Shield size={12} color="#00D4AA" />
+                <View style={styles.avatar}>
+                  <User size={32} color="#58CC02" />
+                </View>
+                <View style={styles.levelBadge}>
+                  <Text style={styles.levelText}>{userStats.level}</Text>
                 </View>
               </View>
+              
               <View style={styles.profileInfo}>
-                <Text style={styles.userName}>{userProfile.name}</Text>
-                <Text style={styles.userEmail}>{userProfile.email}</Text>
-                <Text style={styles.joinDate}>Member since {userProfile.joinDate}</Text>
+                <Text style={styles.userName}>Garden Master</Text>
+                <Text style={styles.userSubtitle}>Member since {userStats.joinDate}</Text>
               </View>
             </View>
 
-            <View style={styles.statsGrid}>
+            <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>${userProfile.totalInvested}</Text>
-                <Text style={styles.statLabel}>Total Invested</Text>
+                <TreePine size={20} color="#58CC02" />
+                <Text style={styles.statValue}>{userStats.plantsGrown}</Text>
+                <Text style={styles.statLabel}>Plants Grown</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>${userProfile.totalEarned}</Text>
-                <Text style={styles.statLabel}>Total Earned</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{userProfile.streak}</Text>
+                <Target size={20} color="#FF9500" />
+                <Text style={styles.statValue}>{userStats.streakDays}</Text>
                 <Text style={styles.statLabel}>Day Streak</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Trophy size={20} color="#FFD900" />
+                <Text style={styles.statValue}>${userStats.totalEarned.toFixed(2)}</Text>
+                <Text style={styles.statLabel}>Total Earned</Text>
               </View>
             </View>
           </LinearGradient>
         </View>
 
-        {/* Achievements */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Achievements</Text>
-          {achievements.map((achievement) => (
-            <TouchableOpacity key={achievement.id} style={styles.achievementCard}>
-              <LinearGradient
-                colors={['#1A2332', '#2A3441']}
-                style={styles.achievementCardGradient}
+        {/* Achievements Section */}
+        <View style={styles.achievementsSection}>
+          <Text style={styles.sectionTitle}>Your Achievements 🏆</Text>
+          <View style={styles.achievementsGrid}>
+            {achievements.map((achievement) => (
+              <View 
+                key={achievement.id} 
+                style={[
+                  styles.achievementCard,
+                  achievement.unlocked ? styles.achievementUnlocked : styles.achievementLocked
+                ]}
               >
-                <View style={[styles.achievementIcon, { backgroundColor: `${achievement.color}20` }]}>
-                  <achievement.icon size={24} color={achievement.color} />
+                <View style={[
+                  styles.achievementIcon,
+                  { backgroundColor: achievement.unlocked ? '#58CC02' : '#C0C0C0' }
+                ]}>
+                  <achievement.icon size={24} color="#FFFFFF" />
                 </View>
-                <View style={styles.achievementInfo}>
-                  <Text style={styles.achievementTitle}>{achievement.title}</Text>
-                  <Text style={styles.achievementDescription}>{achievement.description}</Text>
-                </View>
-                {achievement.earned && (
-                  <View style={styles.earnedBadge}>
-                    <Award size={16} color="#00D4AA" />
+                <Text style={[
+                  styles.achievementTitle,
+                  { color: achievement.unlocked ? '#2E7D32' : '#A0A0A0' }
+                ]}>
+                  {achievement.title}
+                </Text>
+                <Text style={[
+                  styles.achievementDescription,
+                  { color: achievement.unlocked ? '#5A5A5A' : '#C0C0C0' }
+                ]}>
+                  {achievement.description}
+                </Text>
+                {achievement.unlocked && (
+                  <View style={styles.unlockedBadge}>
+                    <Star size={12} color="#FFD900" />
                   </View>
                 )}
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
+              </View>
+            ))}
+          </View>
         </View>
 
-        {/* Settings */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Settings</Text>
-          <LinearGradient
-            colors={['#1A2332', '#2A3441']}
-            style={styles.settingsCard}
-          >
-            {settingsItems.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.settingItem,
-                  index < settingsItems.length - 1 && styles.settingItemBorder
-                ]}
-                onPress={item.onPress}
+        {/* Menu Items */}
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionTitle}>Settings ⚙️</Text>
+          <View style={styles.menuContainer}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.menuItem}
+                onPress={item.action}
               >
-                <View style={styles.settingLeft}>
-                  <View style={styles.settingIcon}>
-                    <item.icon size={20} color="#8B9DC3" />
+                <View style={styles.menuItemLeft}>
+                  <View style={[
+                    styles.menuItemIcon,
+                    { backgroundColor: item.danger ? '#FF444420' : '#58CC0220' }
+                  ]}>
+                    <item.icon 
+                      size={20} 
+                      color={item.danger ? '#FF4444' : '#58CC02'} 
+                    />
                   </View>
-                  <Text style={styles.settingTitle}>{item.title}</Text>
+                  <Text style={[
+                    styles.menuItemText,
+                    { color: item.danger ? '#FF4444' : '#2E7D32' }
+                  ]}>
+                    {item.title}
+                  </Text>
                 </View>
-                {item.hasArrow && (
-                  <ChevronRight size={20} color="#8B9DC3" />
+                
+                {item.toggle ? (
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={setNotificationsEnabled}
+                    trackColor={{ false: '#E0E0E0', true: '#58CC02' }}
+                    thumbColor={notificationsEnabled ? '#FFFFFF' : '#FFFFFF'}
+                  />
+                ) : (
+                  <ChevronRight size={20} color="#C0C0C0" />
                 )}
               </TouchableOpacity>
             ))}
-          </LinearGradient>
-        </View>
-
-        {/* Sign Out */}
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.signOutButton}>
-            <LinearGradient
-              colors={['#1A2332', '#2A3441']}
-              style={styles.signOutGradient}
-            >
-              <LogOut size={20} color="#EF4444" />
-              <Text style={styles.signOutText}>Sign Out</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.bottomSpacing} />
@@ -203,132 +199,172 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  decorationContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+  },
+  plantDecor: {
+    position: 'absolute',
+  },
   scrollView: {
     flex: 1,
+    zIndex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 20,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
-  settingsButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#1A2332',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2A3441',
-  },
-  section: {
-    paddingHorizontal: 24,
-    marginBottom: 24,
+  subtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+    fontWeight: '500',
   },
   profileCard: {
+    marginHorizontal: 24,
+    marginBottom: 24,
     borderRadius: 20,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  profileCardGradient: {
+    borderRadius: 20,
+    padding: 20,
   },
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   avatarContainer: {
     position: 'relative',
     marginRight: 16,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E8F5E8',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  verifiedBadge: {
+  levelBadge: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#00D4AA',
+    top: -4,
+    right: -4,
+    backgroundColor: '#58CC02',
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#1A2332',
+    borderColor: '#FFFFFF',
+  },
+  levelText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   profileInfo: {
     flex: 1,
   },
   userName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#2E7D32',
     marginBottom: 4,
   },
-  userEmail: {
+  userSubtitle: {
     fontSize: 14,
-    color: '#8B9DC3',
-    marginBottom: 2,
+    color: '#5A5A5A',
+    fontWeight: '500',
   },
-  joinDate: {
-    fontSize: 12,
-    color: '#8B9DC3',
-  },
-  statsGrid: {
+  statsContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#0D1421',
-    borderRadius: 16,
-    padding: 20,
   },
   statItem: {
-    flex: 1,
     alignItems: 'center',
+    flex: 1,
+  },
+  statDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 8,
   },
   statValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 4,
+    color: '#2E7D32',
+    marginTop: 4,
+    marginBottom: 2,
   },
   statLabel: {
     fontSize: 12,
-    color: '#8B9DC3',
+    color: '#5A5A5A',
+    fontWeight: '500',
     textAlign: 'center',
   },
-  statDivider: {
-    width: 1,
-    height: 32,
-    backgroundColor: '#2A3441',
-    marginHorizontal: 16,
+  achievementsSection: {
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
+    marginHorizontal: 24,
     marginBottom: 16,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  achievementsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 24,
+    gap: 12,
   },
   achievementCard: {
+    width: (width - 72) / 2,
     borderRadius: 16,
-    marginBottom: 12,
-  },
-  achievementCardGradient: {
-    flexDirection: 'row',
+    padding: 16,
     alignItems: 'center',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A3441',
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  achievementUnlocked: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderWidth: 2,
+    borderColor: '#58CC02',
+  },
+  achievementLocked: {
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
   },
   achievementIcon: {
     width: 48,
@@ -336,76 +372,69 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
-  achievementInfo: {
-    flex: 1,
+    marginBottom: 12,
   },
   achievementTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
     marginBottom: 4,
   },
   achievementDescription: {
-    fontSize: 14,
-    color: '#8B9DC3',
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 16,
   },
-  earnedBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#00D4AA20',
+  unlockedBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#FFD900',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  settingsCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#2A3441',
-    overflow: 'hidden',
+  menuSection: {
+    marginBottom: 24,
   },
-  settingItem: {
+  menuContainer: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    marginHorizontal: 24,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    paddingHorizontal: 20,
-  },
-  settingItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#2A3441',
+    borderBottomColor: '#F0F0F0',
   },
-  settingLeft: {
+  menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  settingIcon: {
-    marginRight: 16,
-  },
-  settingTitle: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  signOutButton: {
-    borderRadius: 12,
-  },
-  signOutGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  menuItemIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#2A3441',
-    gap: 12,
+    alignItems: 'center',
+    marginRight: 12,
   },
-  signOutText: {
+  menuItemText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#EF4444',
   },
   bottomSpacing: {
     height: 100,

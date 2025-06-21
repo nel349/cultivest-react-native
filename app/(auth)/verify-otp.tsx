@@ -25,7 +25,6 @@ export default function VerifyOTPScreen() {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -49,13 +48,11 @@ export default function VerifyOTPScreen() {
       const response = await apiClient.verifyOtp(userID as string, otpCode);
       
       if (response.success) {
-        // Store auth token if provided
-        if (response.data?.token) {
-          // TODO: Store token securely
-          console.log('Auth token received:', response.data.token);
+        const data = response.data as { token?: string };
+        if (data.token) {
+          console.log('Auth token received:', data.token);
         }
         
-        // Navigate to KYC or main app
         router.push('/(auth)/kyc');
       } else {
         Alert.alert('Verification Failed', response.error || 'Invalid code. Please try again.');
@@ -73,7 +70,6 @@ export default function VerifyOTPScreen() {
     if (countdown > 0) return;
     
     try {
-      // Resend OTP by calling signup again
       await apiClient.signup(phoneNumber as string, '', 'US');
       setCountdown(60);
       Alert.alert('Code Sent', 'A new verification code has been sent to your phone.');

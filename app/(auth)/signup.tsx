@@ -22,12 +22,11 @@ export default function SignupScreen() {
       const response = await apiClient.signup(phoneNumber, name, country);
       
       if (response.success) {
-        // Navigate to OTP verification with user data
         router.push({
           pathname: '/(auth)/verify-otp',
-          params: { 
+          params: {
             phoneNumber,
-            userID: response.data?.userID 
+            userID: (response.data as { userID?: string })?.userID || ''
           }
         });
       } else {
@@ -252,3 +251,4 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+

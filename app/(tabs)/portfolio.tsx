@@ -206,7 +206,7 @@ export default function PortfolioScreen() {
                 <ArrowUpRight size={16} color="#8B9DC3" />
               </LinearGradient>
             </TouchableOpacity>
-          </div>
+          </View>
         </View>
 
         <View style={styles.bottomSpacing} />

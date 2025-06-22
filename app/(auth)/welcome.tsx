@@ -141,11 +141,13 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    height:'100%'
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingBottom: 100
+    paddingTop: 20,
+    paddingBottom: 20
   },
   heroSection: {
     alignItems: 'center',

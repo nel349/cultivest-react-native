@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   decorationContainer: {
     position: 'absolute',
     width: '100%',
-    height: '30%',
+    height: '100%',
   },
   plantDecor: {
     position: 'absolute',
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 20,
+    paddingBottom: 20
   },
   heroSection: {
     alignItems: 'center',

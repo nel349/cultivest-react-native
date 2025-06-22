@@ -16,11 +16,11 @@ export default function WelcomeScreen() {
     const devUserID = "34f9176d-172d-431d-adb2-000d6459d4d2";
     const devUserName = "Norman E. Lopez";
     
-    // Mock JWT token (you might want to get a real one from backend)
-    const mockToken = "dev_bypass_token";
+    // Real JWT token from our test session
+    const realToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNGY5MTc2ZC0xNzJkLTQzMWQtYWRiMi0wMDBkNjQ1OWQ0ZDIiLCJwaG9uZU51bWJlciI6IisxOTE1NDA4MjAzMCIsImlhdCI6MTc1MDU3MTU4MiwiZXhwIjoxNzUwNjU3OTgyfQ.5hjgk5-ak25Uph0dOw4t3ne9z5e5IGojIVAGr7SriXw";
     
     try {
-      await AsyncStorage.setItem('auth_token', mockToken);
+      await AsyncStorage.setItem('auth_token', realToken);
       await AsyncStorage.setItem('user_id', devUserID);
       await AsyncStorage.setItem('user_name', devUserName);
       

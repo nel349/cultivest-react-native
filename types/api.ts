@@ -31,6 +31,27 @@ export interface ApiResponse<T = any> {
   // Wallet fields
   walletCreated?: boolean;
   walletAddress?: string;
+  balance?: {
+    databaseBalance: {
+      algo: number;
+      usdca: number;
+    };
+    onChainBalance?: {
+      algo: number;
+      usdca: number;
+      lastUpdated: string;
+    };
+  };
+  // Deposit fields
+  moonpayUrl?: string;
+  transactionId?: string;
+  estimatedUSDCa?: number;
+  conversionRate?: string;
+  fees?: {
+    moonpayFee: number;
+    conversionFee: number;
+    total: number;
+  };
 }
 
 // User Types

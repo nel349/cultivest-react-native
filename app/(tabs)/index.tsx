@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FundingModal from '@/components/FundingModal';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,7 @@ export default function HomeScreen() {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showFundingModal, setShowFundingModal] = useState(false);
   const [userInfo, setUserInfo] = useState<{
     userID: string;
     name: string;
@@ -148,7 +150,7 @@ export default function HomeScreen() {
       icon: Plus,
       color: '#58CC02',
       bgColor: '#E8F5E8',
-      onPress: () => router.push('/deposit')
+      onPress: () => setShowFundingModal(true)
     },
     {
       title: 'Grow Garden',
@@ -425,6 +427,36 @@ export default function HomeScreen() {
             </View>
           </View>
         </ScrollView>
+
+        {/* Funding Modal */}
+        {userInfo && (
+          <FundingModal
+            visible={showFundingModal}
+            onClose={() => setShowFundingModal(false)}
+            userID={userInfo.userID}
+            onFundingInitiated={(transactionId) => {
+              console.log('Funding initiated:', transactionId);
+              // Could add transaction tracking here
+              Alert.alert(
+                'Funding Started! 💳',
+                'Complete your payment with MoonPay. Your ALGO will be automatically converted to USDCa for investing.',
+                [
+                  {
+                    text: 'Got it!',
+                    onPress: () => {
+                      // Refresh balance after a short delay
+                      setTimeout(() => {
+                        if (userInfo?.userID) {
+                          fetchWalletBalance(userInfo.userID);
+                        }
+                      }, 3000);
+                    }
+                  }
+                ]
+              );
+            }}
+          />
+        )}
       </LinearGradient>
     </View>
   );

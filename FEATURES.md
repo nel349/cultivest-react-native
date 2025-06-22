@@ -2,29 +2,39 @@
 
 This document outlines the technical features for Cultivest, a mobile-first micro-investment platform with minimal web support for stablecoin yields (2–3% APY) on Algorand's USDCa. It tracks implementation status and planned features for the World's Largest Hackathon by Bolt.new (June 19–July 1, 2025).
 
-## 🚀 **Backend Implementation Status - MAJOR PROGRESS**
+## 🚀 **Implementation Status - PHASE 1A COMPLETED** ✅
 
-### ✅ **COMPLETED CORE INFRASTRUCTURE:**
+### ✅ **PHASE 1A: TESTNET FOUNDATION (DECEMBER 2024) - COMPLETED:**
 - **Real User Authentication**: Phone-based signup with SMS OTP via Twilio + Supabase database
 - **Custodial Wallet System**: Algorand wallet generation with AES-256 encrypted private key storage
-- **MoonPay Integration**: Complete ALGO → USDCa funding flow with webhook handling
-- **Live Balance Tracking**: Real-time on-chain balance queries with database synchronization
+- **MoonPay SDK Integration**: React Native SDK with proper browserOpener pattern
+- **🎯 Testnet Funding Workaround**: Complete faucet-based funding for development
+  - **TestnetFundingModal**: 3-step guided funding process (ALGO → Opt-in → USDCa)
+  - **Circle USDCa Faucet**: Official Circle testnet faucet integration
+  - **Algorand Dispenser**: ALGO testnet faucet with copy-paste workflow
+  - **USDCa Opt-in Automation**: `/debug/opt-in-usdca` endpoint with frontend integration
+  - **Smart Balance Detection**: Real-time opt-in status and balance monitoring
+  - **Auto-refresh**: 30-second balance updates + manual refresh buttons
+- **Enhanced Balance API**: `/wallet/balance` with `isOptedIntoUSDCa` field
 - **Database Architecture**: Full PostgreSQL schema with Row Level Security policies
 
-### 🎯 **READY FOR FRONTEND INTEGRATION:**
-All backend endpoints are implemented and tested. Frontend needs to connect to:
-- `/api/v1/auth/signup` & `/api/v1/auth/verify-otp` for user onboarding
-- `/api/v1/deposit/initiate` for MoonPay funding flow
-- `/api/v1/wallet/balance` for real-time balance updates
-- `/api/v1/wallet/create` for custodial wallet generation
+### 🎯 **PRODUCTION-READY COMPONENTS:**
+**Testnet Development Infrastructure:**
+- Complete testnet funding flow solving MoonPay testnet limitations
+- User-friendly crypto onboarding with educational guidance
+- Real wallet creation, opt-in, and token acquisition
+- Ready for investment feature development
 
-**Backend transforms Cultivest from mock implementation to production-ready fintech platform!** 🏆
+**Backend transforms Cultivest from mock to production-ready fintech platform!** 🏆
 
-## 1. User Onboarding
+## 1. User Onboarding - ✅ PHASE 1A COMPLETED
 - [x] ✅ **Phone-based signup with OTP verification** - IMPLEMENTED
-- [x] ✅ **MoonPay funding integration** - COMPLETE ALGO → USDCa conversion flow
+- [x] ✅ **Testnet funding integration** - Complete faucet-based workaround for development
+- [x] ✅ **MoonPay SDK integration** - React Native SDK with sandbox mode
 - [x] ✅ **Custodial wallet creation** - Real Algorand wallet generation with encryption
-- [ ] Web support for signup (Expo Router)
+- [x] ✅ **TestnetFundingModal** - User-friendly 3-step funding process
+- [x] ✅ **USDCa opt-in automation** - Backend + frontend integration
+- [ ] Web support for signup (Expo Router) - PHASE 1B
 
 **Backend Implementation Status (COMPLETED)**:  
 - ✅ **Real Supabase Integration**: Database operations, user creation, OTP storage
@@ -104,8 +114,11 @@ The core of Cultivest's data architecture will revolve around managing user acco
 - Add deposit status polling and progress tracking
 - Connect to balance updates after successful funding
 
-## 4. Yield Investment
+## 4. Yield Investment - 🔄 PHASE 1B IN PROGRESS
+- [ ] 🎯 **PRIORITY**: Research Tinyman USDCa pool integration
 - [ ] One-tap investment in Tinyman USDCa pool (2.5% APY)
+- [ ] Investment backend APIs (`/investment/initiate`, `/investment/positions`)
+- [ ] Investment UI components and amount selection
 - [ ] Display risk disclaimer (GENIUS Act, smart contract risks)
 - [ ] "Funds growing" animation (mobile/web)
 - [ ] Web support for investment flow (Expo Router)

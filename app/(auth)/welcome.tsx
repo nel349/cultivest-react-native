@@ -126,6 +126,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 16
   },
   gradient: {
     flex: 1,

@@ -23,7 +23,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import { useMoonPaySdk } from '@moonpay/react-native-moonpay-sdk';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-url-polyfill/auto';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -66,19 +65,47 @@ export default function FundingModal({
     console.log('- All process.env keys:', Object.keys(process.env).filter(key => key.startsWith('EXPO_PUBLIC')));
   }, []);
 
-  // Initialize MoonPay SDK following official documentation
+  // Initialize MoonPay SDK with basic configuration (we'll override parameters manually)
   const { openWithInAppBrowser, generateUrlForSigning, updateSignature } = useMoonPaySdk({
     sdkConfig: {
+      debug: true,
       flow: 'buy',
       environment: 'sandbox',
       params: {
         apiKey: process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123',
+        defaultCurrencyCode: 'sol',
+        // theme: 'dark',
+        colorCode: '%2310B981', // URL encoded #10B981
+        walletAddress: walletAddress,
       },
     },
     browserOpener: {
       open: async (url: string) => {
-        console.log('🌐 Opening MoonPay URL:', url);
-        await WebBrowser.openBrowserAsync(url, {
+        // Get current amount and wallet from stored values to avoid closure issues
+        const currentAmount = (window as any).currentFundingAmount || getActualAmount();
+        const currentWallet = (window as any).currentWalletAddress || walletAddress;
+        
+        console.log('🌐 Original MoonPay URL:', url);
+        console.log('🔍 Using amount from storage:', currentAmount);
+        console.log('🔍 Using wallet from storage:', currentWallet);
+        
+        // Parse the URL and add/update parameters
+        const urlObj = new URL(url);
+        
+        // Add current amount
+        urlObj.searchParams.set('baseCurrencyAmount', currentAmount.toString());
+        
+        // Add wallet address if available
+        if (currentWallet) {
+          urlObj.searchParams.set('walletAddress', currentWallet);
+        }
+        
+        const finalUrl = urlObj.toString();
+        console.log('🌐 Updated MoonPay URL:', finalUrl);
+        console.log('🔍 URL contains amount:', finalUrl.includes(`baseCurrencyAmount=${currentAmount}`));
+        console.log('🔍 URL contains wallet:', currentWallet ? finalUrl.includes('walletAddress') : 'No wallet set');
+        
+        await WebBrowser.openBrowserAsync(finalUrl, {
           presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
         });
         console.log('🌐 MoonPay URL opened');
@@ -92,6 +119,9 @@ export default function FundingModal({
     console.log('- API Key being used:', process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123');
     console.log('- Wallet Address:', walletAddress);
     console.log('- Amount:', getActualAmount());
+    console.log('- Selected Amount:', selectedAmount);
+    console.log('- Custom Amount:', customAmount);
+    console.log('- Use Custom Amount:', useCustomAmount);
     console.log('- Environment: sandbox');
   }, [walletAddress, selectedAmount, customAmount, useCustomAmount]);
 
@@ -208,6 +238,11 @@ export default function FundingModal({
         // Debug: Check if openWithInAppBrowser is available
         console.log('🔍 MoonPay SDK ready:', typeof openWithInAppBrowser);
         console.log('🔍 About to call openWithInAppBrowser...');
+        console.log('🔍 Current amount before opening:', amount);
+        
+        // Store current values in a way the browser opener can access them
+        (window as any).currentFundingAmount = amount;
+        (window as any).currentWalletAddress = walletAddress;
         
         // open the moonpay sdk
         await openWithInAppBrowser();

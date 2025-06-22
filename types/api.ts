@@ -4,6 +4,33 @@ export interface ApiResponse<T = any> {
   message?: string;
   error?: string;
   data?: T;
+  // Auth-specific fields
+  userID?: string;
+  token?: string;
+  authToken?: string;
+  // OTP/SMS-specific fields
+  developmentMode?: boolean;
+  smsProvider?: string;
+  consoleOTP?: string;
+  otpSent?: boolean;
+  otp?: string;
+  // Error handling fields
+  userCreated?: boolean;
+  canRetry?: boolean;
+  // User data
+  user?: {
+    userID: string;
+    phoneNumber: string;
+    name: string;
+    country: string;
+    kycStatus: string;
+    verified: boolean;
+    walletCreated: boolean;
+    walletAddress?: string;
+  };
+  // Wallet fields
+  walletCreated?: boolean;
+  walletAddress?: string;
 }
 
 // User Types

@@ -59,7 +59,7 @@ export default function VerifyOTPScreen() {
         
         // Store JWT token securely
         const token = response.authToken || response.token;
-        await AsyncStorage.setItem('auth_token', token);
+        await AsyncStorage.setItem('auth_token', token || '');
         await AsyncStorage.setItem('user_id', userID as string);
         await AsyncStorage.setItem('user_name', name as string || '');
         
@@ -353,16 +353,20 @@ const styles = StyleSheet.create({
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 30,
-    paddingHorizontal: 10,
-    flexWrap: 'wrap',
+    paddingHorizontal: 20,
+    width: '100%',
+    alignSelf: 'center',
+    // backgroundColor: 'red',
+    gap: 12,
   },
   otpInputContainer: {
     position: 'relative',
-    marginHorizontal: 4,
+    // backgroundColor: 'blue',
   },
   otpInput: {
-    width: Math.min(50, (width - 80) / 6),
+    width: 50,
     height: 60,
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 16,

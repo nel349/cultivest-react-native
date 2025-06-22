@@ -7,10 +7,12 @@ import {
   ArrowUpRight, ArrowDownLeft, Bell, Settings, TreePine, 
   Sprout, Flower, Star, Trophy, Zap, Target
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [dashboardData, setDashboardData] = useState({
@@ -104,199 +106,203 @@ export default function HomeScreen() {
   ];
 
   return (
-    <LinearGradient
-      colors={['#89E5AB', '#58CC02', '#46A302']}
-      style={styles.container}
-    >
-      {/* Floating Plant Decorations */}
-      <View style={styles.decorationContainer}>
-        <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
-          <Leaf size={20} color="#FFFFFF" />
-        </View>
-        <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
-          <Flower size={16} color="#FFFFFF" />
-        </View>
-        <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
-          <Sprout size={18} color="#FFFFFF" />
-        </View>
-      </View>
-
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
-        }
-        showsVerticalScrollIndicator={false}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <LinearGradient
+        colors={['#89E5AB', '#58CC02', '#46A302']}
+        style={styles.gradient}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.greeting}>Good morning! 🌅</Text>
-            <Text style={styles.userName}>Keep growing, Gardener</Text>
+        {/* Floating Plant Decorations */}
+        <View style={styles.decorationContainer}>
+          <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+            <Leaf size={20} color="#FFFFFF" />
           </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Bell size={24} color="#FFFFFF" />
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationText}>2</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Settings size={24} color="#FFFFFF" />
-            </TouchableOpacity>
+          <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+            <Flower size={16} color="#FFFFFF" />
+          </View>
+          <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
+            <Sprout size={18} color="#FFFFFF" />
           </View>
         </View>
 
-        {/* Money Tree Level Card */}
-        <View style={styles.treeCard}>
-          <LinearGradient
-            colors={['#FFFFFF', '#F8F8F8']}
-            style={styles.treeCardGradient}
-          >
-            <View style={styles.treeHeader}>
-              <View style={styles.treeIconContainer}>
-                <TreePine size={32} color="#58CC02" />
-                <View style={styles.levelBadge}>
-                  <Text style={styles.levelText}>{dashboardData.moneyTreeLevel}</Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.greeting}>Good morning! 🌅</Text>
+              <Text style={styles.userName}>Keep growing, Gardener</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.iconButton}>
+                <Bell size={24} color="#FFFFFF" />
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationText}>2</Text>
                 </View>
-              </View>
-              <View style={styles.treeInfo}>
-                <Text style={styles.treeTitle}>Your Money Tree</Text>
-                <Text style={styles.treeSubtitle}>Level {dashboardData.moneyTreeLevel} • {dashboardData.plantsGrown} plants grown</Text>
-              </View>
-            </View>
-            
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBar}>
-                <View style={[styles.progressFill, { width: `${(dashboardData.balance / dashboardData.nextMilestone) * 100}%` }]} />
-              </View>
-              <Text style={styles.progressText}>
-                ${dashboardData.balance.toFixed(2)} / ${dashboardData.nextMilestone} to next level
-              </Text>
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/* Balance Card */}
-        <View style={styles.balanceCard}>
-          <LinearGradient
-            colors={['#FFFFFF', '#F8F8F8']}
-            style={styles.balanceCardGradient}
-          >
-            <View style={styles.balanceHeader}>
-              <Text style={styles.balanceLabel}>Your Garden Value</Text>
-              <TouchableOpacity
-                onPress={() => setBalanceVisible(!balanceVisible)}
-                style={styles.eyeButton}
-              >
-                {balanceVisible ? (
-                  <Eye size={20} color="#58CC02" />
-                ) : (
-                  <EyeOff size={20} color="#58CC02" />
-                )}
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton}>
+                <Settings size={24} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-            
-            <Text style={styles.balanceAmount}>
-              {balanceVisible ? `$${dashboardData.balance.toFixed(2)}` : '••••••'}
-            </Text>
-            
-            <View style={styles.yieldContainer}>
-              <View style={styles.yieldItem}>
-                <Zap size={16} color="#58CC02" />
-                <Text style={styles.yieldLabel}>Today's Growth</Text>
-                <Text style={styles.yieldValue}>+${dashboardData.dailyYield.toFixed(2)}</Text>
-              </View>
-              <View style={styles.yieldDivider} />
-              <View style={styles.yieldItem}>
-                <Target size={16} color="#FF9500" />
-                <Text style={styles.yieldLabel}>{dashboardData.investmentStreak} Day Streak</Text>
-                <Text style={styles.yieldValue}>🔥</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </View>
+          </View>
 
-        {/* Achievements Row */}
-        <View style={styles.achievementsSection}>
-          <Text style={styles.sectionTitle}>Your Achievements 🏆</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
-            {achievements.map((achievement, index) => (
-              <View key={index} style={[
-                styles.achievementBadge,
-                achievement.completed ? styles.achievementCompleted : styles.achievementLocked
-              ]}>
-                <achievement.icon 
-                  size={24} 
-                  color={achievement.completed ? "#58CC02" : "#C0C0C0"} 
-                />
-                <Text style={[
-                  styles.achievementText,
-                  achievement.completed ? styles.achievementTextCompleted : styles.achievementTextLocked
-                ]}>
-                  {achievement.title}
+          {/* Money Tree Level Card */}
+          <View style={styles.treeCard}>
+            <LinearGradient
+              colors={['#FFFFFF', '#F8F8F8']}
+              style={styles.treeCardGradient}
+            >
+              <View style={styles.treeHeader}>
+                <View style={styles.treeIconContainer}>
+                  <TreePine size={32} color="#58CC02" />
+                  <View style={styles.levelBadge}>
+                    <Text style={styles.levelText}>{dashboardData.moneyTreeLevel}</Text>
+                  </View>
+                </View>
+                <View style={styles.treeInfo}>
+                  <Text style={styles.treeTitle}>Your Money Tree</Text>
+                  <Text style={styles.treeSubtitle}>Level {dashboardData.moneyTreeLevel} • {dashboardData.plantsGrown} plants grown</Text>
+                </View>
+              </View>
+              
+              <View style={styles.progressContainer}>
+                <View style={styles.progressBar}>
+                  <View style={[styles.progressFill, { width: `${(dashboardData.balance / dashboardData.nextMilestone) * 100}%` }]} />
+                </View>
+                <Text style={styles.progressText}>
+                  ${dashboardData.balance.toFixed(2)} / ${dashboardData.nextMilestone} to next level
                 </Text>
               </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.quickActionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions 🚀</Text>
-          <View style={styles.quickActionsGrid}>
-            {quickActions.map((action, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.quickActionCard, { backgroundColor: action.bgColor }]}
-                onPress={action.onPress}
-              >
-                <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
-                  <action.icon size={24} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickActionTitle}>{action.title}</Text>
-                <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
-              </TouchableOpacity>
-            ))}
+            </LinearGradient>
           </View>
-        </View>
 
-        {/* Recent Activity */}
-        <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Garden Activity 🌱</Text>
-          <View style={styles.activityContainer}>
-            {recentActivity.map((activity) => (
-              <View key={activity.id} style={styles.activityItem}>
-                <View style={[styles.activityIcon, 
-                  { backgroundColor: activity.type === 'yield_credit' ? '#E8F5E8' : '#E0F7FA' }
-                ]}>
-                  <activity.icon size={20} color="#58CC02" />
+          {/* Balance Card */}
+          <View style={styles.balanceCard}>
+            <LinearGradient
+              colors={['#FFFFFF', '#F8F8F8']}
+              style={styles.balanceCardGradient}
+            >
+              <View style={styles.balanceHeader}>
+                <Text style={styles.balanceLabel}>Your Garden Value</Text>
+                <TouchableOpacity
+                  onPress={() => setBalanceVisible(!balanceVisible)}
+                  style={styles.eyeButton}
+                >
+                  {balanceVisible ? (
+                    <Eye size={20} color="#58CC02" />
+                  ) : (
+                    <EyeOff size={20} color="#58CC02" />
+                  )}
+                </TouchableOpacity>
+              </View>
+              
+              <Text style={styles.balanceAmount}>
+                {balanceVisible ? `$${dashboardData.balance.toFixed(2)}` : '••••••'}
+              </Text>
+              
+              <View style={styles.yieldContainer}>
+                <View style={styles.yieldItem}>
+                  <Zap size={16} color="#58CC02" />
+                  <Text style={styles.yieldLabel}>Today's Growth</Text>
+                  <Text style={styles.yieldValue}>+${dashboardData.dailyYield.toFixed(2)}</Text>
                 </View>
-                <View style={styles.activityContent}>
-                  <Text style={styles.activityDescription}>{activity.description}</Text>
-                  <Text style={styles.activityTimestamp}>{activity.timestamp}</Text>
-                </View>
-                <View style={styles.activityAmount}>
-                  <Text style={[
-                    styles.activityAmountText,
-                    { color: activity.type === 'yield_credit' ? '#58CC02' : '#FF9500' }
-                  ]}>
-                    {activity.type === 'yield_credit' ? '+' : ''}${activity.amount.toFixed(2)}
-                  </Text>
+                <View style={styles.yieldDivider} />
+                <View style={styles.yieldItem}>
+                  <Target size={16} color="#FF9500" />
+                  <Text style={styles.yieldLabel}>{dashboardData.investmentStreak} Day Streak</Text>
+                  <Text style={styles.yieldValue}>🔥</Text>
                 </View>
               </View>
-            ))}
+            </LinearGradient>
           </View>
-        </View>
 
-        <View style={styles.bottomSpacing} />
-      </ScrollView>
-    </LinearGradient>
+          {/* Achievements Row */}
+          <View style={styles.achievementsSection}>
+            <Text style={styles.sectionTitle}>Your Achievements 🏆</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
+              {achievements.map((achievement, index) => (
+                <View key={index} style={[
+                  styles.achievementBadge,
+                  achievement.completed ? styles.achievementCompleted : styles.achievementLocked
+                ]}>
+                  <achievement.icon 
+                    size={24} 
+                    color={achievement.completed ? "#58CC02" : "#C0C0C0"} 
+                  />
+                  <Text style={[
+                    styles.achievementText,
+                    achievement.completed ? styles.achievementTextCompleted : styles.achievementTextLocked
+                  ]}>
+                    {achievement.title}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Quick Actions */}
+          <View style={styles.quickActionsSection}>
+            <Text style={styles.sectionTitle}>Quick Actions 🚀</Text>
+            <View style={styles.quickActionsGrid}>
+              {quickActions.map((action, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.quickActionCard, { backgroundColor: action.bgColor }]}
+                  onPress={action.onPress}
+                >
+                  <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
+                    <action.icon size={24} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.quickActionTitle}>{action.title}</Text>
+                  <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Recent Activity */}
+          <View style={styles.activitySection}>
+            <Text style={styles.sectionTitle}>Garden Activity 🌱</Text>
+            <View style={styles.activityContainer}>
+              {recentActivity.map((activity) => (
+                <View key={activity.id} style={styles.activityItem}>
+                  <View style={[styles.activityIcon, 
+                    { backgroundColor: activity.type === 'yield_credit' ? '#E8F5E8' : '#E0F7FA' }
+                  ]}>
+                    <activity.icon size={20} color="#58CC02" />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityDescription}>{activity.description}</Text>
+                    <Text style={styles.activityTimestamp}>{activity.timestamp}</Text>
+                  </View>
+                  <View style={styles.activityAmount}>
+                    <Text style={[
+                      styles.activityAmountText,
+                      { color: activity.type === 'yield_credit' ? '#58CC02' : '#FF9500' }
+                    ]}>
+                      {activity.type === 'yield_credit' ? '+' : ''}${activity.amount.toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  gradient: {
     flex: 1,
   },
   decorationContainer: {
@@ -312,12 +318,14 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 1,
   },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 60,
     paddingBottom: 20,
   },
   headerLeft: {
@@ -368,7 +376,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   treeCard: {
-    marginHorizontal: 24,
     marginBottom: 20,
     borderRadius: 20,
     shadowColor: '#000',
@@ -444,7 +451,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   balanceCard: {
-    marginHorizontal: 24,
     marginBottom: 20,
     borderRadius: 20,
     shadowColor: '#000',
@@ -512,14 +518,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginHorizontal: 24,
     marginBottom: 16,
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
   achievementsScroll: {
-    paddingLeft: 24,
+    paddingLeft: 0,
   },
   achievementBadge: {
     alignItems: 'center',
@@ -558,7 +563,6 @@ const styles = StyleSheet.create({
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 24,
     gap: 12,
   },
   quickActionCard: {
@@ -571,6 +575,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    minHeight: 120,
   },
   quickActionIcon: {
     width: 48,
@@ -598,7 +603,6 @@ const styles = StyleSheet.create({
   },
   activityContainer: {
     backgroundColor: 'rgba(255,255,255,0.9)',
-    marginHorizontal: 24,
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -642,8 +646,5 @@ const styles = StyleSheet.create({
   activityAmountText: {
     fontSize: 16,
     fontWeight: '700',
-  },
-  bottomSpacing: {
-    height: 100,
   },
 });

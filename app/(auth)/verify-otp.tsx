@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CheckCircle } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 
+const { width } = Dimensions.get('window');
+
 export default function VerifyOTPScreen() {
+  const insets = useSafeAreaInsets();
   const { phoneNumber, userID } = useLocalSearchParams();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,114 +70,125 @@ export default function VerifyOTPScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#89E5AB', '#58CC02']}
-      style={styles.container}
-    >
-      {/* Decorative Plants */}
-      <View style={styles.decorationContainer}>
-        <View style={[styles.plantDecor, { top: 80, left: 25 }]}>
-          <Leaf size={18} color="rgba(255,255,255,0.3)" />
-        </View>
-        <View style={[styles.plantDecor, { top: 160, right: 30 }]}>
-          <Sprout size={16} color="rgba(255,255,255,0.2)" />
-        </View>
-        <View style={[styles.plantDecor, { bottom: 120, left: 40 }]}>
-          <Flower size={20} color="rgba(255,255,255,0.25)" />
-        </View>
-      </View>
-
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <ArrowLeft size={24} color="#2E7D32" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Verify Your Seed 🌱</Text>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <View style={styles.iconBackground}>
-            <MessageSquare size={32} color="#58CC02" />
-            <View style={styles.checkBadge}>
-              <CheckCircle size={16} color="#FFFFFF" />
-            </View>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#89E5AB', '#58CC02']}
+        style={[styles.gradient, { paddingTop: insets.top }]}
+      >
+        {/* Decorative Plants */}
+        <View style={styles.decorationContainer}>
+          <View style={[styles.plantDecor, { top: 80 + insets.top, left: 25 }]}>
+            <Leaf size={18} color="rgba(255,255,255,0.3)" />
+          </View>
+          <View style={[styles.plantDecor, { top: 160 + insets.top, right: 30 }]}>
+            <Sprout size={16} color="rgba(255,255,255,0.2)" />
+          </View>
+          <View style={[styles.plantDecor, { bottom: 120, left: 40 }]}>
+            <Flower size={20} color="rgba(255,255,255,0.25)" />
           </View>
         </View>
 
-        <View style={styles.titleSection}>
-          <Text style={styles.title}>Check your messages 📱</Text>
-          <Text style={styles.subtitle}>
-            We sent a 6-digit code to{'\n'}
-            <Text style={styles.phoneNumber}>+1 {phoneNumber}</Text>
-          </Text>
-        </View>
-
-        <View style={styles.otpContainer}>
-          {otp.map((digit, index) => (
-            <View key={index} style={styles.otpInputContainer}>
-              <TextInput
-                ref={(ref) => {
-                  if (ref) inputRefs.current[index] = ref;
-                }}
-                style={[
-                  styles.otpInput,
-                  digit ? styles.otpInputFilled : null
-                ]}
-                value={digit}
-                onChangeText={(value) => handleOtpChange(value, index)}
-                onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
-                keyboardType="numeric"
-                maxLength={1}
-                selectTextOnFocus
-              />
-              {digit && (
-                <View style={styles.inputCheckmark}>
-                  <CheckCircle size={16} color="#58CC02" />
-                </View>
-              )}
-            </View>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={[styles.verifyButton, isLoading && styles.buttonDisabled]}
-          onPress={handleVerifyOtp}
-          disabled={isLoading}
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
+          showsVerticalScrollIndicator={false}
         >
-          <LinearGradient
-            colors={isLoading ? ['#A0A0A0', '#808080'] : ['#FFFFFF', '#F0F0F0']}
-            style={styles.buttonGradient}
-          >
-            <Text style={styles.verifyButtonText}>
-              {isLoading ? 'Growing...' : 'Continue Growing 🌿'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          <View style={styles.header}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <ArrowLeft size={24} color="#2E7D32" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Verify Your Seed 🌱</Text>
+          </View>
 
-        <View style={styles.resendSection}>
-          <Text style={styles.resendText}>Didn't get the code?</Text>
-          <TouchableOpacity
-            onPress={handleResendOtp}
-            disabled={countdown > 0}
-          >
-            <Text style={[
-              styles.resendButton,
-              countdown > 0 && styles.resendButtonDisabled
-            ]}>
-              {countdown > 0 ? `Try again in ${countdown}s` : 'Send again'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </LinearGradient>
+          <View style={styles.content}>
+            <View style={styles.iconContainer}>
+              <View style={styles.iconBackground}>
+                <MessageSquare size={32} color="#58CC02" />
+                <View style={styles.checkBadge}>
+                  <CheckCircle size={16} color="#FFFFFF" />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>Check your messages 📱</Text>
+              <Text style={styles.subtitle}>
+                We sent a 6-digit code to{'\n'}
+                <Text style={styles.phoneNumber}>+1 {phoneNumber}</Text>
+              </Text>
+            </View>
+
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <View key={index} style={styles.otpInputContainer}>
+                  <TextInput
+                    ref={(ref) => {
+                      if (ref) inputRefs.current[index] = ref;
+                    }}
+                    style={[
+                      styles.otpInput,
+                      digit ? styles.otpInputFilled : null
+                    ]}
+                    value={digit}
+                    onChangeText={(value) => handleOtpChange(value, index)}
+                    onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                    keyboardType="numeric"
+                    maxLength={1}
+                    selectTextOnFocus
+                  />
+                  {digit && (
+                    <View style={styles.inputCheckmark}>
+                      <CheckCircle size={16} color="#58CC02" />
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.verifyButton, isLoading && styles.buttonDisabled]}
+              onPress={handleVerifyOtp}
+              disabled={isLoading}
+            >
+              <LinearGradient
+                colors={isLoading ? ['#A0A0A0', '#808080'] : ['#FFFFFF', '#F0F0F0']}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.verifyButtonText}>
+                  {isLoading ? 'Growing...' : 'Continue Growing 🌿'}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <View style={styles.resendSection}>
+              <Text style={styles.resendText}>Didn't get the code?</Text>
+              <TouchableOpacity
+                onPress={handleResendOtp}
+                disabled={countdown > 0}
+              >
+                <Text style={[
+                  styles.resendButton,
+                  countdown > 0 && styles.resendButtonDisabled
+                ]}>
+                  {countdown > 0 ? `Try again in ${countdown}s` : 'Send again'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  gradient: {
     flex: 1,
   },
   decorationContainer: {
@@ -185,11 +200,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     opacity: 0.6,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   backButton: {
@@ -216,7 +237,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
     alignItems: 'center',
   },
   iconContainer: {
@@ -270,6 +290,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
   phoneNumber: {
     color: '#FFFFFF',
@@ -280,15 +301,17 @@ const styles = StyleSheet.create({
   },
   otpContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 40,
     paddingHorizontal: 10,
+    flexWrap: 'wrap',
   },
   otpInputContainer: {
     position: 'relative',
+    marginHorizontal: 4,
   },
   otpInput: {
-    width: 50,
+    width: Math.min(50, (width - 80) / 6),
     height: 60,
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderRadius: 16,
@@ -298,7 +321,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: '#2E7D32',
-    marginHorizontal: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

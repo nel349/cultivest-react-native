@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { ArrowLeft, Phone, User, Globe, Leaf, Sprout, Flower } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 
 export default function SignupScreen() {
+  const insets = useSafeAreaInsets();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');
   const [country, setCountry] = useState('US');
@@ -35,128 +37,139 @@ export default function SignupScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#89E5AB', '#58CC02']}
-      style={styles.container}
-    >
-      {/* Decorative Plants */}
-      <View style={styles.decorationContainer}>
-        <View style={[styles.plantDecor, { top: 80, left: 30 }]}>
-          <Leaf size={20} color="rgba(255,255,255,0.3)" />
-        </View>
-        <View style={[styles.plantDecor, { top: 120, right: 40 }]}>
-          <Sprout size={16} color="rgba(255,255,255,0.2)" />
-        </View>
-        <View style={[styles.plantDecor, { bottom: 200, left: 20 }]}>
-          <Flower size={18} color="rgba(255,255,255,0.25)" />
-        </View>
-      </View>
-
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#89E5AB', '#58CC02']}
+        style={[styles.gradient, { paddingTop: insets.top }]}
       >
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <ArrowLeft size={24} color="#2E7D32" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Plant Your Seed 🌱</Text>
+        {/* Decorative Plants */}
+        <View style={styles.decorationContainer}>
+          <View style={[styles.plantDecor, { top: 80 + insets.top, left: 30 }]}>
+            <Leaf size={20} color="rgba(255,255,255,0.3)" />
+          </View>
+          <View style={[styles.plantDecor, { top: 120 + insets.top, right: 40 }]}>
+            <Sprout size={16} color="rgba(255,255,255,0.2)" />
+          </View>
+          <View style={[styles.plantDecor, { bottom: 200, left: 20 }]}>
+            <Flower size={18} color="rgba(255,255,255,0.25)" />
+          </View>
         </View>
 
-        <View style={styles.content}>
-          <View style={styles.titleSection}>
-            <View style={styles.iconContainer}>
-              <View style={styles.iconBackground}>
-                <Sprout size={32} color="#58CC02" />
-              </View>
-            </View>
-            <Text style={styles.title}>Let's grow together!</Text>
-            <Text style={styles.subtitle}>
-              Join thousands already growing their wealth
-            </Text>
-          </View>
-
-          <View style={styles.formContainer}>
-            <View style={styles.inputGroup}>
-              <View style={styles.inputIcon}>
-                <User size={20} color="#58CC02" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Your Name"
-                placeholderTextColor="#8B9DC3"
-                value={name}
-                onChangeText={setName}
-                autoCapitalize="words"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.inputIcon}>
-                <Phone size={20} color="#58CC02" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                placeholderTextColor="#8B9DC3"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
-                autoComplete="tel"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.inputIcon}>
-                <Globe size={20} color="#58CC02" />
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Country (US, NG, etc.)"
-                placeholderTextColor="#8B9DC3"
-                value={country}
-                onChangeText={setCountry}
-                autoCapitalize="characters"
-                maxLength={3}
-              />
-            </View>
-          </View>
-
-          <View style={styles.infoSection}>
-            <Text style={styles.infoText}>
-              📱 We'll send you a verification code to get started on your growth journey!
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.continueButton, isLoading && styles.buttonDisabled]}
-            onPress={handleSignup}
-            disabled={isLoading}
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+        >
+          <ScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
+            showsVerticalScrollIndicator={false}
           >
-            <LinearGradient
-              colors={isLoading ? ['#A0A0A0', '#808080'] : ['#FFFFFF', '#F0F0F0']}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.continueButtonText}>
-                {isLoading ? 'Planting...' : 'Plant My Seed 🌱'}
+            <View style={styles.header}>
+              <TouchableOpacity 
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <ArrowLeft size={24} color="#2E7D32" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Plant Your Seed 🌱</Text>
+            </View>
+
+            <View style={styles.content}>
+              <View style={styles.titleSection}>
+                <View style={styles.iconContainer}>
+                  <View style={styles.iconBackground}>
+                    <Sprout size={32} color="#58CC02" />
+                  </View>
+                </View>
+                <Text style={styles.title}>Let's grow together!</Text>
+                <Text style={styles.subtitle}>
+                  Join thousands already growing their wealth
+                </Text>
+              </View>
+
+              <View style={styles.formContainer}>
+                <View style={styles.inputGroup}>
+                  <View style={styles.inputIcon}>
+                    <User size={20} color="#58CC02" />
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Your Name"
+                    placeholderTextColor="#8B9DC3"
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize="words"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <View style={styles.inputIcon}>
+                    <Phone size={20} color="#58CC02" />
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Phone Number"
+                    placeholderTextColor="#8B9DC3"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                    keyboardType="phone-pad"
+                    autoComplete="tel"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <View style={styles.inputIcon}>
+                    <Globe size={20} color="#58CC02" />
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Country (US, NG, etc.)"
+                    placeholderTextColor="#8B9DC3"
+                    value={country}
+                    onChangeText={setCountry}
+                    autoCapitalize="characters"
+                    maxLength={3}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.infoSection}>
+                <Text style={styles.infoText}>
+                  📱 We'll send you a verification code to get started on your growth journey!
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.continueButton, isLoading && styles.buttonDisabled]}
+                onPress={handleSignup}
+                disabled={isLoading}
+              >
+                <LinearGradient
+                  colors={isLoading ? ['#A0A0A0', '#808080'] : ['#FFFFFF', '#F0F0F0']}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.continueButtonText}>
+                    {isLoading ? 'Planting...' : 'Plant My Seed 🌱'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <Text style={styles.disclaimer}>
+                🌿 By continuing, you agree to help your money grow safely with our Terms of Service and Privacy Policy
               </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <Text style={styles.disclaimer}>
-            🌿 By continuing, you agree to help your money grow safely with our Terms of Service and Privacy Policy
-          </Text>
-        </View>
-      </KeyboardAvoidingView>
-    </LinearGradient>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  gradient: {
     flex: 1,
   },
   decorationContainer: {
@@ -171,11 +184,17 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   backButton: {
@@ -202,7 +221,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
   },
   titleSection: {
     alignItems: 'center',
@@ -240,6 +258,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
   formContainer: {
     marginBottom: 24,
@@ -314,8 +333,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
     lineHeight: 16,
-    marginTop: 'auto',
-    marginBottom: 20,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
 });

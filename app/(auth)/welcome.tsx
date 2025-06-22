@@ -1,11 +1,14 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Leaf, Sprout, TreePine, Flower, Star, ArrowRight } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
+  const insets = useSafeAreaInsets();
+
   const features = [
     {
       icon: Sprout,
@@ -34,88 +37,98 @@ export default function WelcomeScreen() {
   ];
 
   return (
-    <LinearGradient
-      colors={['#89E5AB', '#58CC02', '#46A302']}
-      style={styles.container}
-    >
-      {/* Decorative Plants */}
-      <View style={styles.decorationContainer}>
-        <View style={[styles.plantDecor, { top: 60, left: 20 }]}>
-          <Leaf size={24} color="rgba(255,255,255,0.3)" />
-        </View>
-        <View style={[styles.plantDecor, { top: 100, right: 30 }]}>
-          <Sprout size={20} color="rgba(255,255,255,0.2)" />
-        </View>
-        <View style={[styles.plantDecor, { top: 140, left: width - 60 }]}>
-          <Flower size={18} color="rgba(255,255,255,0.25)" />
-        </View>
-      </View>
-
-      <View style={styles.content}>
-        {/* Hero Section */}
-        <View style={styles.heroSection}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logoBackground}>
-              <Leaf size={40} color="#FFFFFF" />
-            </View>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#89E5AB', '#58CC02', '#46A302']}
+        style={[styles.gradient, { paddingTop: insets.top }]}
+      >
+        {/* Decorative Plants */}
+        <View style={styles.decorationContainer}>
+          <View style={[styles.plantDecor, { top: 60 + insets.top, left: 20 }]}>
+            <Leaf size={24} color="rgba(255,255,255,0.3)" />
           </View>
-          
-          <Text style={styles.title}>Cultivest</Text>
-          <Text style={styles.subtitle}>
-            Grow your wealth, one seed at a time 🌱
-          </Text>
-          
-          {/* Main Illustration */}
-          <View style={styles.illustrationContainer}>
-            <View style={styles.treeContainer}>
-              <TreePine size={80} color="#2E7D32" />
-              <View style={styles.coinBadge}>
-                <Text style={styles.coinText}>+$0.03</Text>
-              </View>
-            </View>
-            <Text style={styles.illustrationText}>Your money tree is ready to grow!</Text>
+          <View style={[styles.plantDecor, { top: 100 + insets.top, right: 30 }]}>
+            <Sprout size={20} color="rgba(255,255,255,0.2)" />
+          </View>
+          <View style={[styles.plantDecor, { top: 140 + insets.top, left: width - 60 }]}>
+            <Flower size={18} color="rgba(255,255,255,0.25)" />
           </View>
         </View>
 
-        {/* Features Grid */}
-        <View style={styles.featuresContainer}>
-          {features.map((feature, index) => (
-            <View key={index} style={styles.featureCard}>
-              <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
-                <feature.icon size={24} color="#FFFFFF" />
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoBackground}>
+                <Leaf size={40} color="#FFFFFF" />
               </View>
-              <Text style={styles.featureTitle}>{feature.title}</Text>
-              <Text style={styles.featureDescription}>{feature.description}</Text>
             </View>
-          ))}
-        </View>
+            
+            <Text style={styles.title}>Cultivest</Text>
+            <Text style={styles.subtitle}>
+              Grow your wealth, one seed at a time 🌱
+            </Text>
+            
+            {/* Main Illustration */}
+            <View style={styles.illustrationContainer}>
+              <View style={styles.treeContainer}>
+                <TreePine size={80} color="#2E7D32" />
+                <View style={styles.coinBadge}>
+                  <Text style={styles.coinText}>+$0.03</Text>
+                </View>
+              </View>
+              <Text style={styles.illustrationText}>Your money tree is ready to grow!</Text>
+            </View>
+          </View>
 
-        {/* CTA Section */}
-        <View style={styles.ctaSection}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => router.push('/(auth)/signup')}
-          >
-            <LinearGradient
-              colors={['#FFFFFF', '#F0F0F0']}
-              style={styles.buttonGradient}
+          {/* Features Grid */}
+          <View style={styles.featuresContainer}>
+            {features.map((feature, index) => (
+              <View key={index} style={styles.featureCard}>
+                <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
+                  <feature.icon size={24} color="#FFFFFF" />
+                </View>
+                <Text style={styles.featureTitle}>{feature.title}</Text>
+                <Text style={styles.featureDescription}>{feature.description}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* CTA Section */}
+          <View style={styles.ctaSection}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push('/(auth)/signup')}
             >
-              <Text style={styles.primaryButtonText}>Start Growing Today</Text>
-              <ArrowRight size={20} color="#58CC02" />
-            </LinearGradient>
-          </TouchableOpacity>
-          
-          <Text style={styles.disclaimer}>
-            🌿 FDIC insured • GENIUS Act compliant • Start with just $1
-          </Text>
-        </View>
-      </View>
-    </LinearGradient>
+              <LinearGradient
+                colors={['#FFFFFF', '#F0F0F0']}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.primaryButtonText}>Start Growing Today</Text>
+                <ArrowRight size={20} color="#58CC02" />
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <Text style={styles.disclaimer}>
+              🌿 FDIC insured • GENIUS Act compliant • Start with just $1
+            </Text>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    margin: 2rem
+  },
+  gradient: {
     flex: 1,
   },
   decorationContainer: {
@@ -127,15 +140,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     opacity: 0.6,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 80,
-    paddingBottom: 40,
+    paddingTop: 20,
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
   logoContainer: {
     marginBottom: 20,
@@ -151,7 +166,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.3)',
   },
   title: {
-    fontSize: 36,
+    fontSize: Math.min(36, width * 0.09),
     fontWeight: '800',
     color: '#FFFFFF',
     marginBottom: 8,
@@ -160,12 +175,13 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: Math.min(18, width * 0.045),
     color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 30,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
   illustrationContainer: {
     alignItems: 'center',
@@ -202,20 +218,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 40,
+    marginBottom: 32,
   },
   featureCard: {
     width: '48%',
     backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
+    padding: 16,
+    marginBottom: 12,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+    minHeight: 140,
   },
   featureIcon: {
     width: 50,
@@ -226,21 +243,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   featureTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     color: '#2E7D32',
     marginBottom: 6,
     textAlign: 'center',
   },
   featureDescription: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#5A5A5A',
-    lineHeight: 18,
+    lineHeight: 16,
     textAlign: 'center',
   },
   ctaSection: {
-    marginTop: 'auto',
     alignItems: 'center',
+    marginTop: 20,
   },
   primaryButton: {
     borderRadius: 20,
@@ -250,6 +267,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
+    width: '100%',
+    maxWidth: 300,
   },
   buttonGradient: {
     paddingVertical: 18,
@@ -271,5 +290,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
 });

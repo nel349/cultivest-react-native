@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Shield, CircleCheck as CheckCircle, ArrowRight, Wallet } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const { width } = Dimensions.get('window');
 
 export default function KYCScreen() {
+  const insets = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStartKYC = async () => {
@@ -39,81 +43,87 @@ export default function KYCScreen() {
   ];
 
   return (
-    <LinearGradient
-      colors={['#89E5AB', '#58CC02', '#46A302']}
-      style={styles.container}
-    >
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.content}>
-          <View style={styles.headerSection}>
-            <View style={styles.iconContainer}>
-              <Shield size={40} color="#58CC02" />
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#89E5AB', '#58CC02', '#46A302']}
+        style={[styles.gradient, { paddingTop: insets.top }]}
+      >
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            <View style={styles.headerSection}>
+              <View style={styles.iconContainer}>
+                <Shield size={40} color="#58CC02" />
+              </View>
+              
+              <Text style={styles.title}>Almost Ready to Grow! 🌱</Text>
+              <Text style={styles.subtitle}>
+                Complete your garden setup to start planting seeds and growing your wealth
+              </Text>
             </View>
-            
-            <Text style={styles.title}>Almost Ready to Grow! 🌱</Text>
-            <Text style={styles.subtitle}>
-              Complete your garden setup to start planting seeds and growing your wealth
+
+            <View style={styles.stepsContainer}>
+              {kycSteps.map((step, index) => (
+                <View key={index} style={styles.stepCard}>
+                  <View style={styles.stepIcon}>
+                    <step.icon size={24} color="#58CC02" />
+                  </View>
+                  <View style={styles.stepContent}>
+                    <Text style={styles.stepTitle}>{step.title}</Text>
+                    <Text style={styles.stepDescription}>{step.description}</Text>
+                  </View>
+                  <View style={styles.stepStatus}>
+                    <View style={styles.statusDot} />
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.benefitsSection}>
+              <Text style={styles.benefitsTitle}>Why complete setup? 🌟</Text>
+              <View style={styles.benefitsList}>
+                <View style={styles.benefitItem}>
+                  <CheckCircle size={16} color="#58CC02" />
+                  <Text style={styles.benefitText}>GENIUS Act compliant</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                  <CheckCircle size={16} color="#58CC02" />
+                  <Text style={styles.benefitText}>Secure seed transfers</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                  <CheckCircle size={16} color="#58CC02" />
+                  <Text style={styles.benefitText}>Higher planting limits</Text>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.continueButton, isLoading && styles.buttonDisabled]}
+              onPress={handleStartKYC}
+              disabled={isLoading}
+            >
+              <LinearGradient
+                colors={isLoading ? ['#C0C0C0', '#C0C0C0'] : ['#FFFFFF', '#F0F0F0']}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.continueButtonText}>
+                  {isLoading ? 'Planting seeds...' : 'Start Growing! 🌱'}
+                </Text>
+                {!isLoading && <ArrowRight size={20} color="#58CC02" />}
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <Text style={styles.disclaimer}>
+              Your data is encrypted and protected like seeds in fertile soil. We partner with MoonPay for 
+              secure identity verification and comply with all financial regulations.
             </Text>
           </View>
-
-          <View style={styles.stepsContainer}>
-            {kycSteps.map((step, index) => (
-              <View key={index} style={styles.stepCard}>
-                <View style={styles.stepIcon}>
-                  <step.icon size={24} color="#58CC02" />
-                </View>
-                <View style={styles.stepContent}>
-                  <Text style={styles.stepTitle}>{step.title}</Text>
-                  <Text style={styles.stepDescription}>{step.description}</Text>
-                </View>
-                <View style={styles.stepStatus}>
-                  <View style={styles.statusDot} />
-                </View>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.benefitsSection}>
-            <Text style={styles.benefitsTitle}>Why complete setup? 🌟</Text>
-            <View style={styles.benefitsList}>
-              <View style={styles.benefitItem}>
-                <CheckCircle size={16} color="#58CC02" />
-                <Text style={styles.benefitText}>GENIUS Act compliant</Text>
-              </View>
-              <View style={styles.benefitItem}>
-                <CheckCircle size={16} color="#58CC02" />
-                <Text style={styles.benefitText}>Secure seed transfers</Text>
-              </View>
-              <View style={styles.benefitItem}>
-                <CheckCircle size={16} color="#58CC02" />
-                <Text style={styles.benefitText}>Higher planting limits</Text>
-              </View>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.continueButton, isLoading && styles.buttonDisabled]}
-            onPress={handleStartKYC}
-            disabled={isLoading}
-          >
-            <LinearGradient
-              colors={isLoading ? ['#C0C0C0', '#C0C0C0'] : ['#FFFFFF', '#F0F0F0']}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.continueButtonText}>
-                {isLoading ? 'Planting seeds...' : 'Start Growing! 🌱'}
-              </Text>
-              {!isLoading && <ArrowRight size={20} color="#58CC02" />}
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <Text style={styles.disclaimer}>
-            Your data is encrypted and protected like seeds in fertile soil. We partner with MoonPay for 
-            secure identity verification and comply with all financial regulations.
-          </Text>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 }
 
@@ -121,13 +131,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  gradient: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
   },
-  content: {
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingTop: 20,
+  },
+  content: {
+    flex: 1,
   },
   headerSection: {
     alignItems: 'center',
@@ -143,7 +159,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: Math.min(28, width * 0.07),
     fontWeight: '800',
     color: '#FFFFFF',
     marginBottom: 8,
@@ -151,6 +167,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+    paddingHorizontal: 20,
   },
   subtitle: {
     fontSize: 16,
@@ -158,6 +175,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
   stepsContainer: {
     marginBottom: 32,
@@ -268,5 +286,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
     fontWeight: '500',
+    paddingHorizontal: 20,
   },
 });

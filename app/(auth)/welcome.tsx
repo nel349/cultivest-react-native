@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   decorationContainer: {
     position: 'absolute',
     width: '100%',
-    height: '100%',
+    height: '80%',
   },
   plantDecor: {
     position: 'absolute',

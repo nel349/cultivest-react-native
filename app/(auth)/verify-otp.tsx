@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 

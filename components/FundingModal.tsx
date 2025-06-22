@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,7 @@ import { apiClient } from '@/utils/api';
 import { useMoonPaySdk } from '@moonpay/react-native-moonpay-sdk';
 import 'react-native-url-polyfill/auto';
 import * as WebBrowser from 'expo-web-browser';
+import TestnetFundingModal from './TestnetFundingModal';
 
 const { width } = Dimensions.get('window');
 
@@ -48,6 +49,7 @@ export default function FundingModal({
   const [useCustomAmount, setUseCustomAmount] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [walletLoading, setWalletLoading] = useState(false);
+  const [showTestnetFunding, setShowTestnetFunding] = useState(false);
 
   const presetAmounts = [5, 10, 25, 50, 100];
 
@@ -177,7 +179,7 @@ export default function FundingModal({
         
         if (walletResponse.success && walletResponse.walletAddress) {
           setWalletAddress(walletResponse.walletAddress);
-          console.log('✅ Wallet address set:', walletResponse.walletAddress);
+          console.log('✅ Wallet address set for FundingModal:', walletResponse.walletAddress);
         } else {
           console.log('⚠️ No wallet found, attempting to create one...');
           
@@ -248,13 +250,43 @@ export default function FundingModal({
         await openWithInAppBrowser();
         console.log('🔍 openWithInAppBrowser call completed');
         
-        // Notify parent component
-        if (onFundingInitiated && depositResponse.transactionId) {
-          onFundingInitiated(depositResponse.transactionId);
-        }
+        // Check if we're in testnet/development mode
+        const isTestnetMode = process.env.EXPO_PUBLIC_API_URL?.includes('localhost') || 
+                             process.env.NODE_ENV === 'development';
         
-        // Close the funding modal
-        onClose();
+        if (isTestnetMode) {
+          // Show testnet funding option since MoonPay doesn't work on testnet
+          Alert.alert(
+            'Development Mode Detected',
+            'MoonPay sandbox doesn\'t process real transactions. Would you like to use testnet faucets instead?',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => {
+                  onClose();
+                }
+              },
+              {
+                text: 'Use Testnet Faucets',
+                style: 'default',
+                onPress: () => {
+                  console.log('🚰 Opening testnet funding modal');
+                  onClose(); // Close MoonPay modal first
+                  setTimeout(() => {
+                    setShowTestnetFunding(true);
+                  }, 500); // Small delay for smooth transition
+                }
+              }
+            ]
+          );
+        } else {
+          // Production mode - normal MoonPay flow
+          if (onFundingInitiated && depositResponse.transactionId) {
+            onFundingInitiated(depositResponse.transactionId);
+          }
+          onClose();
+        }
         
       } else {
         console.error('❌ Deposit initiation failed:', depositResponse.error);
@@ -268,13 +300,31 @@ export default function FundingModal({
     }
   };
 
+  const handleTestnetFundingComplete = () => {
+    console.log('✅ Testnet funding completed');
+    setShowTestnetFunding(false);
+    
+    // Notify parent component that funding was completed
+    if (onFundingInitiated) {
+      onFundingInitiated('testnet-funding-' + Date.now());
+    }
+    
+    // Show success message
+    Alert.alert(
+      'Testnet Funding Complete! 🎉',
+      'Your wallet has been funded with test tokens. You can now try the investment features.',
+      [{ text: 'Continue', onPress: () => {} }]
+    );
+  };
+
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <>
+      <Modal
+        visible={visible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={onClose}
+      >
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { paddingTop: insets.top + 20 }]}>
           <LinearGradient
@@ -410,8 +460,17 @@ export default function FundingModal({
           </LinearGradient>
         </View>
       </View>
+      </Modal>
 
-    </Modal>
+      {/* Testnet Funding Modal - Shows when MoonPay doesn't work on testnet */}
+      <TestnetFundingModal
+        visible={showTestnetFunding}
+        onClose={() => setShowTestnetFunding(false)}
+        userID={userID}
+        onFundingComplete={handleTestnetFundingComplete}
+        initialWalletAddress={walletAddress} // Pass the wallet address
+      />
+    </>
   );
 }
 

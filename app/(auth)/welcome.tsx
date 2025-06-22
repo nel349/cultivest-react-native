@@ -140,8 +140,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   scrollView: {
-    flex: 1,
-    height:'100%'
+    flex: 1
   },
   scrollContent: {
     flexGrow: 1,

@@ -88,11 +88,7 @@ export default function VerifyOTPScreen() {
           </View>
         </View>
 
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.content}>
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backButton}
@@ -103,7 +99,7 @@ export default function VerifyOTPScreen() {
             <Text style={styles.headerTitle}>Verify Your Seed 🌱</Text>
           </View>
 
-          <View style={styles.content}>
+          <View style={styles.mainContent}>
             <View style={styles.iconContainer}>
               <View style={styles.iconBackground}>
                 <MessageSquare size={32} color="#58CC02" />
@@ -178,7 +174,7 @@ export default function VerifyOTPScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -200,18 +196,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     opacity: 0.6,
   },
-  scrollView: {
+  content: {
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
     paddingHorizontal: 24,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 15,
   },
   backButton: {
     width: 44,
@@ -235,13 +228,15 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
-  content: {
+  mainContent: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 20,
   },
   iconContainer: {
-    marginTop: 20,
-    marginBottom: 32,
+    marginTop: 10,
+    marginBottom: 20,
     position: 'relative',
   },
   iconBackground: {
@@ -272,7 +267,7 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 20,
   },
   title: {
     fontSize: 26,
@@ -302,7 +297,7 @@ const styles = StyleSheet.create({
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
     paddingHorizontal: 10,
     flexWrap: 'wrap',
   },
@@ -342,7 +337,7 @@ const styles = StyleSheet.create({
   verifyButton: {
     width: '100%',
     borderRadius: 20,
-    marginBottom: 32,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,

@@ -55,11 +55,7 @@ export default function WelcomeScreen() {
           </View>
         </View>
 
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.content}>
           {/* Hero Section */}
           <View style={styles.heroSection}>
             <View style={styles.logoContainer}>
@@ -117,7 +113,7 @@ export default function WelcomeScreen() {
               🌿 FDIC insured • GENIUS Act compliant • Start with just $1
             </Text>
           </View>
-        </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -139,26 +135,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     opacity: 0.6,
   },
-  scrollView: {
-    flex: 1
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 20
+  content: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'flex-start',
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 25,
   },
   logoContainer: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   logoBackground: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -166,31 +158,31 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.3)',
   },
   title: {
-    fontSize: Math.min(36, width * 0.09),
+    fontSize: Math.min(28, width * 0.07),
     fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 6,
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   subtitle: {
-    fontSize: Math.min(18, width * 0.045),
+    fontSize: Math.min(16, width * 0.04),
     color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 30,
+    lineHeight: 20,
+    marginBottom: 20,
     fontWeight: '500',
     paddingHorizontal: 20,
   },
   illustrationContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   treeContainer: {
     position: 'relative',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   coinBadge: {
     position: 'absolute',
@@ -209,7 +201,7 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
   },
   illustrationText: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'rgba(255,255,255,0.9)',
     fontWeight: '600',
     textAlign: 'center',
@@ -218,77 +210,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 25,
+    marginTop: 10,
   },
   featureCard: {
     width: '48%',
     backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 8,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    minHeight: 140,
+    shadowRadius: 4,
+    elevation: 2,
+    minHeight: 110,
   },
   featureIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   featureTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
     color: '#2E7D32',
-    marginBottom: 6,
+    marginBottom: 4,
     textAlign: 'center',
   },
   featureDescription: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#5A5A5A',
-    lineHeight: 16,
+    lineHeight: 14,
     textAlign: 'center',
   },
   ctaSection: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 15,
+    paddingBottom: 20,
   },
   primaryButton: {
-    borderRadius: 20,
-    marginBottom: 16,
+    borderRadius: 16,
+    marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     width: '100%',
-    maxWidth: 300,
+    maxWidth: 280,
   },
   buttonGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 40,
-    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
   },
   primaryButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#58CC02',
   },
   disclaimer: {
-    fontSize: 12,
+    fontSize: 10,
     color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 14,
     fontWeight: '500',
     paddingHorizontal: 20,
   },

@@ -73,11 +73,11 @@ export default function VerifyOTPScreen() {
                 // Check if wallet was auto-created (check both response root and user object)
                 const walletCreated = response.walletCreated || response.user?.walletCreated;
                 if (walletCreated) {
-                  console.log('✅ Wallet auto-created, proceeding to KYC');
-                  router.push('/(auth)/kyc');
+                  console.log('✅ Wallet auto-created, proceeding to setup');
+                  router.push('/(auth)/setup');
                 } else {
                   console.log('⏳ Creating wallet...');
-                  router.push('/(auth)/kyc'); // Will create wallet in KYC or dashboard
+                  router.push('/(auth)/setup'); // Will show setup completion
                 }
               }
             }

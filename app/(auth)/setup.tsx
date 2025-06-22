@@ -7,38 +7,38 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
-export default function KYCScreen() {
+export default function SetupScreen() {
   const insets = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleStartKYC = async () => {
+  const handleComplete = async () => {
     setIsLoading(true);
     
-    // Simulate KYC process
+    // Navigate to main app - funding will be set up in the dashboard
     setTimeout(() => {
       setIsLoading(false);
       router.replace('/(tabs)');
-    }, 2000);
+    }, 1500);
   };
 
-  const kycSteps = [
+  const setupSteps = [
+    {
+      icon: CheckCircle,
+      title: 'Wallet Created ✅',
+      description: 'Your secure Algorand wallet is ready',
+      status: 'completed'
+    },
     {
       icon: Shield,
-      title: 'Identity Verification 🛡️',
-      description: 'Quick 2-minute process with MoonPay',
-      status: 'pending'
+      title: 'MoonPay Integration 🛡️',
+      description: 'Fund with credit card (ALGO → USDCa)',
+      status: 'ready'
     },
     {
       icon: Wallet,
-      title: 'Garden Wallet Setup 🌱',
-      description: 'Secure custodial wallet for your seeds',
-      status: 'pending'
-    },
-    {
-      icon: CheckCircle,
-      title: 'Ready to Plant! 🌿',
-      description: 'Start growing with just $1',
-      status: 'pending'
+      title: 'Ready to Grow! 🌱',
+      description: 'Start micro-investing with stable coins',
+      status: 'ready'
     }
   ];
 
@@ -56,17 +56,17 @@ export default function KYCScreen() {
           <View style={styles.content}>
             <View style={styles.headerSection}>
               <View style={styles.iconContainer}>
-                <Shield size={40} color="#58CC02" />
+                <CheckCircle size={40} color="#58CC02" />
               </View>
               
-              <Text style={styles.title}>Almost Ready to Grow! 🌱</Text>
+              <Text style={styles.title}>Your Garden is Ready! 🌱</Text>
               <Text style={styles.subtitle}>
-                Complete your garden setup to start planting seeds and growing your wealth
+                Wallet created successfully. You can now fund with fiat and start growing your wealth through micro-investments.
               </Text>
             </View>
 
             <View style={styles.stepsContainer}>
-              {kycSteps.map((step, index) => (
+              {setupSteps.map((step, index) => (
                 <View key={index} style={styles.stepCard}>
                   <View style={styles.stepIcon}>
                     <step.icon size={24} color="#58CC02" />
@@ -76,33 +76,41 @@ export default function KYCScreen() {
                     <Text style={styles.stepDescription}>{step.description}</Text>
                   </View>
                   <View style={styles.stepStatus}>
-                    <View style={styles.statusDot} />
+                    <View style={[
+                      styles.statusDot, 
+                      step.status === 'completed' && styles.statusCompleted,
+                      step.status === 'ready' && styles.statusReady
+                    ]} />
                   </View>
                 </View>
               ))}
             </View>
 
             <View style={styles.benefitsSection}>
-              <Text style={styles.benefitsTitle}>Why complete setup? 🌟</Text>
+              <Text style={styles.benefitsTitle}>What you get 🌟</Text>
               <View style={styles.benefitsList}>
                 <View style={styles.benefitItem}>
                   <CheckCircle size={16} color="#58CC02" />
-                  <Text style={styles.benefitText}>GENIUS Act compliant</Text>
+                  <Text style={styles.benefitText}>GENIUS Act compliant stablecoins</Text>
                 </View>
                 <View style={styles.benefitItem}>
                   <CheckCircle size={16} color="#58CC02" />
-                  <Text style={styles.benefitText}>Secure seed transfers</Text>
+                  <Text style={styles.benefitText}>Credit card funding (via ALGO)</Text>
                 </View>
                 <View style={styles.benefitItem}>
                   <CheckCircle size={16} color="#58CC02" />
-                  <Text style={styles.benefitText}>Higher planting limits</Text>
+                  <Text style={styles.benefitText}>Start investing with just $1</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                  <CheckCircle size={16} color="#58CC02" />
+                  <Text style={styles.benefitText}>Auto-convert to USDCa stablecoins</Text>
                 </View>
               </View>
             </View>
 
             <TouchableOpacity
               style={[styles.continueButton, isLoading && styles.buttonDisabled]}
-              onPress={handleStartKYC}
+              onPress={handleComplete}
               disabled={isLoading}
             >
               <LinearGradient
@@ -110,15 +118,15 @@ export default function KYCScreen() {
                 style={styles.buttonGradient}
               >
                 <Text style={styles.continueButtonText}>
-                  {isLoading ? 'Planting seeds...' : 'Start Growing! 🌱'}
+                  {isLoading ? 'Entering your garden...' : 'Enter My Garden 🌿'}
                 </Text>
                 {!isLoading && <ArrowRight size={20} color="#58CC02" />}
               </LinearGradient>
             </TouchableOpacity>
 
             <Text style={styles.disclaimer}>
-              Your data is encrypted and protected like seeds in fertile soil. We partner with MoonPay for 
-              secure identity verification and comply with all financial regulations.
+              Your wallet is secured with bank-grade encryption. We partner with MoonPay for 
+              secure fiat funding and comply with all financial regulations including the GENIUS Act.
             </Text>
           </View>
         </ScrollView>
@@ -223,7 +231,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: '#CCCCCC',
+  },
+  statusCompleted: {
     backgroundColor: '#58CC02',
+  },
+  statusReady: {
+    backgroundColor: '#FFD900',
   },
   benefitsSection: {
     backgroundColor: 'rgba(255,255,255,0.9)',

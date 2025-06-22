@@ -145,7 +145,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
     paddingBottom: 100
   },
   heroSection: {

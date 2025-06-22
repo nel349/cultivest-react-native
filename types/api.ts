@@ -40,6 +40,7 @@ export interface ApiResponse<T = any> {
       algo: number;
       usdca: number;
       lastUpdated: string;
+      isOptedIntoUSDCa?: boolean;
     };
   };
   // Deposit fields

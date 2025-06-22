@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -23,8 +23,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import * as Clipboard from 'expo-clipboard';
-
-const { width } = Dimensions.get('window');
 
 interface TestnetFundingModalProps {
   visible: boolean;
@@ -107,9 +105,9 @@ export default function TestnetFundingModal({
           isOptedIntoUSDCa: isOptedIn,
           readyForInvestment: algoBalance > 0 && usdcaBalance > 0,
           nextSteps: algoBalance > 0 && usdcaBalance > 0 ? 'Continue to Investment' : 
-                     !isOptedIn ? 'Need to opt into USDCa or use Circle faucet' :
+                     !isOptedIn ? 'Need to opt into USDCa first' :
                      algoBalance === 0 ? 'Need ALGO for transaction fees' : 
-                     'Need USDCa tokens',
+                     'Need USDCa tokens from faucet',
         }
         setFundingStatus(fundingStatus as FundingStatus);
         
@@ -463,28 +461,58 @@ export default function TestnetFundingModal({
           {/* Show USDCa acquisition guidance if needed */}
           {fundingStatus?.algoFunded && !fundingStatus?.usdcaFunded && (
             <View style={styles.guidanceCard}>
-              <Text style={styles.guidanceTitle}>Need USDCa tokens? 💰</Text>
-              <Text style={styles.guidanceText}>
-                Visit Discord #faucet and use this command:
+              <Text style={styles.guidanceTitle}>
+                {fundingStatus?.isOptedIntoUSDCa ? 
+                  'Get USDCa Tokens 💰' : 
+                  'Need to Opt-in First ⚠️'
+                }
               </Text>
-              <View style={styles.commandContainer}>
-                <Text style={styles.commandText}>
-                  /faucet send {walletAddress?.slice(0, 20)}... asset:10458941 amount:100
-                </Text>
-                <TouchableOpacity 
-                  style={styles.copyCommandButton}
-                  onPress={() => copyToClipboard(`/faucet send ${walletAddress} asset:10458941 amount:100`)}
-                >
-                  <Copy size={14} color="#58CC02" />
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.primaryButton, { marginTop: 12 }]}
-                onPress={() => openLink(`https://discord.gg/algorand`)}
-              >
-                <Text style={styles.actionButtonText}>Open Discord</Text>
-                <ExternalLink size={16} color="#FFFFFF" />
-              </TouchableOpacity>
+              <Text style={styles.guidanceText}>
+                {fundingStatus?.isOptedIntoUSDCa ? 
+                  'You\'re opted in! Copy your address and get tokens from Circle faucet:' : 
+                  'Use the manual opt-in button above, then come back here for tokens.'
+                }
+              </Text>
+              
+              {/* Only show faucet instructions if opted in */}
+              {fundingStatus?.isOptedIntoUSDCa && (
+                <>
+                  {/* Wallet Address Section */}
+                  <View style={styles.addressContainer}>
+                    <Text style={styles.addressLabel}>📋 Your Wallet Address (Copy This):</Text>
+                    <TouchableOpacity 
+                      style={[styles.addressRow, styles.highlightedAddress]}
+                      onPress={() => copyToClipboard(walletAddress)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.addressText} numberOfLines={1}>
+                        {walletAddress || 'Loading...'}
+                      </Text>
+                      <View style={styles.copyButton}>
+                        <Copy size={18} color="#FFFFFF" />
+                      </View>
+                    </TouchableOpacity>
+                    <Text style={styles.copyHint}>👆 Tap to copy • Use this address in faucets</Text>
+                  </View>
+                  
+                  {/* Step-by-step faucet instructions */}
+                  <View style={styles.faucetSteps}>
+                    <Text style={styles.stepsTitle}>📝 Simple Steps:</Text>
+                    <Text style={styles.stepText}>1. Copy your address above ☝️</Text>
+                    <Text style={styles.stepText}>2. Click Circle faucet below 👇</Text>
+                    <Text style={styles.stepText}>3. Select "Algorand Testnet"</Text>
+                    <Text style={styles.stepText}>4. Paste your address and request USDCa</Text>
+                  </View>
+                  
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.primaryButton, { marginTop: 16 }]}
+                    onPress={() => openLink(`https://faucet.circle.com/`)}
+                  >
+                    <Text style={styles.actionButtonText}>🎯 Open Circle Faucet</Text>
+                    <ExternalLink size={16} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           )}
         </View>
@@ -911,6 +939,29 @@ const styles = StyleSheet.create({
   methodDescription: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
+    lineHeight: 20,
+  },
+  highlightedAddress: {
+    borderWidth: 2,
+    borderColor: '#58CC02',
+    backgroundColor: 'rgba(88, 204, 2, 0.1)',
+  },
+  faucetSteps: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+  },
+  stepsTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  stepText: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: 6,
     lineHeight: 20,
   },
   methodCard: {

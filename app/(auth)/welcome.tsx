@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Leaf, Sprout, TreePine, Flower, Star, ArrowRight } from 'lucide-react-native';
@@ -37,11 +37,12 @@ export default function WelcomeScreen() {
   ];
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#89E5AB', '#58CC02', '#46A302']}
-        style={[styles.gradient, { paddingTop: insets.top }]}
-      >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={['#89E5AB', '#58CC02', '#46A302']}
+          style={[styles.gradient, { paddingTop: insets.top }]}
+        >
         {/* Decorative Plants */}
         <View style={styles.decorationContainer}>
           <View style={[styles.plantDecor, { top: 60 + insets.top, left: 20 }]}>
@@ -116,6 +117,7 @@ export default function WelcomeScreen() {
         </View>
       </LinearGradient>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 

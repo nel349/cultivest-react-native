@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
 export default function VerifyOTPScreen() {
   const insets = useSafeAreaInsets();
-  const { phoneNumber, userID } = useLocalSearchParams();
+  const { phoneNumber, userID, name } = useLocalSearchParams();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
@@ -49,10 +50,50 @@ export default function VerifyOTPScreen() {
 
     setIsLoading(true);
     try {
-      // Mock data for development
-      router.push('/(auth)/kyc');
+      console.log('🔐 Attempting OTP verification:', { userID, otpCode });
+      
+      const response = await apiClient.verifyOtp(userID as string, otpCode);
+      
+      if (response.success && (response.authToken || response.token)) {
+        console.log('✅ OTP verification successful');
+        
+        // Store JWT token securely
+        const token = response.authToken || response.token;
+        await AsyncStorage.setItem('auth_token', token);
+        await AsyncStorage.setItem('user_id', userID as string);
+        await AsyncStorage.setItem('user_name', name as string || '');
+        
+        Alert.alert(
+          'Welcome to Cultivest! 🌱',
+          'Your account is verified! Let\'s create your wallet and start growing.',
+          [
+            {
+              text: 'Continue',
+              onPress: () => {
+                // Check if wallet was auto-created (check both response root and user object)
+                const walletCreated = response.walletCreated || response.user?.walletCreated;
+                if (walletCreated) {
+                  console.log('✅ Wallet auto-created, proceeding to KYC');
+                  router.push('/(auth)/kyc');
+                } else {
+                  console.log('⏳ Creating wallet...');
+                  router.push('/(auth)/kyc'); // Will create wallet in KYC or dashboard
+                }
+              }
+            }
+          ]
+        );
+      } else {
+        console.error('❌ OTP verification failed:', response.error);
+        Alert.alert('Error', response.error || 'Invalid verification code. Please try again.');
+        
+        // Clear the OTP inputs on failure
+        setOtp(['', '', '', '', '', '']);
+        inputRefs.current[0]?.focus();
+      }
     } catch (error) {
-      Alert.alert('Error', 'Network error. Please check your connection.');
+      console.error('❌ Network error:', error);
+      Alert.alert('Error', 'Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -62,33 +103,47 @@ export default function VerifyOTPScreen() {
     if (countdown > 0) return;
     
     try {
-      setCountdown(60);
-      Alert.alert('Code Sent', 'A new verification code has been sent to your phone.');
+      console.log('📱 Resending OTP to:', phoneNumber);
+      
+      // Extract name and country from stored data or use defaults
+      const storedName = name as string || 'User';
+      const defaultCountry = 'US'; // Could be extracted from phone number
+      
+      const response = await apiClient.signup(phoneNumber as string, storedName, defaultCountry);
+      
+      if (response.success) {
+        setCountdown(60);
+        Alert.alert('Code Sent! 📱', 'A new verification code has been sent to your phone.');
+      } else {
+        Alert.alert('Error', response.error || 'Failed to resend code. Please try again.');
+      }
     } catch (error) {
+      console.error('❌ Failed to resend OTP:', error);
       Alert.alert('Error', 'Failed to resend code. Please try again.');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#89E5AB', '#58CC02']}
-        style={[styles.gradient, { paddingTop: insets.top }]}
-      >
-        {/* Decorative Plants */}
-        <View style={styles.decorationContainer}>
-          <View style={[styles.plantDecor, { top: 80 + insets.top, left: 25 }]}>
-            <Leaf size={18} color="rgba(255,255,255,0.3)" />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <LinearGradient
+          colors={['#89E5AB', '#58CC02']}
+          style={[styles.gradient, { paddingTop: insets.top }]}
+        >
+          {/* Decorative Plants */}
+          <View style={styles.decorationContainer}>
+            <View style={[styles.plantDecor, { top: 80 + insets.top, left: 25 }]}>
+              <Leaf size={18} color="rgba(255,255,255,0.3)" />
+            </View>
+            <View style={[styles.plantDecor, { top: 160 + insets.top, right: 30 }]}>
+              <Sprout size={16} color="rgba(255,255,255,0.2)" />
+            </View>
+            <View style={[styles.plantDecor, { bottom: 120, left: 40 }]}>
+              <Flower size={20} color="rgba(255,255,255,0.25)" />
+            </View>
           </View>
-          <View style={[styles.plantDecor, { top: 160 + insets.top, right: 30 }]}>
-            <Sprout size={16} color="rgba(255,255,255,0.2)" />
-          </View>
-          <View style={[styles.plantDecor, { bottom: 120, left: 40 }]}>
-            <Flower size={20} color="rgba(255,255,255,0.25)" />
-          </View>
-        </View>
 
-        <View style={styles.content}>
+          <View style={styles.content}>
           <View style={styles.header}>
             <TouchableOpacity 
               style={styles.backButton}
@@ -177,6 +232,7 @@ export default function VerifyOTPScreen() {
         </View>
       </LinearGradient>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 

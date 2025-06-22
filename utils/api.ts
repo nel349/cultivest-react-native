@@ -1,19 +1,35 @@
 import { ApiResponse } from '@/types/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
 class ApiClient {
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    } catch (error) {
+      console.error('Failed to get auth token:', error);
+      return {};
+    }
+  }
+
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    requireAuth: boolean = false
   ): Promise<ApiResponse<T>> {
     try {
       const url = `${API_BASE_URL}${endpoint}`;
+      const authHeaders = requireAuth ? await this.getAuthHeaders() : {};
+      const headers = {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+        ...options.headers,
+      };
+      
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+        headers,
         ...options,
       });
 
@@ -35,7 +51,7 @@ class ApiClient {
     }
   }
 
-  // Auth endpoints
+  // Auth endpoints (Updated to match backend implementation)
   async signup(phoneNumber: string, name: string, country: string) {
     return this.request('/auth/signup', {
       method: 'POST',
@@ -69,17 +85,32 @@ class ApiClient {
     });
   }
 
-  // Wallet endpoints
-  async getWalletBalance(userID: string) {
-    return this.request(`/wallet/balance?userID=${userID}`);
+  // Wallet endpoints (Updated for backend integration)
+  async createWallet(userID: string) {
+    return this.request('/wallet/create', {
+      method: 'POST',
+      body: JSON.stringify({ userID }),
+    }, true);
   }
 
-  // Deposit endpoints
-  async initiateDeposit(userID: string, amount: number, currency: string, provider: string) {
+  async getWalletBalance(userID: string, live: boolean = false) {
+    return this.request(`/wallet/balance?userID=${userID}&live=${live}`, {}, true);
+  }
+
+  // MoonPay Deposit endpoints (Updated for ALGO → USDCa flow)
+  async initiateDeposit(amountUSD: number, targetCurrency: string = 'usdca') {
     return this.request('/deposit/initiate', {
       method: 'POST',
-      body: JSON.stringify({ userID, amount, currency, provider }),
-    });
+      body: JSON.stringify({ amountUSD, targetCurrency }),
+    }, true);
+  }
+
+  async getDepositStatus(transactionId: string) {
+    return this.request(`/deposit/status/${transactionId}`, {}, true);
+  }
+
+  async calculateDepositFees(amountUSD: number) {
+    return this.request(`/deposit/calculate-fees?amountUSD=${amountUSD}`);
   }
 
   // Investment endpoints

@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 20,
-    paddingBottom: 20
+    paddingBottom: 100
   },
   heroSection: {
     alignItems: 'center',

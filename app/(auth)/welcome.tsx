@@ -3,11 +3,33 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Leaf, Sprout, TreePine, Flower, Star, ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+
+  // Development bypass function
+  const devBypass = async () => {
+    // Using the user ID from our earlier backend test
+    const devUserID = "34f9176d-172d-431d-adb2-000d6459d4d2";
+    const devUserName = "Norman E. Lopez";
+    
+    // Mock JWT token (you might want to get a real one from backend)
+    const mockToken = "dev_bypass_token";
+    
+    try {
+      await AsyncStorage.setItem('auth_token', mockToken);
+      await AsyncStorage.setItem('user_id', devUserID);
+      await AsyncStorage.setItem('user_name', devUserName);
+      
+      console.log('🚀 Dev bypass: Logged in as:', devUserName, devUserID);
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Dev bypass failed:', error);
+    }
+  };
 
   const features = [
     {
@@ -113,6 +135,16 @@ export default function WelcomeScreen() {
             <Text style={styles.disclaimer}>
               🌿 FDIC insured • GENIUS Act compliant • Start with just $1
             </Text>
+
+            {/* Development Bypass Button */}
+            {__DEV__ && (
+              <TouchableOpacity
+                style={styles.devButton}
+                onPress={devBypass}
+              >
+                <Text style={styles.devButtonText}>🚀 DEV: Skip to Dashboard</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </LinearGradient>
@@ -287,5 +319,20 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     fontWeight: '500',
     paddingHorizontal: 20,
+  },
+  devButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  devButtonText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

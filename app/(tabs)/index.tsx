@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { 
@@ -8,6 +8,8 @@ import {
   Sprout, Flower, Star, Trophy, Zap, Target
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { apiClient } from '@/utils/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -15,23 +17,129 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<{
+    userID: string;
+    name: string;
+    walletAddress?: string;
+  } | null>(null);
   const [dashboardData, setDashboardData] = useState({
-    balance: 127.45,
-    dailyYield: 0.31,
-    totalYieldEarned: 12.87,
-    moneyTreeLevel: 3,
-    weeklyGrowth: 2.4,
-    investmentStreak: 12,
-    plantsGrown: 8,
-    nextMilestone: 200
+    // Real wallet balances
+    balanceUSDCa: 0,
+    balanceALGO: 0,
+    totalBalanceUSD: 0,
+    walletAddress: '',
+    
+    // Investment data (will be real later)
+    dailyYield: 0,
+    totalYieldEarned: 0,
+    moneyTreeLevel: 1,
+    weeklyGrowth: 0,
+    investmentStreak: 0,
+    plantsGrown: 0,
+    nextMilestone: 50
   });
 
+  // Load user info from storage
+  const loadUserInfo = async () => {
+    try {
+      const userID = await AsyncStorage.getItem('user_id');
+      const userName = await AsyncStorage.getItem('user_name');
+      
+      if (userID && userName) {
+        setUserInfo({
+          userID,
+          name: userName
+        });
+        return userID;
+      }
+    } catch (error) {
+      console.error('Failed to load user info:', error);
+    }
+    return null;
+  };
+
+  // Fetch wallet balance from backend
+  const fetchWalletBalance = async (userID: string) => {
+    try {
+      console.log('🔍 Fetching wallet balance for user:', userID);
+      
+      // Fetch both database balance and live blockchain balance
+      const [dbResponse, liveResponse] = await Promise.all([
+        apiClient.getWalletBalance(userID, false), // Database balance
+        apiClient.getWalletBalance(userID, true)   // Live blockchain balance
+      ]);
+
+      console.log('💾 Database balance response:', dbResponse);
+      console.log('🔗 Live blockchain response:', liveResponse);
+
+      if (dbResponse.success) {
+        // Handle the actual API response structure
+        const walletAddress = dbResponse.walletAddress || '';
+        const dbBalance = dbResponse.balance?.databaseBalance || {};
+        const liveBalance = dbResponse.balance?.onChainBalance || (liveResponse.success ? liveResponse.balance?.onChainBalance : null);
+        
+        // Use live balance if available, fallback to database
+        const algoBalance = liveBalance?.algo || dbBalance.algo || 0;
+        const usdcaBalance = liveBalance?.usdca || dbBalance.usdca || 0;
+        
+        console.log('💰 Parsed balances:', { algoBalance, usdcaBalance, walletAddress });
+        
+        setDashboardData(prev => ({
+          ...prev,
+          balanceUSDCa: usdcaBalance,
+          balanceALGO: algoBalance,
+          totalBalanceUSD: usdcaBalance + (algoBalance * 0.30), // Rough ALGO/USD rate
+          walletAddress: walletAddress
+        }));
+        
+        // Update user info with wallet address
+        setUserInfo(prev => prev ? {
+          ...prev,
+          walletAddress: walletAddress
+        } : null);
+      } else {
+        console.error('Failed to fetch wallet balance:', dbResponse.error);
+      }
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error);
+      Alert.alert('Error', 'Failed to load wallet balance. Please try again.');
+    }
+  };
+
+  // Load dashboard data
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      const userID = await loadUserInfo();
+      if (userID) {
+        await fetchWalletBalance(userID);
+      }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Refresh data
   const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => {
+    try {
+      if (userInfo?.userID) {
+        await fetchWalletBalance(userInfo.userID);
+      }
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
       setRefreshing(false);
-    }, 1000);
+    }
   };
+
+  // Load data on component mount
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
   const quickActions = [
     {
@@ -136,7 +244,9 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <Text style={styles.greeting}>Good morning! 🌅</Text>
-              <Text style={styles.userName}>Keep growing, Gardener</Text>
+              <Text style={styles.userName}>
+                Keep growing, {userInfo?.name || 'Gardener'}
+              </Text>
             </View>
             <View style={styles.headerRight}>
               <TouchableOpacity style={styles.iconButton}>
@@ -172,10 +282,10 @@ export default function HomeScreen() {
               
               <View style={styles.progressContainer}>
                 <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: `${(dashboardData.balance / dashboardData.nextMilestone) * 100}%` }]} />
+                  <View style={[styles.progressFill, { width: `${(dashboardData.totalBalanceUSD / dashboardData.nextMilestone) * 100}%` }]} />
                 </View>
                 <Text style={styles.progressText}>
-                  ${dashboardData.balance.toFixed(2)} / ${dashboardData.nextMilestone} to next level
+                  ${dashboardData.totalBalanceUSD.toFixed(2)} / ${dashboardData.nextMilestone} to next level
                 </Text>
               </View>
             </LinearGradient>
@@ -202,8 +312,28 @@ export default function HomeScreen() {
               </View>
               
               <Text style={styles.balanceAmount}>
-                {balanceVisible ? `$${dashboardData.balance.toFixed(2)}` : '••••••'}
+                {balanceVisible ? `$${dashboardData.totalBalanceUSD.toFixed(2)}` : '••••••'}
               </Text>
+              
+              {/* Asset Breakdown */}
+              {balanceVisible && (
+                <View style={styles.assetsBreakdown}>
+                  <View style={styles.assetItem}>
+                    <View style={styles.assetIcon}>
+                      <Text style={styles.assetSymbol}>💰</Text>
+                    </View>
+                    <Text style={styles.assetLabel}>USDCa</Text>
+                    <Text style={styles.assetAmount}>${dashboardData.balanceUSDCa.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.assetItem}>
+                    <View style={styles.assetIcon}>
+                      <Text style={styles.assetSymbol}>⚡</Text>
+                    </View>
+                    <Text style={styles.assetLabel}>ALGO</Text>
+                    <Text style={styles.assetAmount}>{dashboardData.balanceALGO.toFixed(2)}</Text>
+                  </View>
+                </View>
+              )}
               
               <View style={styles.yieldContainer}>
                 <View style={styles.yieldItem}>
@@ -214,8 +344,10 @@ export default function HomeScreen() {
                 <View style={styles.yieldDivider} />
                 <View style={styles.yieldItem}>
                   <Target size={16} color="#FF9500" />
-                  <Text style={styles.yieldLabel}>{dashboardData.investmentStreak} Day Streak</Text>
-                  <Text style={styles.yieldValue}>🔥</Text>
+                  <Text style={styles.yieldLabel}>Wallet</Text>
+                  <Text style={styles.yieldValue}>
+                    {dashboardData.walletAddress ? '✅' : '⏳'}
+                  </Text>
                 </View>
               </View>
             </LinearGradient>
@@ -482,6 +614,41 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#2E7D32',
     marginBottom: 16,
+  },
+  assetsBreakdown: {
+    marginBottom: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
+  },
+  assetItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  assetIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  assetSymbol: {
+    fontSize: 16,
+  },
+  assetLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2E7D32',
+    flex: 1,
+  },
+  assetAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
   },
   yieldContainer: {
     flexDirection: 'row',

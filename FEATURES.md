@@ -1,54 +1,57 @@
 # Cultivest - Detailed Features
 
-This document outlines the technical features for Cultivest, a mobile-first micro-investment platform for cryptocurrency investments. Users invest small amounts ($1-$10) in Bitcoin and Algorand, with portfolio tracking via Algorand-based NFTs. The platform starts with custodial wallets and offers future opt-in to self-custody via Chain Key architecture.
+This document outlines the technical features for Cultivest, a Bitcoin-first mobile investment platform enabling micro-investments ($1-$10) in Bitcoin and Algorand with revolutionary NFT portfolio tracking. The platform provides secure custodial wallets for both chains with future opt-in to self-custody via Chain Key architecture.
 
 ## 🚀 **Implementation Status - PHASE 1A COMPLETED** ✅
 
 ### ✅ **PHASE 1A: FOUNDATION (DECEMBER 2024) - COMPLETED:**
 - **Real User Authentication**: Phone-based signup with SMS OTP via Twilio + Supabase database
-- **Custodial Wallet System**: Multi-chain wallet generation (Bitcoin + Algorand) with AES-256 encrypted private key storage
-- **MoonPay SDK Integration**: React Native SDK with direct Bitcoin purchase support
-- **🎯 Bitcoin Investment Infrastructure**: Complete custodial Bitcoin wallet system
-  - **Bitcoin Wallet Generation**: Secure Bitcoin address creation and key management
-  - **MoonPay Bitcoin Integration**: Direct USD → Bitcoin purchases via MoonPay
-  - **Portfolio Tracking**: Algorand NFTs track Bitcoin holdings and performance
-  - **Balance Synchronization**: Real-time Bitcoin and Algorand balance monitoring
-  - **Custodial Signing**: Backend signs Bitcoin transactions on behalf of users
-- **Enhanced Balance API**: Multi-chain balance tracking with Bitcoin + Algorand support
-- **Database Architecture**: Full PostgreSQL schema with multi-chain support and NFT metadata
+- **🎯 Bitcoin-First Multi-Chain Custodial System**: Professional-grade custody for Bitcoin + Algorand
+  - **Bitcoin Wallet Generation**: Secure Bitcoin address creation and AES-256 encrypted key management
+  - **Algorand Wallet Generation**: Native Algorand wallet creation with USDC asset opt-in
+  - **MoonPay Bitcoin Integration**: Direct USD → Bitcoin purchases with no conversion fees
+  - **Custodial Storage**: Backend manages Bitcoin and Algorand transactions with institutional security
+  - **Real-time Multi-Chain Tracking**: Live Bitcoin and Algorand balance monitoring with price updates
+- **Revolutionary Portfolio NFTs**: Algorand blockchain tracks Bitcoin + Algorand investments as tradeable NFTs
+  - **Portfolio NFT Creation**: Each user gets a unique NFT representing their multi-chain portfolio
+  - **Performance Tracking**: NFT metadata updates with Bitcoin and Algorand gains/losses in real-time
+  - **Investment History**: Complete multi-chain investment timeline stored on-chain
+- **MoonPay SDK Integration**: React Native SDK optimized for Bitcoin purchases
+- **Database Architecture**: Bitcoin-optimized PostgreSQL schema with NFT metadata support
 
 ### 🎯 **PRODUCTION-READY COMPONENTS:**
-**Multi-Chain Investment Infrastructure:**
-- Complete Bitcoin and Algorand custodial wallet system
-- Direct MoonPay integration for Bitcoin purchases (no conversion needed)
-- Algorand NFT portfolio tracking system
-- Real multi-chain balance monitoring and synchronization
-- Ready for crypto investment platform deployment
+**Bitcoin-First Multi-Chain Investment Infrastructure:**
+- Professional Bitcoin + Algorand custodial system with institutional-grade security
+- Direct MoonPay integration for seamless USD → Bitcoin purchases
+- Native Algorand investment capabilities with USDC support
+- Revolutionary NFT portfolio tracking on Algorand blockchain
+- Real-time multi-chain balance monitoring and price synchronization
+- Ready for Bitcoin-first multi-chain investment platform deployment
 
-**Backend transforms Cultivest into a production-ready crypto investment platform!** 🏆
+**Backend transforms Cultivest into the first NFT-powered Bitcoin + Algorand investment platform!** 🏆
 
 ## 1. User Onboarding - ✅ PHASE 1A COMPLETED
 - [x] ✅ **Phone-based signup with OTP verification** - IMPLEMENTED
-- [x] ✅ **Multi-chain wallet creation** - Bitcoin + Algorand custodial wallets with encryption
-- [x] ✅ **MoonPay Bitcoin integration** - Direct Bitcoin purchase flow
-- [x] ✅ **Portfolio NFT creation** - Algorand NFTs track user investment portfolios
-- [x] ✅ **Balance synchronization** - Multi-chain balance tracking and database sync
-- [ ] Chain Key self-custody opt-in - PHASE 2
+- [x] ✅ **Multi-chain custodial wallet creation** - Bitcoin + Algorand address generation with encryption
+- [x] ✅ **MoonPay Bitcoin integration** - Direct USD → Bitcoin purchase flow
+- [x] ✅ **Portfolio NFT creation** - Algorand NFTs track Bitcoin + Algorand investment portfolios
+- [x] ✅ **Multi-chain balance synchronization** - Real-time Bitcoin and Algorand tracking and database sync
+- [ ] Chain Key self-custody opt-in for Bitcoin + Algorand - PHASE 2
 - [ ] Web support for signup (Expo Router) - PHASE 1B
 
 **Backend Implementation Status (COMPLETED)**:  
 - ✅ **Real Supabase Integration**: Database operations, user creation, OTP storage
 - ✅ **SMS OTP System**: Twilio integration with database verification (mock fallback for development)
-- ✅ **Multi-Chain Wallet Creation**: Bitcoin + Algorand custodial wallets with AES-256 encrypted private key storage
-- ✅ **MoonPay Bitcoin Integration**: Direct Bitcoin purchase flow with webhook handling and status tracking
-- ✅ **Portfolio NFT System**: Algorand NFTs for tracking Bitcoin and Algorand investments
-- ✅ **Database Schema**: Multi-chain tables (users, wallets, portfolio_nfts, position_nfts, investments)
+- ✅ **Multi-Chain Custodial Wallet System**: Bitcoin + Algorand wallet generation with AES-256 encrypted private key storage
+- ✅ **MoonPay Bitcoin Integration**: Direct USD → Bitcoin purchase flow with webhook handling and status tracking
+- ✅ **Portfolio NFT System**: Algorand NFTs for tracking Bitcoin + Algorand investments with real-time performance updates
+- ✅ **Multi-Chain Database Schema**: Tables for users, wallets (bitcoin/algorand), portfolio_nfts, position_nfts, investments
 
 **Frontend Integration Needed**:
-- Connect mobile app to multi-chain wallet creation APIs
+- Connect mobile app to multi-chain custodial wallet creation APIs
 - Implement MoonPay Bitcoin purchase flow using updated endpoints
-- Add Bitcoin and Algorand investment UI components
-- Display Portfolio NFT information and performance tracking
+- Add Bitcoin + Algorand investment UI components with price tracking
+- Display Portfolio NFT information and multi-chain performance tracking
 - Add real-time multi-chain balance updates via `/api/v1/wallet/balance` endpoint
 
 ## 2. Data Model Overview (ERD)
@@ -99,10 +102,10 @@ The core of Cultivest's data architecture will revolve around managing user acco
 
 ## 3. Fiat-to-Crypto Deposit
 - [x] ✅ **MoonPay Bitcoin Integration** - Direct USD → Bitcoin purchase flow implemented
-- [x] ✅ **Custodial Bitcoin Wallets** - Secure Bitcoin storage and management
+- [x] ✅ **Custodial Bitcoin + Algorand Wallets** - Secure multi-chain storage and management
 - [ ] Deposit $1–$10 via Flutterwave (Nigeria: cards, mobile money) 
-- [ ] "Bitcoin in vault" animation (mobile/web)
-- [ ] Multi-chain deposit support (Ethereum, Solana) - PHASE 2
+- [ ] "Bitcoin in vault" animation with Algorand NFT creation (mobile/web)
+- [ ] Additional chain deposit support (Ethereum, Solana) - PHASE 2
 
 **Backend Implementation Status (COMPLETED)**:  
 - ✅ **MoonPay Bitcoin Service**: Direct Bitcoin purchase widget and webhook handling

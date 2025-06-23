@@ -1,52 +1,55 @@
 # Cultivest - Detailed Features
 
-This document outlines the technical features for Cultivest, a mobile-first micro-investment platform providing access to Algorand DeFi liquidity pools. Users invest small amounts ($1-$10) in USDC/ALGO pools on Tinyman DEX, earning 0.44% APY from trading fees while getting diversified exposure to both stablecoins and crypto.
+This document outlines the technical features for Cultivest, a mobile-first micro-investment platform for cryptocurrency investments. Users invest small amounts ($1-$10) in Bitcoin and Algorand, with portfolio tracking via Algorand-based NFTs. The platform starts with custodial wallets and offers future opt-in to self-custody via Chain Key architecture.
 
 ## 🚀 **Implementation Status - PHASE 1A COMPLETED** ✅
 
-### ✅ **PHASE 1A: TESTNET FOUNDATION (DECEMBER 2024) - COMPLETED:**
+### ✅ **PHASE 1A: FOUNDATION (DECEMBER 2024) - COMPLETED:**
 - **Real User Authentication**: Phone-based signup with SMS OTP via Twilio + Supabase database
-- **Custodial Wallet System**: Algorand wallet generation with AES-256 encrypted private key storage
-- **MoonPay SDK Integration**: React Native SDK with proper browserOpener pattern
-- **🎯 Testnet Funding Workaround**: Complete faucet-based funding for development
-  - **TestnetFundingModal**: 3-step guided funding process (ALGO → Opt-in → USDCa)
-  - **Circle USDCa Faucet**: Official Circle testnet faucet integration
-  - **Algorand Dispenser**: ALGO testnet faucet with copy-paste workflow
-  - **USDCa Opt-in Automation**: `/debug/opt-in-usdca` endpoint with frontend integration
-  - **Smart Balance Detection**: Real-time opt-in status and balance monitoring
-  - **Auto-refresh**: 30-second balance updates + manual refresh buttons
-- **Enhanced Balance API**: `/wallet/balance` with `isOptedIntoUSDCa` field
-- **Database Architecture**: Full PostgreSQL schema with Row Level Security policies
+- **Custodial Wallet System**: Multi-chain wallet generation (Bitcoin + Algorand) with AES-256 encrypted private key storage
+- **MoonPay SDK Integration**: React Native SDK with direct Bitcoin purchase support
+- **🎯 Bitcoin Investment Infrastructure**: Complete custodial Bitcoin wallet system
+  - **Bitcoin Wallet Generation**: Secure Bitcoin address creation and key management
+  - **MoonPay Bitcoin Integration**: Direct USD → Bitcoin purchases via MoonPay
+  - **Portfolio Tracking**: Algorand NFTs track Bitcoin holdings and performance
+  - **Balance Synchronization**: Real-time Bitcoin and Algorand balance monitoring
+  - **Custodial Signing**: Backend signs Bitcoin transactions on behalf of users
+- **Enhanced Balance API**: Multi-chain balance tracking with Bitcoin + Algorand support
+- **Database Architecture**: Full PostgreSQL schema with multi-chain support and NFT metadata
 
 ### 🎯 **PRODUCTION-READY COMPONENTS:**
-**Testnet Development Infrastructure:**
-- Complete testnet funding flow solving MoonPay testnet limitations
-- User-friendly crypto onboarding with educational guidance
-- Real wallet creation, opt-in, and token acquisition
-- Ready for investment feature development
+**Multi-Chain Investment Infrastructure:**
+- Complete Bitcoin and Algorand custodial wallet system
+- Direct MoonPay integration for Bitcoin purchases (no conversion needed)
+- Algorand NFT portfolio tracking system
+- Real multi-chain balance monitoring and synchronization
+- Ready for crypto investment platform deployment
 
-**Backend transforms Cultivest from mock to production-ready fintech platform!** 🏆
+**Backend transforms Cultivest into a production-ready crypto investment platform!** 🏆
 
 ## 1. User Onboarding - ✅ PHASE 1A COMPLETED
 - [x] ✅ **Phone-based signup with OTP verification** - IMPLEMENTED
-- [x] ✅ **Testnet funding integration** - Complete faucet-based workaround for development
-- [x] ✅ **MoonPay SDK integration** - React Native SDK with sandbox mode
-- [x] ✅ **Custodial wallet creation** - Real Algorand wallet generation with encryption
-- [x] ✅ **TestnetFundingModal** - User-friendly 3-step funding process
-- [x] ✅ **USDCa opt-in automation** - Backend + frontend integration
+- [x] ✅ **Multi-chain wallet creation** - Bitcoin + Algorand custodial wallets with encryption
+- [x] ✅ **MoonPay Bitcoin integration** - Direct Bitcoin purchase flow
+- [x] ✅ **Portfolio NFT creation** - Algorand NFTs track user investment portfolios
+- [x] ✅ **Balance synchronization** - Multi-chain balance tracking and database sync
+- [ ] Chain Key self-custody opt-in - PHASE 2
 - [ ] Web support for signup (Expo Router) - PHASE 1B
 
 **Backend Implementation Status (COMPLETED)**:  
 - ✅ **Real Supabase Integration**: Database operations, user creation, OTP storage
 - ✅ **SMS OTP System**: Twilio integration with database verification (mock fallback for development)
-- ✅ **Custodial Wallet Creation**: Algorand SDK with AES-256 encrypted private key storage
-- ✅ **MoonPay Integration**: Complete funding flow with webhook handling and status tracking
-- ✅ **Database Schema**: All tables created (users, wallets, otp_sessions, badges, deposits)
+- ✅ **Multi-Chain Wallet Creation**: Bitcoin + Algorand custodial wallets with AES-256 encrypted private key storage
+- ✅ **MoonPay Bitcoin Integration**: Direct Bitcoin purchase flow with webhook handling and status tracking
+- ✅ **Portfolio NFT System**: Algorand NFTs for tracking Bitcoin and Algorand investments
+- ✅ **Database Schema**: Multi-chain tables (users, wallets, portfolio_nfts, position_nfts, investments)
 
 **Frontend Integration Needed**:
-- Connect mobile app to `/api/v1/auth/signup` and `/api/v1/auth/verify-otp` endpoints
-- Implement MoonPay funding flow using `/api/v1/deposit/initiate` endpoint
-- Add real-time balance updates via `/api/v1/wallet/balance` endpoint
+- Connect mobile app to multi-chain wallet creation APIs
+- Implement MoonPay Bitcoin purchase flow using updated endpoints
+- Add Bitcoin and Algorand investment UI components
+- Display Portfolio NFT information and performance tracking
+- Add real-time multi-chain balance updates via `/api/v1/wallet/balance` endpoint
 
 ## 2. Data Model Overview (ERD)
 
@@ -55,16 +58,19 @@ The core of Cultivest's data architecture will revolve around managing user acco
 #### Key Entities:
 
 1.  **`User`**: Represents an individual user of the Cultivest platform.
-    *   **Attributes**: `userID` (Primary Key), `phoneNumber`, `name`, `country`, `email`, `currentBalanceUSDCa`, `currentBalanceALGO`, `dailyYieldAccumulated`, `moneyTreeLeaves`, `kycStatus`, `supabaseAuthID` (linking to Supabase's authentication user).
+    *   **Attributes**: `userID` (Primary Key), `phoneNumber`, `name`, `country`, `email`, `currentBalanceBTC`, `currentBalanceALGO`, `totalPortfolioValue`, `kycStatus`, `custodyStatus` (custodial/self_custody), `supabaseAuthID` (linking to Supabase's authentication user).
 
-2.  **`Wallet`**: Represents the custodial Algorand wallet managed by Cultivest on behalf of the user. This is where user funds (USDCa and ALGO) are held.
-    *   **Attributes**: `walletID` (Primary Key), `userID` (Foreign Key to `User`), `algorandAddress` (the public address), `encryptedPrivateKey` (the **securely encrypted** private key for this custodial wallet), `assetID` (e.g., for USDCa).
+2.  **`Wallet`**: Represents multi-chain custodial wallets managed by Cultivest on behalf of the user.
+    *   **Attributes**: `walletID` (Primary Key), `userID` (Foreign Key to `User`), `blockchain` (bitcoin/algorand), `address` (public address), `encryptedPrivateKey` (securely encrypted private key), `isActive`, `custodyType` (custodial/self_custody).
 
 3.  **`Transaction`**: Records all financial movements within the platform related to a user's account.
-    *   **Attributes**: `transactionID` (Primary Key), `userID` (Foreign Key to `User`), `walletID` (Foreign Key to `Wallet`), `type` (e.g., 'deposit', 'investment', 'withdrawal', 'yield_credit', 'rebalance'), `amountUSDCa`, `amountALGO`, `fiatAmount`, `fiatCurrency`, `timestamp`, `status`, `algorandTxID`, `externalTxID` (for MoonPay/Flutterwave).
+    *   **Attributes**: `transactionID` (Primary Key), `userID` (Foreign Key to `User`), `walletID` (Foreign Key to `Wallet`), `type` (deposit/investment/withdrawal/transfer), `blockchain`, `amount`, `fiatAmount`, `fiatCurrency`, `timestamp`, `status`, `txHash`, `externalTxID` (for MoonPay).
 
-4.  **`InvestmentPosition`**: Tracks a user's current active investment in the Tinyman USDC/ALGO liquidity pool.
-    *   **Attributes**: `positionID` (Primary Key), `userID` (Foreign Key to `User`), `poolID` (identifying the specific liquidity pool, e.g., Tinyman USDC/ALGO), `investedAmountUSDC`, `investedAmountALGO`, `lpTokensReceived`, `startDate`, `currentAPY`, `totalYieldEarned`, `impermanentLoss`.
+4.  **`PortfolioNFT`**: Tracks the master portfolio NFT on Algorand that represents the user's entire investment portfolio.
+    *   **Attributes**: `portfolioID` (Primary Key), `userID` (Foreign Key to `User`), `nftAssetID` (Algorand NFT asset ID), `totalValue`, `totalInvested`, `unrealizedPnL`, `createdAt`, `metadata` (JSON with NFT metadata).
+
+5.  **`PositionNFT`**: Tracks individual position NFTs for each cryptocurrency investment.
+    *   **Attributes**: `positionID` (Primary Key), `portfolioID` (Foreign Key to `PortfolioNFT`), `userID` (Foreign Key to `User`), `nftAssetID` (Algorand NFT asset ID), `blockchain`, `cryptocurrency` (BTC/ALGO), `quantity`, `entryPrice`, `currentValue`, `unrealizedPnL`, `metadata` (JSON with position details).
 
 5.  **`Badge`**: Defines the gamified achievement badges.
     *   **Attributes**: `badgeID` (Primary Key), `name`, `description`, `criteria`.
@@ -92,48 +98,50 @@ The core of Cultivest's data architecture will revolve around managing user acco
     *   `User` and `Badge` have a Many-to-Many relationship, facilitated by the `UserBadge` junction table.
 
 ## 3. Fiat-to-Crypto Deposit
-- [x] ✅ **MoonPay Integration** - Complete ALGO → USDCa conversion flow implemented
+- [x] ✅ **MoonPay Bitcoin Integration** - Direct USD → Bitcoin purchase flow implemented
+- [x] ✅ **Custodial Bitcoin Wallets** - Secure Bitcoin storage and management
 - [ ] Deposit $1–$10 via Flutterwave (Nigeria: cards, mobile money) 
-- [ ] "Coins in vault" animation (mobile/web)
-- [ ] **CRITICAL**: Auto-rebalancing to maintain 50/50 USDC/ALGO ratio for Tinyman pools
+- [ ] "Bitcoin in vault" animation (mobile/web)
+- [ ] Multi-chain deposit support (Ethereum, Solana) - PHASE 2
 
 **Backend Implementation Status (COMPLETED)**:  
-- ✅ **MoonPay Service**: Widget URL generation, webhook handling, signature verification
-- ✅ **Deposit Tracking**: Complete transaction lifecycle with status updates
-- ✅ **Fee Calculation**: Transparent fee estimation (MoonPay + DEX conversion fees)
-- ✅ **ALGO → USDCa Strategy**: Innovative funding approach for stablecoin compliance
-- ✅ **Database Integration**: Deposits table with full transaction tracking
+- ✅ **MoonPay Bitcoin Service**: Direct Bitcoin purchase widget and webhook handling
+- ✅ **Bitcoin Deposit Tracking**: Complete Bitcoin transaction lifecycle with status updates
+- ✅ **Fee Calculation**: Transparent fee estimation for Bitcoin purchases
+- ✅ **Custodial Bitcoin Storage**: Secure Bitcoin wallet generation and management
+- ✅ **Database Integration**: Multi-chain deposits table with Bitcoin and Algorand tracking
 
 **Available Endpoints**:
-- `POST /api/v1/deposit/initiate` - Start funding process, get MoonPay URL
-- `GET /api/v1/deposit/status/{id}` - Real-time deposit tracking
-- `POST /api/v1/deposit/webhook/moonpay` - MoonPay completion handling
-- `GET /api/v1/deposit/calculate-fees` - Fee estimation tool
+- `POST /api/v1/deposit/initiate` - Start Bitcoin purchase process, get MoonPay URL
+- `GET /api/v1/deposit/status/{id}` - Real-time Bitcoin deposit tracking
+- `POST /api/v1/deposit/webhook/moonpay` - MoonPay Bitcoin purchase completion handling
+- `GET /api/v1/deposit/calculate-fees` - Bitcoin purchase fee estimation tool
 
 **Frontend Integration Needed**:
-- Implement MoonPay widget integration in React Native
-- Add deposit status polling and progress tracking
-- Connect to balance updates after successful funding
+- Implement MoonPay Bitcoin widget integration in React Native
+- Add Bitcoin deposit status polling and progress tracking
+- Connect to multi-chain balance updates after successful funding
 
-## 4. Liquidity Pool Investment - 🔄 PHASE 1B IN PROGRESS
-- [ ] 🎯 **PRIORITY**: Implement Tinyman USDC/ALGO pool integration (50/50 split required)
-- [ ] One-tap investment with automatic rebalancing to maintain 50/50 USDC/ALGO ratio
-- [ ] Investment backend APIs (`/investment/initiate`, `/investment/positions`, `/investment/rebalance`)
-- [ ] Investment UI components with dual-asset display
+## 4. Cryptocurrency Investment - 🔄 PHASE 1B IN PROGRESS
+- [ ] 🎯 **PRIORITY**: Bitcoin investment UI with price tracking and portfolio display
+- [ ] One-tap Bitcoin investment with clear price and fee disclosure
+- [ ] Investment backend APIs (`/investment/initiate`, `/investment/positions`, `/investment/portfolio-nft`)
+- [ ] Multi-chain investment UI components (Bitcoin + Algorand)
 - [ ] **CRITICAL**: Display comprehensive risk disclosures:
-  - Impermanent loss risk from ALGO price volatility
-  - Smart contract risks from Tinyman protocol
-  - APY variability (currently 0.44%, may fluctuate)
-  - GENIUS Act compliance (not applicable to investment platforms)
-- [ ] "Liquidity providing" animation showing both USDC and ALGO (mobile/web)
+  - Bitcoin price volatility risk
+  - Custodial wallet risks and transition to self-custody option
+  - No yield generation (price appreciation only)
+  - Regulatory compliance disclosures
+- [ ] "Bitcoin in portfolio" animation with portfolio NFT visualization (mobile/web)
 - [ ] Web support for investment flow (Expo Router)
 
 **Updated Implementation Notes**:  
-- Tinyman requires 50% USDC + 50% ALGO for liquidity provision
-- Current APY: 0.44% (significantly lower than traditional projections)
-- Must handle impermanent loss calculations and user education
-- Backend will auto-rebalance user holdings to maintain 50/50 ratio
-- Claude 4 API integration for personalized risk assessment based on user profile
+- Bitcoin investment focuses on price appreciation rather than yield generation
+- Custodial wallet system provides secure Bitcoin storage with professional custody
+- Portfolio NFTs on Algorand track Bitcoin holdings and performance metrics
+- Backend handles all Bitcoin transaction signing on behalf of users during custodial phase
+- Future Chain Key integration will allow users to opt into self-custody
+- Claude 4 API integration for personalized investment insights and portfolio analysis
 
 ## 5. Gamified Dashboard
 - [ ] Display balance (USDC: $2.50, ALGO: $2.50), daily yield ($0.001), "money tree" representation
@@ -326,23 +334,32 @@ Based on market research, Cultivest has identified a unique positioning in the m
 - AML/KYC compliance via integrated partners
 - Standard fintech compliance (not crypto-specific)
 
-### Acceptance Criteria - **UPDATED FOR DEFI**
+### Acceptance Criteria - **UPDATED FOR BITCOIN + ALGORAND**
 
 **Onboarding**:
-- 90% of test users complete phone signup and understand dual-asset investing within 3 minutes
+- 90% of test users complete phone signup and understand Bitcoin/Algorand investing within 3 minutes
+- Users successfully create custodial wallets for both Bitcoin and Algorand
 
-**Deposit & Pool Entry**:
-- Test users successfully deposit $5 and see it auto-rebalanced to $2.50 USDC + $2.50 ALGO equivalent
-- LP tokens correctly issued and tracked on Algorand testnet
+**Deposit & Investment**:
+- Test users successfully deposit $5 via MoonPay and receive Bitcoin in custodial wallet
+- Users can also invest directly in Algorand through their Algorand wallet
+- Portfolio NFT correctly minted on Algorand with investment metadata
 
-**Liquidity Pool Investment**:
-- Users invest in Tinyman pool and understand impermanent loss concept
-- Dashboard accurately shows pool performance and IL calculations
+**Multi-Chain Investment**:
+- Users invest in Bitcoin and/or Algorand and understand price volatility risks
+- Dashboard accurately shows Bitcoin and Algorand balances with real-time USD values
+- Portfolio NFT updates with current investment values and performance
 
 **Education**:
-- 90% of users complete DeFi education and pass liquidity pool quiz
-- Users demonstrate understanding of 0.44% APY and associated risks
+- 90% of users complete crypto education covering Bitcoin, Algorand, and custody options
+- Users demonstrate understanding of price volatility and custodial vs self-custody models
+
+**Portfolio NFT System**:
+- Portfolio NFTs correctly track all user investments across Bitcoin and Algorand
+- Position NFTs created for each individual cryptocurrency holding
+- NFT metadata accurately reflects current portfolio value and performance
 
 **Withdrawal**:
-- Users successfully withdraw LP positions with clear IL impact disclosure
-- Final amounts match backend calculations after fees and price impact
+- Users successfully withdraw Bitcoin and Algorand investments
+- Clear disclosure of current values and any fees
+- Portfolio NFTs updated to reflect withdrawals

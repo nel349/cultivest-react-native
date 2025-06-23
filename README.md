@@ -1,41 +1,45 @@
 # Cultivest Mobile App
 
-**Micro-Investment Platform for Stablecoin Yields - React Native App**
+**Multi-Chain Micro-Investment Platform with Portfolio NFTs - React Native App**
 
-A React Native mobile application for Cultivest, enabling users to invest small amounts ($1–$10) in stablecoin yields (2–5% APY) through an intuitive, gamified interface. Built with Expo Router for cross-platform compatibility and optimized for the World's Largest Hackathon by Bolt.new.
+A React Native mobile application for Cultivest, enabling users to invest small amounts ($1–$10) in Bitcoin and Algorand with revolutionary Portfolio NFT tracking. Features custodial wallet security with future Chain Key self-custody opt-in. Built with Expo Router for cross-platform compatibility and optimized for the World's Largest Hackathon by Bolt.new.
 
 ## 🌟 Overview
 
-Cultivest's mobile app democratizes access to stablecoin yields through a beautiful, user-friendly interface designed for Gen Z, millennials, and emerging market users. The app transforms complex DeFi operations into simple, engaging interactions.
+Cultivest's mobile app democratizes access to cryptocurrency investments through a beautiful, user-friendly interface designed for Gen Z, millennials, and emerging market users. The app transforms complex multi-chain crypto investments into simple, engaging interactions with world-first Portfolio NFT tracking.
 
 ### Key Value Propositions
-- **Micro-investments**: Start investing with just $1
-- **Gamified Experience**: Watch your "money tree" grow with every yield
-- **Educational First**: Learn about stablecoins and DeFi through interactive content
+- **Micro-investments**: Start investing in Bitcoin and Algorand with just $1
+- **Portfolio NFTs**: Your entire investment portfolio becomes a tradeable NFT on Algorand
+- **Custodial Security**: Professional crypto custody with future self-custody graduation
+- **Multi-chain Support**: Bitcoin (custodial) + Algorand (direct) with expansion planned
+- **Educational First**: Learn about Bitcoin, Algorand, and custody models through interactive content
 - **Global Accessibility**: Designed for users in Nigeria, Argentina, and worldwide
-- **GENIUS Act Compliant**: Transparent, audited stablecoin investments
 
 ## 🚀 Features
 
 ### Core Functionality
 - **Onboarding Flow**: Phone-based signup with OTP verification
 - **KYC Integration**: Seamless identity verification via MoonPay
-- **Deposit Interface**: Easy fiat-to-USDCa conversion with local payment methods
-- **Investment Dashboard**: One-tap investment in Tinyman USDCa pools
-- **Yield Tracking**: Real-time balance and yield visualization
-- **Withdrawal System**: Simple USDCa-to-fiat conversion
-- **Educational Hub**: Interactive videos and quizzes about stablecoins
+- **Deposit Interface**: Direct Bitcoin purchases via MoonPay integration
+- **Investment Dashboard**: Multi-chain Bitcoin and Algorand investment tracking
+- **Portfolio NFTs**: Revolutionary NFT-based portfolio tracking and ownership
+- **Balance Monitoring**: Real-time Bitcoin and Algorand balance synchronization
+- **Withdrawal System**: Bitcoin and Algorand withdrawal with clear fee disclosure
+- **Educational Hub**: Interactive videos and quizzes about Bitcoin, Algorand, and custody models
 
 ### Gamification Elements
-- **Money Tree**: Visual representation of investment growth
-- **Progress Tracking**: Daily yield and investment milestone tracking
-- **Badge System**: Achievement badges for investment milestones
-- **Stats Dashboard**: Personal investment analytics and insights
+- **Portfolio Tree**: Visual representation of multi-chain investment growth
+- **Progress Tracking**: Bitcoin and Algorand investment milestone tracking
+- **Badge System**: Achievement badges for crypto investment milestones
+- **NFT Collections**: Portfolio and Position NFTs as collectible achievements
+- **Stats Dashboard**: Multi-chain investment analytics and performance insights
 
 ### AI-Powered Features
 - **Round-up Suggestions**: Claude 4-powered spending analysis
-- **Investment Optimization**: Smart yield pool recommendations
-- **Personalized Insights**: AI-driven investment tips and education
+- **Investment Optimization**: Smart Bitcoin and Algorand allocation recommendations
+- **Portfolio Analysis**: AI-driven insights on NFT portfolio performance
+- **Personalized Insights**: AI-driven investment tips and crypto education
 
 ## 🛠 Tech Stack
 
@@ -56,10 +60,13 @@ Cultivest's mobile app democratizes access to stablecoin yields through a beauti
 - **Expo Haptics**: Tactile feedback for interactions
 - **React Native WebView**: In-app educational content
 - **Expo Web Browser**: External link handling
+- **NFT Viewers**: Portfolio and Position NFT visualization
 
 ### Backend Integration
 - **Custom API Client**: Type-safe backend communication
-- **Real-time Updates**: Live balance and yield tracking
+- **Real-time Updates**: Live Bitcoin and Algorand balance tracking
+- **NFT Integration**: Portfolio NFT creation and management
+- **Multi-chain Support**: Bitcoin custodial and Algorand direct wallet management
 - **Offline Support**: Graceful handling of network issues
 
 ## 📁 Project Structure
@@ -70,17 +77,18 @@ cultivest-react-native/
 │   ├── (tabs)/                 # Tab navigation
 │   │   ├── index.tsx           # Home/Dashboard screen
 │   │   ├── profile.tsx         # User profile screen
-│   │   └── workouts.tsx        # Investment tracking
+│   │   └── portfolio.tsx       # Multi-chain investment tracking
 │   ├── _layout.tsx             # Root layout
 │   └── +not-found.tsx          # 404 page
 ├── components/                 # Reusable UI components
-│   ├── CategoryCard.tsx        # Investment category cards
+│   ├── CategoryCard.tsx        # Crypto investment category cards
 │   ├── ProfileCard.tsx         # User profile display
-│   ├── ProgressChart.tsx       # Yield progress visualization
+│   ├── ProgressChart.tsx       # Multi-chain portfolio visualization
 │   ├── QuickActionCard.tsx     # Dashboard action buttons
 │   ├── SettingsItem.tsx        # Settings menu items
-│   ├── StatsCard.tsx           # Investment statistics
-│   └── WorkoutCard.tsx         # Investment session cards
+│   ├── StatsCard.tsx           # Multi-chain investment statistics
+│   ├── PortfolioNFTCard.tsx    # Portfolio NFT display
+│   └── PositionCard.tsx        # Individual crypto position cards
 ├── utils/                      # Utility functions
 │   └── api.ts                  # API client and endpoints
 ├── types/                      # TypeScript type definitions
@@ -111,6 +119,8 @@ EXPO_PUBLIC_API_URL=http://localhost:3000
 EXPO_PUBLIC_MOONPAY_API_KEY=your_moonpay_key
 EXPO_PUBLIC_FLUTTERWAVE_PUBLIC_KEY=your_flutterwave_key
 EXPO_PUBLIC_ALGORAND_NETWORK=testnet
+EXPO_PUBLIC_BITCOIN_NETWORK=testnet
+EXPO_PUBLIC_IPFS_GATEWAY=https://ipfs.io/ipfs/
 ```
 
 ### Installation Steps
@@ -158,11 +168,11 @@ npx expo run:android --device
 ### Core Components
 
 #### `StatsCard`
-Displays investment statistics with progress visualization:
-- Investment amount and target
-- Progress bar with color coding
+Displays multi-chain investment statistics with progress visualization:
+- Bitcoin and Algorand balances with USD values
+- Portfolio performance and progress tracking
 - Interactive touch feedback
-- Icon-based categorization
+- Multi-chain asset categorization
 
 #### `QuickActionCard`
 Action buttons for common tasks:
@@ -172,11 +182,11 @@ Action buttons for common tasks:
 - Touch animations
 
 #### `ProgressChart`
-Weekly investment progress visualization:
-- Bar chart representation
-- Yield trend analysis
-- Interactive data points
-- Responsive design
+Multi-chain portfolio progress visualization:
+- Bar chart representation for Bitcoin and Algorand
+- Portfolio performance trend analysis
+- Interactive data points for each cryptocurrency
+- Responsive design with NFT portfolio integration
 
 ### Design System
 - **Color Palette**: Blue-green gradient scheme representing growth
@@ -189,22 +199,22 @@ Weekly investment progress visualization:
 
 ### 1. Onboarding Journey
 ```
-Splash Screen → Welcome Carousel → Phone Signup → OTP Verification → KYC → Wallet Creation
+Splash Screen → Welcome Carousel → Phone Signup → OTP Verification → KYC → Multi-Chain Wallet Creation → Portfolio NFT Setup
 ```
 
 ### 2. Main App Flow
 ```
-Dashboard → Investment Selection → Confirmation → Success → Portfolio View
+Dashboard → Crypto Selection (BTC/ALGO) → Investment Confirmation → Purchase Success → Portfolio NFT View
 ```
 
 ### 3. Educational Path
 ```
-Learn Tab → Video Content → Interactive Quiz → Badge Earned → Next Topic
+Learn Tab → Crypto Education Videos → Interactive Quiz → NFT Badge Earned → Next Topic
 ```
 
 ### 4. Transaction Flow
 ```
-Deposit → Payment Method → Amount Selection → Processing → Confirmation → Dashboard Update
+Bitcoin Purchase → MoonPay Integration → Amount Selection → Processing → Confirmation → Portfolio NFT Update
 ```
 
 ## 🔌 API Integration
@@ -223,42 +233,48 @@ const profile = await apiClient.getUserProfile(userID);
 
 ### Investment Operations
 ```typescript
-// Get wallet balance
-const balance = await apiClient.getWalletBalance(userID);
+// Get multi-chain wallet balance
+const balance = await apiClient.getMultiChainBalance(userID);
 
-// Initiate investment
-const investment = await apiClient.initiateInvestment(userID, amount);
+// Initiate Bitcoin investment
+const bitcoinInvestment = await apiClient.initiateBitcoinInvestment(userID, amount);
 
-// Track positions
-const positions = await apiClient.getInvestmentPositions(userID);
+// Initiate Algorand investment
+const algorandInvestment = await apiClient.initiateAlgorandInvestment(userID, amount);
+
+// Track portfolio NFT positions
+const portfolioNFT = await apiClient.getPortfolioNFT(userID);
+const positions = await apiClient.getPositionNFTs(userID);
 ```
 
 ### Dashboard Data
 ```typescript
-// Get comprehensive dashboard data
+// Get comprehensive multi-chain dashboard data
 const dashboardData = await apiClient.getDashboardData(userID);
-// Returns: balance, yields, money tree status, badges, stats
+// Returns: Bitcoin/Algorand balances, portfolio NFT data, position NFTs, badges, multi-chain stats
 ```
 
 ## 🎮 Gamification Features
 
-### Money Tree System
-- **Seedling**: $0-$10 invested
-- **Sapling**: $10-$50 invested  
-- **Growing Tree**: $50-$200 invested
-- **Mature Tree**: $200+ invested
+### Portfolio Tree System
+- **Seedling**: $0-$10 invested across Bitcoin and Algorand
+- **Sapling**: $10-$50 invested in multiple cryptocurrencies  
+- **Growing Tree**: $50-$200 multi-chain portfolio
+- **Mature Tree**: $200+ diversified crypto portfolio with multiple NFTs
 
 ### Badge Categories
-- **First Steps**: "First Investor", "First $10", "First Yield"
-- **Education**: "Safe Saver", "Quiz Master", "DeFi Graduate"
-- **Consistency**: "Weekly Investor", "Monthly Champion", "Yield Collector"
+- **First Steps**: "First Bitcoin Investor", "First $10", "Portfolio NFT Creator"
+- **Education**: "Crypto Learner", "Quiz Master", "Custody Graduate"
+- **Consistency**: "Weekly Investor", "Monthly Champion", "Multi-Chain Collector"
 - **Milestones**: "Century Club ($100)", "Half K ($500)", "Thousand Club"
+- **NFT Achievements**: "Portfolio Master", "Position Collector", "NFT Trader"
 
 ### Progress Tracking
-- Daily yield accumulation
+- Daily Bitcoin and Algorand price tracking
 - Investment streak counting
+- Portfolio NFT value growth
 - Referral rewards system
-- Social sharing achievements
+- Social sharing achievements with NFT showcases
 
 ## 🌍 Localization & Accessibility
 
@@ -387,40 +403,47 @@ npm run build:web
 - ✅ Cross-platform compatibility
 
 ### Phase 2: Investment Features (In Progress)
-- 🔄 Complete investment flow
-- 🔄 Money tree animations
-- 🔄 Yield calculation and display
-- 🔄 Educational content integration
-- 🔄 Push notification system
+- 🔄 Complete Bitcoin and Algorand investment flow
+- 🔄 Portfolio tree animations with NFT integration
+- 🔄 Multi-chain balance tracking and portfolio performance
+- 🔄 Crypto education content integration
+- 🔄 Push notification system for price alerts
+- 🔄 Portfolio NFT creation and management
 
 ### Phase 3: Advanced Features (Planned)
 - 📋 Biometric authentication
 - 📋 Round-up investment automation
-- 📋 Social features and referrals
-- 📋 Advanced portfolio analytics
+- 📋 NFT portfolio trading marketplace
+- 📋 Social features and referrals with NFT showcases
+- 📋 Advanced multi-chain portfolio analytics
+- 📋 Chain Key self-custody opt-in
 - 📋 Multi-language support
 
 ### Phase 4: Market Expansion (Future)
 - 📋 Local payment method integration
 - 📋 Regulatory compliance features
-- 📋 Additional blockchain support
+- 📋 Additional blockchain support (Ethereum, Solana)
 - 📋 Institutional investor features
+- 📋 Portfolio NFT fractionalization
+- 📋 NFT-based inheritance and estate planning
 
 ## 🎯 Target User Experience
 
 ### Aisha's Journey (25, Nigeria)
 1. **Discovery**: Downloads app via social media
 2. **Onboarding**: Signs up with phone in 2 minutes
-3. **First Investment**: Deposits ₦2,000 ($5) via bank card
-4. **Engagement**: Watches money tree grow daily
-5. **Education**: Completes stablecoin safety quiz
-6. **Growth**: Invests weekly, earns badges
+3. **First Investment**: Buys ₦2,000 ($5) of Bitcoin via MoonPay
+4. **NFT Creation**: Receives Portfolio NFT tracking her Bitcoin investment
+5. **Engagement**: Watches portfolio tree grow daily
+6. **Education**: Completes Bitcoin and custody safety quiz
+7. **Growth**: Invests weekly in Bitcoin and Algorand, earns NFT badges
 
 ### Key UX Principles
-- **Simplicity**: Complex DeFi hidden behind simple actions
-- **Trust**: Clear explanations and GENIUS Act compliance
-- **Engagement**: Gamification drives daily usage
-- **Education**: Progressive learning about stablecoins
+- **Simplicity**: Complex multi-chain crypto hidden behind simple actions
+- **Trust**: Clear explanations of Bitcoin volatility and custody models
+- **Innovation**: Portfolio NFTs make investments tradeable and inheritable
+- **Engagement**: Gamification and NFT collection drives daily usage
+- **Education**: Progressive learning about Bitcoin, Algorand, and self-custody
 - **Accessibility**: Works on low-end devices with poor connectivity
 
 ## 🤝 Contributing

@@ -1,14 +1,22 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Keyboard, TouchableWithoutFeedback, AccessibilityInfo } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Leaf, Sprout, TreePine, Flower, Star, ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+
+  // Announce screen load for screen readers
+  useEffect(() => {
+    AccessibilityInfo.announceForAccessibility(
+      'Welcome to Cultivest. Grow your wealth, one seed at a time. Start with just one dollar.'
+    );
+  }, []);
 
   // Development bypass function
   const devBypass = async () => {
@@ -36,37 +44,56 @@ export default function WelcomeScreen() {
       icon: Sprout,
       title: 'Plant Your First Dollar',
       description: 'Start with just $1 and watch it grow',
-      color: '#58CC02'
+      color: '#58CC02',
+      accessibilityLabel: 'Plant Your First Dollar feature',
+      accessibilityHint: 'Learn how to start investing with just one dollar'
     },
     {
       icon: TreePine,
       title: 'Grow Your Garden',
       description: 'Earn 2-5% APY on stablecoins',
-      color: '#00D4AA'
+      color: '#00D4AA',
+      accessibilityLabel: 'Grow Your Garden feature',
+      accessibilityHint: 'Discover how to earn 2 to 5 percent annual percentage yield on stablecoins'
     },
     {
       icon: Flower,
       title: 'Daily Blooms',
       description: 'See your earnings flower every day',
-      color: '#FF9500'
+      color: '#FF9500',
+      accessibilityLabel: 'Daily Blooms feature',
+      accessibilityHint: 'Track your daily earnings and watch them grow'
     },
     {
       icon: Star,
       title: 'Level Up',
       description: 'Unlock achievements as you grow',
-      color: '#FFD900'
+      color: '#FFD900',
+      accessibilityLabel: 'Level Up feature',
+      accessibilityHint: 'Earn achievements and level up as your investments grow'
     }
   ];
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+    <TouchableWithoutFeedback 
+      onPress={Keyboard.dismiss}
+      accessible={false}
+    >
+      <View 
+        style={styles.container}
+        accessibilityLabel="Cultivest welcome screen"
+      >
         <LinearGradient
           colors={['#89E5AB', '#58CC02', '#46A302']}
           style={[styles.gradient, { paddingTop: insets.top }]}
+          accessible={false}
         >
-        {/* Decorative Plants */}
-        <View style={styles.decorationContainer}>
+        {/* Decorative Plants - Hidden from screen readers */}
+        <View 
+          style={styles.decorationContainer}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+        >
           <View style={[styles.plantDecor, { top: 60 + insets.top, left: 20 }]}>
             <Leaf size={24} color="rgba(255,255,255,0.3)" />
           </View>
@@ -78,61 +105,153 @@ export default function WelcomeScreen() {
           </View>
         </View>
 
-        <View style={styles.content}>
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          accessible={false}
+          showsVerticalScrollIndicator={false}
+          accessibilityLabel="Welcome screen content"
+        >
           {/* Hero Section */}
-          <View style={styles.heroSection}>
-            <View style={styles.logoContainer}>
+          <View 
+            style={styles.heroSection}
+            accessible={true}
+            accessibilityRole="header"
+            accessibilityLabel="Cultivest app introduction"
+          >
+            <View 
+              style={styles.logoContainer}
+              accessible={true}
+              accessibilityRole="image"
+              accessibilityLabel="Cultivest logo with leaf icon"
+            >
               <View style={styles.logoBackground}>
                 <Leaf size={40} color="#FFFFFF" />
               </View>
             </View>
             
-            <Text style={styles.title}>Cultivest</Text>
-            <Text style={styles.subtitle}>
+            <Text 
+              style={styles.title}
+              accessible={true}
+              accessibilityRole="header"
+              accessibilityLabel="Cultivest"
+            >
+              Cultivest
+            </Text>
+            <Text 
+              style={styles.subtitle}
+              accessible={true}
+              accessibilityLabel="Grow your wealth, one seed at a time"
+            >
               Grow your wealth, one seed at a time 🌱
             </Text>
             
             {/* Main Illustration */}
-            <View style={styles.illustrationContainer}>
+            <View 
+              style={styles.illustrationContainer}
+              accessible={true}
+              accessibilityRole="image"
+              accessibilityLabel="Money tree illustration showing plus 3 cents daily earnings"
+            >
               <View style={styles.treeContainer}>
                 <TreePine size={80} color="#2E7D32" />
-                <View style={styles.coinBadge}>
+                <View 
+                  style={styles.coinBadge}
+                  accessible={true}
+                  accessibilityLabel="Plus 3 cents daily earnings badge"
+                >
                   <Text style={styles.coinText}>+$0.03</Text>
                 </View>
               </View>
-              <Text style={styles.illustrationText}>Your money tree is ready to grow!</Text>
+              <Text 
+                style={styles.illustrationText}
+                accessible={true}
+                accessibilityLabel="Your money tree is ready to grow!"
+              >
+                Your money tree is ready to grow!
+              </Text>
             </View>
           </View>
 
           {/* Features Grid */}
-          <View style={styles.featuresContainer}>
+          <View 
+            style={styles.featuresContainer}
+            accessible={false}
+            accessibilityLabel="App features"
+          >
+            <Text 
+              style={styles.featuresHeader}
+              accessible={true}
+              accessibilityRole="header"
+              accessibilityLabel="Key features of Cultivest"
+            >
+              Key Features
+            </Text>
             {features.map((feature, index) => (
-              <View key={index} style={styles.featureCard}>
-                <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
+              <View 
+                key={index} 
+                style={styles.featureCard}
+                accessible={true}
+                accessibilityRole="summary"
+                accessibilityLabel={feature.accessibilityLabel}
+                accessibilityHint={feature.accessibilityHint}
+              >
+                <View 
+                  style={[styles.featureIcon, { backgroundColor: feature.color }]}
+                  accessible={true}
+                  accessibilityRole="image"
+                  accessibilityLabel={`${feature.title} icon`}
+                >
                   <feature.icon size={24} color="#FFFFFF" />
                 </View>
-                <Text style={styles.featureTitle}>{feature.title}</Text>
-                <Text style={styles.featureDescription}>{feature.description}</Text>
+                <Text 
+                  style={styles.featureTitle}
+                  accessible={true}
+                  accessibilityRole="header"
+                >
+                  {feature.title}
+                </Text>
+                <Text 
+                  style={styles.featureDescription}
+                  accessible={true}
+                >
+                  {feature.description}
+                </Text>
               </View>
             ))}
           </View>
 
           {/* CTA Section */}
-          <View style={styles.ctaSection}>
+          <View 
+            style={styles.ctaSection}
+            accessible={false}
+            accessibilityLabel="Get started section"
+          >
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={() => router.push('/(auth)/signup')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Start Growing Today"
+              accessibilityHint="Navigate to sign up screen to create your Cultivest account"
+              accessibilityState={{ disabled: false }}
             >
               <LinearGradient
                 colors={['#FFFFFF', '#F0F0F0']}
                 style={styles.buttonGradient}
+                accessible={false}
               >
                 <Text style={styles.primaryButtonText}>Start Growing Today</Text>
                 <ArrowRight size={20} color="#58CC02" />
               </LinearGradient>
             </TouchableOpacity>
             
-            <Text style={styles.disclaimer}>
+            <Text 
+              style={styles.disclaimer}
+              accessible={true}
+              accessibilityLabel="FDIC insured, GENIUS Act compliant, Start with just 1 dollar"
+              accessibilityHint="Important security and regulatory information"
+            >
               🌿 FDIC insured • GENIUS Act compliant • Start with just $1
             </Text>
 
@@ -141,12 +260,16 @@ export default function WelcomeScreen() {
               <TouchableOpacity
                 style={styles.devButton}
                 onPress={devBypass}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Developer bypass button"
+                accessibilityHint="Skip authentication and go directly to dashboard. Development only."
               >
                 <Text style={styles.devButtonText}>🚀 DEV: Skip to Dashboard</Text>
               </TouchableOpacity>
             )}
           </View>
-        </View>
+        </ScrollView>
       </LinearGradient>
     </View>
     </TouchableWithoutFeedback>
@@ -172,7 +295,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
     justifyContent: 'flex-start',
+    paddingBottom: 40,
   },
   heroSection: {
     alignItems: 'center',
@@ -246,6 +372,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 25,
     marginTop: 10,
+  },
+  featuresHeader: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 15,
+    textAlign: 'center',
+    width: '100%',
   },
   featureCard: {
     width: '48%',

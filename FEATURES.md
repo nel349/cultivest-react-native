@@ -1,6 +1,6 @@
 # Cultivest - Detailed Features
 
-This document outlines the technical features for Cultivest, a mobile-first micro-investment platform with minimal web support for stablecoin yields (2–3% APY) on Algorand's USDCa. It tracks implementation status and planned features for the World's Largest Hackathon by Bolt.new (June 19–July 1, 2025).
+This document outlines the technical features for Cultivest, a mobile-first micro-investment platform providing access to Algorand DeFi liquidity pools. Users invest small amounts ($1-$10) in USDC/ALGO pools on Tinyman DEX, earning 0.44% APY from trading fees while getting diversified exposure to both stablecoins and crypto.
 
 ## 🚀 **Implementation Status - PHASE 1A COMPLETED** ✅
 
@@ -55,16 +55,16 @@ The core of Cultivest's data architecture will revolve around managing user acco
 #### Key Entities:
 
 1.  **`User`**: Represents an individual user of the Cultivest platform.
-    *   **Attributes**: `userID` (Primary Key), `phoneNumber`, `name`, `country`, `email`, `currentBalanceUSDCa`, `dailyYieldAccumulated`, `moneyTreeLeaves`, `kycStatus`, `supabaseAuthID` (linking to Supabase's authentication user).
+    *   **Attributes**: `userID` (Primary Key), `phoneNumber`, `name`, `country`, `email`, `currentBalanceUSDCa`, `currentBalanceALGO`, `dailyYieldAccumulated`, `moneyTreeLeaves`, `kycStatus`, `supabaseAuthID` (linking to Supabase's authentication user).
 
-2.  **`Wallet`**: Represents the custodial Algorand wallet managed by Cultivest on behalf of the user. This is where user funds (USDCa) are held.
+2.  **`Wallet`**: Represents the custodial Algorand wallet managed by Cultivest on behalf of the user. This is where user funds (USDCa and ALGO) are held.
     *   **Attributes**: `walletID` (Primary Key), `userID` (Foreign Key to `User`), `algorandAddress` (the public address), `encryptedPrivateKey` (the **securely encrypted** private key for this custodial wallet), `assetID` (e.g., for USDCa).
 
 3.  **`Transaction`**: Records all financial movements within the platform related to a user's account.
-    *   **Attributes**: `transactionID` (Primary Key), `userID` (Foreign Key to `User`), `walletID` (Foreign Key to `Wallet`), `type` (e.g., 'deposit', 'investment', 'withdrawal', 'yield_credit'), `amountUSDCa`, `fiatAmount`, `fiatCurrency`, `timestamp`, `status`, `algorandTxID`, `externalTxID` (for MoonPay/Flutterwave).
+    *   **Attributes**: `transactionID` (Primary Key), `userID` (Foreign Key to `User`), `walletID` (Foreign Key to `Wallet`), `type` (e.g., 'deposit', 'investment', 'withdrawal', 'yield_credit', 'rebalance'), `amountUSDCa`, `amountALGO`, `fiatAmount`, `fiatCurrency`, `timestamp`, `status`, `algorandTxID`, `externalTxID` (for MoonPay/Flutterwave).
 
-4.  **`InvestmentPosition`**: Tracks a user's current active investment in the Tinyman USDCa pool.
-    *   **Attributes**: `positionID` (Primary Key), `userID` (Foreign Key to `User`), `poolID` (identifying the specific liquidity pool, e.g., Tinyman USDCa), `investedAmountUSDCa`, `startDate`, `currentAPY`, `totalYieldEarned`.
+4.  **`InvestmentPosition`**: Tracks a user's current active investment in the Tinyman USDC/ALGO liquidity pool.
+    *   **Attributes**: `positionID` (Primary Key), `userID` (Foreign Key to `User`), `poolID` (identifying the specific liquidity pool, e.g., Tinyman USDC/ALGO), `investedAmountUSDC`, `investedAmountALGO`, `lpTokensReceived`, `startDate`, `currentAPY`, `totalYieldEarned`, `impermanentLoss`.
 
 5.  **`Badge`**: Defines the gamified achievement badges.
     *   **Attributes**: `badgeID` (Primary Key), `name`, `description`, `criteria`.
@@ -91,10 +91,11 @@ The core of Cultivest's data architecture will revolve around managing user acco
 *   **Many-to-Many (`M:M`)**:
     *   `User` and `Badge` have a Many-to-Many relationship, facilitated by the `UserBadge` junction table.
 
-## 3. Fiat-to-USDCa Deposit
+## 3. Fiat-to-Crypto Deposit
 - [x] ✅ **MoonPay Integration** - Complete ALGO → USDCa conversion flow implemented
 - [ ] Deposit $1–$10 via Flutterwave (Nigeria: cards, mobile money) 
 - [ ] "Coins in vault" animation (mobile/web)
+- [ ] **CRITICAL**: Auto-rebalancing to maintain 50/50 USDC/ALGO ratio for Tinyman pools
 
 **Backend Implementation Status (COMPLETED)**:  
 - ✅ **MoonPay Service**: Widget URL generation, webhook handling, signature verification
@@ -114,228 +115,234 @@ The core of Cultivest's data architecture will revolve around managing user acco
 - Add deposit status polling and progress tracking
 - Connect to balance updates after successful funding
 
-## 4. Yield Investment - 🔄 PHASE 1B IN PROGRESS
-- [ ] 🎯 **PRIORITY**: Research Tinyman USDCa pool integration
-- [ ] One-tap investment in Tinyman USDCa pool (2.5% APY)
-- [ ] Investment backend APIs (`/investment/initiate`, `/investment/positions`)
-- [ ] Investment UI components and amount selection
-- [ ] Display risk disclaimer (GENIUS Act, smart contract risks)
-- [ ] "Funds growing" animation (mobile/web)
+## 4. Liquidity Pool Investment - 🔄 PHASE 1B IN PROGRESS
+- [ ] 🎯 **PRIORITY**: Implement Tinyman USDC/ALGO pool integration (50/50 split required)
+- [ ] One-tap investment with automatic rebalancing to maintain 50/50 USDC/ALGO ratio
+- [ ] Investment backend APIs (`/investment/initiate`, `/investment/positions`, `/investment/rebalance`)
+- [ ] Investment UI components with dual-asset display
+- [ ] **CRITICAL**: Display comprehensive risk disclosures:
+  - Impermanent loss risk from ALGO price volatility
+  - Smart contract risks from Tinyman protocol
+  - APY variability (currently 0.44%, may fluctuate)
+  - GENIUS Act compliance (not applicable to investment platforms)
+- [ ] "Liquidity providing" animation showing both USDC and ALGO (mobile/web)
 - [ ] Web support for investment flow (Expo Router)
 
-**Implementation Notes**:  
-- Algorand Web3.js integrates with Tinyman's audited USDCa pool for yield generation. Backend Node.js on Vercel will handle transaction signing and broadcasting for custodial wallets.
-- Claude 4 API (mocked) suggests investment based on deposit amount.  
-- Lottie animation shows coins flowing to vault.  
-- Web flow reuses mobile components, with CSS tweaks for browser rendering.
+**Updated Implementation Notes**:  
+- Tinyman requires 50% USDC + 50% ALGO for liquidity provision
+- Current APY: 0.44% (significantly lower than traditional projections)
+- Must handle impermanent loss calculations and user education
+- Backend will auto-rebalance user holdings to maintain 50/50 ratio
+- Claude 4 API integration for personalized risk assessment based on user profile
 
 ## 5. Gamified Dashboard
-- [ ] Display balance ($5), daily yield ($0.003), "money tree" (5 leaves)
-- [ ] "First Investor!" badge for first deposit
-- [ ] Push notifications for daily yield updates (mobile only)
+- [ ] Display balance (USDC: $2.50, ALGO: $2.50), daily yield ($0.001), "money tree" representation
+- [ ] **Updated badges**: "First Liquidity Provider!", "Risk Aware Investor", "DeFi Explorer"
+- [ ] Push notifications for daily yield updates and rebalancing alerts (mobile only)
+- [ ] Impermanent loss tracker and educational tooltips
 - [ ] Web dashboard support (Expo Router, NativeWind)
 
 **Implementation Notes**:  
-- Built with React Native, NativeBase, and Lottie for "money tree" animation (grows with balance).  
-- Firebase push notifications for mobile (e.g., "$0.003 earned today!"). (Note: if backend sends notifications, it will be via Vercel backend interacting with Firebase FCM).
-- Web dashboard (`app/index.tsx`) reuses mobile components, optimized for Chrome with NativeWind CSS, hosted on Netlify.  
-- MongoDB stores balance/yield data, updated via Tinyman API, managed by Vercel backend.
+- Built with React Native, NativeBase, and Lottie for "liquidity pool" animation
+- Dashboard shows both USDC and ALGO balances with real-time USD values
+- Impermanent loss calculation displayed prominently
+- Firebase push notifications for yield updates and significant price movements
+- Web dashboard reuses mobile components, optimized for Chrome with NativeWind CSS
 
-## 6. Educational Components
-- [ ] 30-second video on USDCa and GENIUS Act safety
-- [ ] 3-question quiz unlocking "Safe Saver" badge
-- [ ] Tooltips for stablecoin/yield terms
-- [ ] Web support for video/quiz (Expo Router)
+## 6. Educational Components - **UPDATED FOR ACCURACY**
+- [ ] 60-second video explaining liquidity pools, impermanent loss, and dual-asset investing
+- [ ] 5-question quiz covering:
+  - USDC/ALGO pool mechanics
+  - Impermanent loss concept
+  - APY variability (0.44% current rate)
+  - Smart contract risks
+  - GENIUS Act compliance (not applicable to Cultivest)
+- [ ] Comprehensive tooltips for DeFi terminology
+- [ ] Risk assessment questionnaire before first investment
+- [ ] Web support for educational content (Expo Router)
 
 **Implementation Notes**:  
-- Static HTML video hosted on Vercel, embedded in React Native/WebView.  
-- Quiz uses NativeBase forms, stores results in Supabase (PostgreSQL) via Vercel backend.
-- Tooltips via NativeBase Popover component, explaining terms (e.g., "USDCa: dollar-backed stablecoin").  
-- Web reuses mobile video/quiz with CSS for browser compatibility, hosted on Netlify.
+- Educational content emphasizes realistic expectations (0.44% APY)
+- Clear explanation of why dual-asset pools provide diversification
+- Interactive calculators for impermanent loss scenarios
+- Compliance-focused content explaining regulatory landscape
 
 ## 7. Withdrawal
-- [ ] Withdraw $1–$10 to bank via MoonPay/Flutterwave (1% fee)
-- [ ] "Funds sent" animation (mobile/web)
-- [ ] Transaction receipt via email (mobile/web)
+- [ ] Withdraw liquidity position to fiat via MoonPay/Flutterwave (1% fee)
+- [ ] **CRITICAL**: Handle potential impermanent loss in withdrawal calculations
+- [ ] Auto-convert both USDC and ALGO to desired fiat currency
+- [ ] "Liquidity withdrawn" animation (mobile/web)
+- [ ] Transaction receipt via email showing final amounts after impermanent loss
 - [ ] Web support for withdrawal flow (Expo Router)
 
 **Implementation Notes**:  
-- MoonPay/Flutterwave APIs convert USDCa to fiat, transfer to bank. Vercel backend orchestrates these API calls and transaction signing.
-- Lottie animation shows coins exiting vault.  
-- Firebase sends email receipt with transaction ID. (Note: Vercel backend will interact with Firebase or another email service).
-- Web flow reuses mobile components (`app/withdraw.tsx`), styled with NativeWind, hosted on Netlify.
+- Withdrawal must handle dual-asset liquidity positions
+- Calculate and display impermanent loss impact
+- Option to withdraw as stablecoins (USDC) or convert both assets to fiat
+- Clear disclosure of final amounts after fees and price impact
 
-## 8. Privacy-First Design
+## 8. Privacy-First Design - **ENHANCED FOR DEFI**
 - [ ] No wallet connection required for basic viewing
-- [ ] Clear disclosure of MoonPay KYC permissions
-- [ ] No storage of sensitive data (e.g., private keys)
-- [ ] Read-only operations for Tinyman queries
+- [ ] Clear disclosure of MoonPay KYC permissions and liquidity pool risks
+- [ ] No storage of sensitive data (encrypted private keys only)
+- [ ] Read-only operations for Tinyman pool queries
+- [ ] **NEW**: Transparent smart contract interaction disclosure
 
 **Implementation Notes**:  
-- Custodial wallet simplifies user experience; clear disclosure on data handling.  
-- MoonPay KYC data not stored locally; Supabase handles auth securely, and sensitive wallet keys are encrypted and managed by the Vercel backend with a dedicated key management strategy.
-- Tinyman API queries are read-only, logged via Chainalysis for AML compliance.  
-- Web/mobile share privacy settings, displayed via NativeBase modal.
+- Enhanced privacy policies covering DeFi protocol interactions
+- Clear consent flow for smart contract interactions
+- Audit trail for all Tinyman pool transactions
+- Chainalysis integration for compliance monitoring
 
-## 9. Mobile + Web Optimized UI
-- [ ] Responsive design (mobile: iOS/Android; web: Chrome)
-- [ ] Dark theme for readability
-- [ ] Touch-friendly controls (mobile); click-friendly (web)
-- [ ] Fast loading states with feedback animations
-
-**Implementation Notes**:  
-- Expo Router ensures 90% code sharing between mobile and web (`app/*.tsx`).  
-- NativeBase supports dark theme, toggled via user settings.  
-- Lottie animations provide loading feedback (e.g., spinning coins).  
-- Web uses NativeWind CSS for responsive layouts, tested on low-end browsers for Nigeria, hosted on Netlify.
-
-## 10. Performance Optimization
-- [ ] Efficient Algorand/Tinyman API queries
-- [ ] Local caching of recent deposits/yields
-- [ ] Progressive loading for dashboard data
-- [ ] Offline OTP for Nigeria's low-data users
+## 9. Mobile + Web Optimized UI - **DEFI-FOCUSED**
+- [ ] Responsive design optimized for dual-asset displays
+- [ ] Dark theme with DeFi-style charts and pool visualizations
+- [ ] Touch-friendly controls for pool management (mobile); click-friendly (web)
+- [ ] Fast loading states with liquidity pool animations
 
 **Implementation Notes**:  
-- Algorand Web3.js optimizes queries ($0.001/tx), caching via MongoDB (managed by Vercel backend).  
-- Progressive loading for "money tree" data, reducing load time to <2s.  
-- Supabase OTP supports offline verification, critical for Nigeria (50MB/month data).  
-- Web caching mirrors mobile, using browser local storage.
+- UI redesigned to handle dual-asset complexity elegantly
+- Pool visualization showing 50/50 ratio maintenance
+- Real-time price charts for ALGO/USD and impermanent loss tracking
+- Mobile-first design with web responsive layouts
+
+## 10. Performance Optimization - **DEFI-ENHANCED**
+- [ ] Efficient Algorand/Tinyman API queries for pool data
+- [ ] Local caching of pool rates and user positions
+- [ ] Progressive loading for dual-asset dashboard data
+- [ ] **NEW**: Real-time impermanent loss calculations
+
+**Implementation Notes**:  
+- Optimized queries for Tinyman pool state and user LP positions
+- Background sync for ALGO price updates affecting impermanent loss
+- Efficient calculation of pool APY based on recent trading volume
 
 ## 11. Open-Source Infrastructure
-- [ ] Well-documented codebase
-- [ ] Contribution guidelines
+- [ ] Well-documented codebase with DeFi integration examples
+- [ ] Contribution guidelines for liquidity pool features
 - [ ] MIT license
-- [ ] Deployment instructions for Vercel/Heroku
+- [ ] Deployment instructions for Vercel/Heroku with Tinyman integration
 
-**Implementation Notes**:  
-- Codebase documented with JSDoc, hosted on GitHub.  
-- Contribution guidelines include setup and PR process.  
-- MIT license ensures open-source accessibility.  
-- Vercel (backend API) and Netlify (web frontend) deployment guides provided. Heroku is an alternative backend deployment option.
-
-## 12. Security Roadmap (Post-Hackathon)
-
-Given the custodial wallet approach, robust security for private key storage is paramount for a production environment. The Vercel-hosted backend will be responsible for implementing these measures.
+## 12. Security Roadmap (Post-Hackathon) - **DEFI-ENHANCED**
 
 **12.1. Key Storage & Management**
-- [ ] Implement strong encryption (e.g., AES-256) for all private keys stored in the database.
-- [ ] Ensure unique encryption keys per user/wallet, derived from a secure, salted KDF.
-- [ ] Implement secure key management: master encryption keys will be stored separately from encrypted wallet data, ideally in a Hardware Security Module (HSM) or a Cloud Key Management Service (KMS) like AWS KMS, Google Cloud KMS, or Azure Key Vault, accessed securely by the Vercel backend.
-- [ ] Restrict access to encryption keys and encrypted data with strict access controls and multi-factor authentication (MFA).
-- [ ] Enforce least privilege principles for all system access.
+- [ ] Implement strong encryption (e.g., AES-256) for all private keys
+- [ ] **NEW**: Secure smart contract interaction signing
+- [ ] Hardware Security Module (HSM) integration for production
+- [ ] Multi-signature wallet support for larger positions
 
-**12.2. Operational Security**
-- [ ] Conduct regular security audits and penetration testing by third-party experts.
-- [ ] Implement robust logging and monitoring for all key access and transaction signing operations on the Vercel backend.
-- [ ] Adopt a Hot/Warm/Cold wallet strategy to minimize online exposure of user funds.
-    -   Hot Wallet: Minimal funds for immediate transactions.
-    -   Warm Wallet: Moderate funds requiring multi-signature or time-locked access.
-    -   Cold Wallet: Majority of user funds stored offline, requiring manual or highly secure multi-party approval for large withdrawals.
-- [ ] Implement automated alerts for suspicious activity or unauthorized access attempts.
+**12.2. Smart Contract Security**
+- [ ] **NEW**: Tinyman protocol audit verification
+- [ ] **NEW**: Slippage protection mechanisms
+- [ ] **NEW**: Maximum position size limits for risk management
+- [ ] **NEW**: Emergency pause functionality for pool interactions
+
+**12.3. Operational Security**
+- [ ] Regular security audits including DeFi protocol interactions
+- [ ] Robust logging and monitoring for pool transactions
+- [ ] Hot/Warm/Cold wallet strategy adapted for LP positions
+- [ ] **NEW**: Impermanent loss monitoring and alerts
 
 ## Implementation Notes
 
 ### Backend Architecture (Vercel & Supabase) ✅ IMPLEMENTED
-- **Vercel**: ✅ Node.js/Express API backend deployed with real implementations for MoonPay, Algorand SDK, custodial wallet management, SMS OTP, and database operations.
-- **Supabase**: ✅ PostgreSQL database with complete schema (users, wallets, otp_sessions, badges, deposits) and Row Level Security policies configured.
+- **Vercel**: ✅ Node.js/Express API backend with MoonPay, Algorand SDK, custodial wallet management
+- **Supabase**: ✅ PostgreSQL database with complete schema and Row Level Security
+- **NEW**: Tinyman SDK integration for liquidity pool operations
 
 ### Frontend Architecture (Netlify & Expo Router)
-- **Netlify**: Will host the Cultivest web frontend, built with React Native for Web via Expo Router.
-- **Expo Router**: Enables 90% code sharing between mobile (iOS/Android) and web, simplifying development for both platforms.
+- **Netlify**: Web frontend with DeFi-optimized UI components
+- **Expo Router**: 90% code sharing between mobile and web platforms
+- **NEW**: Dual-asset balance displays and pool management interfaces
 
 ### Server-Side API Endpoints
 
-This section outlines the primary API endpoints and their functionalities that will be implemented on the Vercel-hosted Node.js backend.
-
 #### 1. User Management & Authentication ✅ IMPLEMENTED
-- **`POST /auth/signup`**: ✅ Real phone-based registration with Supabase + Twilio SMS OTP.
-- **`POST /auth/verify-otp`**: ✅ Database OTP verification with JWT token generation.
-- **`POST /auth/login`**: ✅ Phone and OTP login with proper authentication.
-- **`POST /user/kyc`**: Processes MoonPay KYC-light integration; updates user KYC status.
-- **`GET /user/profile`**: Retrieves basic user profile data.
+- **`POST /auth/signup`**: ✅ Real phone-based registration
+- **`POST /auth/verify-otp`**: ✅ Database OTP verification
+- **`POST /auth/login`**: ✅ Phone and OTP login
+- **`POST /user/kyc`**: MoonPay KYC-light integration
+- **`GET /user/profile`**: User profile with risk tolerance settings
 
 #### 2. Wallet Management (Custodial) ✅ IMPLEMENTED
-- **`POST /wallet/create`**: ✅ Creates and securely stores custodial Algorand wallets with AES-256 encryption.
-- **`GET /wallet/balance`**: ✅ Fetches live USDCa/ALGO balances with on-chain sync capability.
+- **`POST /wallet/create`**: ✅ Custodial Algorand wallets with AES-256 encryption
+- **`GET /wallet/balance`**: ✅ Live USDC/ALGO balances with pool position data
 
-#### 3. Fiat-to-USDCa Deposit ✅ IMPLEMENTED
-- **`POST /deposit/initiate`**: ✅ Complete MoonPay integration with ALGO → USDCa conversion flow.
-- **`GET /deposit/status/{id}`**: ✅ Real-time deposit tracking with progress updates.
-- **`POST /deposit/webhook/moonpay`**: ✅ MoonPay webhook handler with signature verification.
-- **`GET /deposit/calculate-fees`**: ✅ Transparent fee calculation and USDCa estimation.
+#### 3. Fiat-to-Crypto Deposit ✅ IMPLEMENTED
+- **`POST /deposit/initiate`**: ✅ MoonPay integration with dual-asset preparation
+- **`GET /deposit/status/{id}`**: ✅ Real-time deposit tracking
+- **`POST /deposit/webhook/moonpay`**: ✅ MoonPay webhook handler
+- **`GET /deposit/calculate-fees`**: ✅ Transparent fee calculation
 
-#### 4. Yield Investment
-- **`POST /investment/initiate`**: Allows a user to invest USDCa into the Tinyman pool. Handles transaction signing and broadcasting.
-- **`GET /investment/positions`**: Retrieves a user's active investment positions.
-- **Background Job / Cron Job (Daily/Hourly)**: Calculates and credits daily yield; updates user balances and records transactions.
+#### 4. Liquidity Pool Investment - **NEW**
+- **`POST /investment/initiate`**: Invest in Tinyman USDC/ALGO pool with auto-rebalancing
+- **`GET /investment/positions`**: Retrieve user's LP positions with impermanent loss data
+- **`POST /investment/rebalance`**: Maintain 50/50 USDC/ALGO ratio
+- **`GET /investment/pools`**: Available pools with current APY and liquidity data
+- **`POST /investment/withdraw`**: Withdraw from liquidity pool with IL calculation
 
-#### 5. Gamified Dashboard
-- **`GET /dashboard/data`**: Provides aggregated data for the user dashboard (balance, yield, money tree status, badges).
-- **`POST /badge/award`**: (Internal/Automated) Awards a badge to a user upon meeting criteria.
+#### 5. Gamified Dashboard - **UPDATED**
+- **`GET /dashboard/data`**: Dual-asset dashboard with pool performance
+- **`POST /badge/award`**: Award DeFi-specific badges
 
-#### 6. Educational Components
-- **`GET /education/content`**: Retrieves educational video/quiz details.
-- **`POST /education/quiz/submit`**: Submits user quiz results; awards badges if criteria met.
+#### 6. Educational Components - **ENHANCED**
+- **`GET /education/content`**: DeFi-focused educational content
+- **`POST /education/quiz/submit`**: Updated quiz covering liquidity pools and IL
+- **`GET /education/risk-assessment`**: Risk tolerance questionnaire
 
-#### 7. Withdrawal
-- **`POST /withdrawal/initiate`**: Initiates a withdrawal of USDCa to fiat; transfers USDCa to treasury wallet.
-- **`POST /withdrawal/process_fiat`**: (Internal/Automated) Processes fiat payout via MoonPay/Flutterwave after USDCa is received.
-- **`POST /withdrawal/webhook`**: (Webhook Endpoint) Receives fiat payout status updates; updates transaction status.
-- **`POST /transaction/receipt/send`**: Sends transaction receipts via email.
+#### 7. Withdrawal - **ENHANCED**
+- **`POST /withdrawal/initiate`**: Withdraw LP position with IL calculations
+- **`POST /withdrawal/convert-to-fiat`**: Convert dual assets to fiat
 
-#### 8. Notifications
-- **`POST /notifications/send_daily_yield`**: (Internal/Automated) Sends daily yield push notifications via Firebase Cloud Messaging.
+### Competitive Landscape Analysis - **UPDATED**
 
-#### 9. AI Integration
-- **`POST /ai/roundup_suggestion`**: Gets round-up investment suggestions from Claude 4 API.
+Based on market research, Cultivest has identified a unique positioning in the micro-DeFi investment space:
 
-### Claude 4 Round-Up Suggestions
-- Mocked Claude 4 API analyzes spending patterns (e.g., $3.50 coffee → $0.50 round-up).  
-- Returns JSON: `{ amount: 0.50, suggestedInvestment: "Tinyman USDCa 2.5% APY" }`.  
-- Integrated via Node.js API on the Vercel backend, displayed in deposit flow with NativeBase modal.  
-- Web/mobile share logic, with web using CSS for modal styling.
+**Direct Competitors**: Currently NONE - No major platform offers micro-DeFi liquidity pool investments with educational focus.
 
-### Money Tree Animation
-- Lottie animation (`money-tree.json`) grows leaves based on balance ($1 = 1 leaf).  
-- Built with React Native's LottieView, reused on web via Expo Router.  
-- Triggers on deposit/investment/withdrawal, with NativeWind CSS for web scaling.  
-- Tested for <1s load time on low-end Androids (Nigeria).
+**Adjacent Competitors**:
+- **Traditional Micro-Investment**: Acorns (36M users), Robinhood (24M users), Stash - all focus on stocks/ETFs
+- **Crypto Platforms**: Coinbase, Robinhood Crypto - complex UI, no DeFi/yield focus, high fees
+- **DeFi Platforms**: Exponential.fi, Giddy - target institutions/whales, require technical knowledge
 
-### Web Support via Expo Router
-- Expo Router (SDK 50) enables web dashboard (`app/index.tsx`) with 90% code reuse.  
-- NativeWind CSS ensures responsive design for Chrome, including low-end browsers.  
-- Web demo shows balance, yield, "money tree," reusing mobile animations.  
-- Deployed on Netlify with `expo start --web`, tested for <2s load.
+**Cultivest's Competitive Advantages**:
+1. **First micro-DeFi platform** - Unique market position
+2. **Educational-first approach** - Explains liquidity pools vs assuming expertise
+3. **Honest yield disclosure** - 0.44% actual vs inflated promises elsewhere
+4. **Regulatory compliance** - GENIUS Act awareness, proper disclosures
+5. **Mobile-first UX** - Built for mainstream adoption vs crypto natives
 
-### Acceptance Criteria
+### Legal Compliance Status
 
-Here are the expected scenarios that, when successfully demonstrated, indicate the feature meets its acceptance criteria:
+**GENIUS Act Analysis**: ✅ **DOES NOT APPLY** to Cultivest
+- GENIUS Act regulates stablecoin **issuers** (Circle, Tether), not investment platforms
+- Cultivest classified as investment platform like Robinhood, Acorns, Betterment
+- Uses existing USDC, doesn't issue new stablecoins
+- Benefits from well-regulated stablecoin market without additional compliance burden
 
--   **Onboarding**:
-    *   **Scenario 1 (Mobile)**: A user in the US successfully completes phone signup and MoonPay KYC-light on an iOS/Android emulator within 2 minutes.
-    *   **Scenario 2 (Web)**: A user in Nigeria successfully completes phone signup and MoonPay KYC-light on a Chrome browser (hosted on Netlify) within 2 minutes.
-    *   **Verification**: 90% of 10 test users (5 U.S., 5 Nigeria) successfully complete their respective onboarding flows.
+**Required Compliance**:
+- Money Transmitter Licenses (state-by-state)
+- Investment Advisor Registration (if providing advice)
+- AML/KYC compliance via integrated partners
+- Standard fintech compliance (not crypto-specific)
 
--   **Deposit**:
-    *   **Scenario**: A user successfully deposits $5 (fiat) via Flutterwave (Nigeria) or MoonPay (US) and the corresponding USDCa appears in their Cultivest wallet, verified on the Algorand explorer.
-    *   **Verification**: 10 test deposits ($5 each) are confirmed to convert to USDCa and reflect correctly in the user's custodial wallet.
+### Acceptance Criteria - **UPDATED FOR DEFI**
 
--   **Yield Investment**:
-    *   **Scenario**: A user invests $5 of USDCa, which is successfully locked into the Tinyman 2.5% APY pool, and this investment is verifiable on the Algorand testnet.
-    *   **Verification**: 10 investments ($5 each) are verified to be locked in the Tinyman pool on the testnet.
+**Onboarding**:
+- 90% of test users complete phone signup and understand dual-asset investing within 3 minutes
 
--   **Dashboard**:
-    *   **Scenario**: A user logs into the mobile or web dashboard and accurately views their current balance ($5), daily yield ($0.003), and observes the "money tree" animation with 5 leaves, along with the "First Investor!" badge.
-    *   **Verification**: 90% of 10 test users (mobile/web) confirm the dashboard UX is intuitive and data is accurate via an X (Twitter) poll.
+**Deposit & Pool Entry**:
+- Test users successfully deposit $5 and see it auto-rebalanced to $2.50 USDC + $2.50 ALGO equivalent
+- LP tokens correctly issued and tracked on Algorand testnet
 
--   **Education**:
-    *   **Scenario**: A user watches the 30-second video on USDCa/GENIUS Act safety and successfully completes the 3-question quiz, unlocking the "Safe Saver" badge.
-    *   **Verification**: 90% of 10 test users complete the video and quiz, rating the content as clear via an X (Twitter) poll.
+**Liquidity Pool Investment**:
+- Users invest in Tinyman pool and understand impermanent loss concept
+- Dashboard accurately shows pool performance and IL calculations
 
--   **Withdrawal**:
-    *   **Scenario**: A user initiates a $2 withdrawal from their USDCa balance to their bank account via MoonPay/Flutterwave, and the funds are successfully received, confirmed by API logs.
-    *   **Verification**: 10 test withdrawals ($2 each) complete successfully via MoonPay/Flutterwave, confirmed by backend API logs.
+**Education**:
+- 90% of users complete DeFi education and pass liquidity pool quiz
+- Users demonstrate understanding of 0.44% APY and associated risks
 
-### Findings
-- https://medium.com/@drichar/using-algosdk-v3-and-algokit-utils-in-react-native-3160c79ad7fc for Algorand SDK React Native support
-- https://developer.algorand.org/solutions/building-mobile-apps-using-react-native-algo-library/ Building Mobile Apps Using React-Native-Algo Library
+**Withdrawal**:
+- Users successfully withdraw LP positions with clear IL impact disclosure
+- Final amounts match backend calculations after fees and price impact

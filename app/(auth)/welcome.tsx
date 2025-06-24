@@ -116,7 +116,6 @@ export default function WelcomeScreen() {
           <View 
             style={styles.heroSection}
             accessible={true}
-            accessibilityRole="header"
             accessibilityLabel="Cultivest app introduction"
           >
             <View 

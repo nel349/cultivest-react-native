@@ -45,7 +45,7 @@ export default function InvestScreen() {
     }
   ];
 
-  const quickAmounts = ['$10', '$25', '$50', '$100'];
+  const quickAmounts = ['$25', '$50', '$100'];
 
   const selectedPoolData = investmentPools.find(pool => pool.id === selectedPool);
 

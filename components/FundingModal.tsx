@@ -51,7 +51,7 @@ export default function FundingModal({
   const [walletLoading, setWalletLoading] = useState(false);
   const [showTestnetFunding, setShowTestnetFunding] = useState(false);
 
-  const presetAmounts = [5, 10, 25, 50, 100];
+  const presetAmounts = [20, 40, 80, 100];
 
   const getActualAmount = () => {
     return useCustomAmount ? parseFloat(customAmount) || 0 : selectedAmount;

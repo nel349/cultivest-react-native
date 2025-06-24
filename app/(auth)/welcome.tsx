@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Keyboard, TouchableWithoutFeedback, AccessibilityInfo } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, TouchableWithoutFeedback, AccessibilityInfo } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Bitcoin, Coins, Shield, TrendingUp, Star, ArrowRight, Zap, Award } from 'lucide-react-native';
@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
@@ -95,21 +95,19 @@ export default function WelcomeScreen() {
           importantForAccessibility="no-hide-descendants"
         >
           <View style={[styles.cryptoDecor, { top: 60 + insets.top, left: 20 }]}>
-            <Bitcoin size={24} color="rgba(255,255,255,0.3)" />
+            <Bitcoin size={20} color="rgba(255,255,255,0.3)" />
           </View>
-          <View style={[styles.cryptoDecor, { top: 100 + insets.top, right: 30 }]}>
-            <Coins size={20} color="rgba(255,255,255,0.2)" />
+          <View style={[styles.cryptoDecor, { top: 90 + insets.top, right: 30 }]}>
+            <Coins size={16} color="rgba(255,255,255,0.2)" />
           </View>
-          <View style={[styles.cryptoDecor, { top: 140 + insets.top, left: width - 60 }]}>
-            <Award size={18} color="rgba(255,255,255,0.25)" />
+          <View style={[styles.cryptoDecor, { top: 120 + insets.top, left: width - 60 }]}>
+            <Award size={14} color="rgba(255,255,255,0.25)" />
           </View>
         </View>
 
-        <ScrollView 
+        <View 
           style={styles.content}
-          contentContainerStyle={styles.scrollContent}
           accessible={false}
-          showsVerticalScrollIndicator={false}
           accessibilityLabel="Welcome screen content"
         >
           {/* Hero Section */}
@@ -125,7 +123,7 @@ export default function WelcomeScreen() {
               accessibilityLabel="Cultivest logo with Bitcoin icon"
             >
               <View style={styles.logoBackground}>
-                <Bitcoin size={40} color="#F7931A" />
+                <Bitcoin size={28} color="#F7931A" />
               </View>
             </View>
             
@@ -154,27 +152,20 @@ export default function WelcomeScreen() {
             >
               <View style={styles.cryptoContainer}>
                 <View style={styles.bitcoinIcon}>
-                  <Bitcoin size={60} color="#F7931A" />
+                  <Bitcoin size={36} color="#F7931A" />
                 </View>
                 <View style={styles.algorandIcon}>
-                  <Coins size={50} color="#00D4AA" />
+                  <Coins size={30} color="#00D4AA" />
                 </View>
                 <View 
                   style={styles.nftBadge}
                   accessible={true}
                   accessibilityLabel="Portfolio NFT badge"
                 >
-                  <Award size={20} color="#8B5CF6" />
+                  <Award size={14} color="#8B5CF6" />
                   <Text style={styles.nftText}>NFT</Text>
                 </View>
               </View>
-              <Text 
-                style={styles.illustrationText}
-                accessible={true}
-                accessibilityLabel="Your crypto investments become tradeable NFTs!"
-              >
-                Your crypto investments become tradeable NFTs!
-              </Text>
             </View>
           </View>
 
@@ -184,14 +175,6 @@ export default function WelcomeScreen() {
             accessible={false}
             accessibilityLabel="App features"
           >
-            <Text 
-              style={styles.featuresHeader}
-              accessible={true}
-              accessibilityRole="header"
-              accessibilityLabel="Revolutionary features of Cultivest"
-            >
-              Revolutionary Features
-            </Text>
             {features.map((feature, index) => (
               <View 
                 key={index} 
@@ -207,7 +190,7 @@ export default function WelcomeScreen() {
                   accessibilityRole="image"
                   accessibilityLabel={`${feature.title} icon`}
                 >
-                  <feature.icon size={24} color={feature.color} />
+                  <feature.icon size={16} color={feature.color} />
                 </View>
                 <Text 
                   style={styles.featureTitle}
@@ -228,22 +211,21 @@ export default function WelcomeScreen() {
 
           {/* Value Propositions */}
           <View style={styles.valuePropsSection}>
-            <Text style={styles.valuePropsHeader}>Why Cultivest?</Text>
             <View style={styles.valuePropsList}>
               <View style={styles.valuePropItem}>
-                <TrendingUp size={16} color="#10B981" />
+                <TrendingUp size={12} color="#10B981" />
                 <Text style={styles.valuePropText}>First NFT-based portfolio tracking</Text>
               </View>
               <View style={styles.valuePropItem}>
-                <Zap size={16} color="#F59E0B" />
+                <Zap size={12} color="#F59E0B" />
                 <Text style={styles.valuePropText}>Multi-chain from day one</Text>
               </View>
               <View style={styles.valuePropItem}>
-                <Shield size={16} color="#3B82F6" />
+                <Shield size={12} color="#3B82F6" />
                 <Text style={styles.valuePropText}>Professional custody + self-custody opt-in</Text>
               </View>
               <View style={styles.valuePropItem}>
-                <Star size={16} color="#8B5CF6" />
+                <Star size={12} color="#8B5CF6" />
                 <Text style={styles.valuePropText}>Tradeable, inheritable portfolios</Text>
               </View>
             </View>
@@ -270,7 +252,7 @@ export default function WelcomeScreen() {
                 accessible={false}
               >
                 <Text style={styles.primaryButtonText}>Start Your Crypto Journey</Text>
-                <ArrowRight size={20} color="#3B82F6" />
+                <ArrowRight size={16} color="#3B82F6" />
               </LinearGradient>
             </TouchableOpacity>
             
@@ -297,7 +279,7 @@ export default function WelcomeScreen() {
               </TouchableOpacity>
             )}
           </View>
-        </ScrollView>
+        </View>
       </LinearGradient>
     </View>
     </TouchableWithoutFeedback>
@@ -322,49 +304,46 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
-  },
-  scrollContent: {
-    justifyContent: 'flex-start',
-    paddingBottom: 40,
+    padding: 16,
+    justifyContent: 'space-between',
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom: 8,
   },
   logoContainer: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   logoBackground: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: 'rgba(255,255,255,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.3)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowRadius: 4,
     elevation: 4,
   },
   title: {
-    fontSize: Math.min(32, width * 0.08),
+    fontSize: Math.min(28, width * 0.07),
     fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 6,
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: Math.min(18, width * 0.045),
+    fontSize: Math.min(14, width * 0.035),
     color: 'rgba(255,255,255,0.95)',
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 24,
+    lineHeight: 18,
+    marginBottom: 12,
     fontWeight: '600',
     paddingHorizontal: 20,
     textShadowColor: 'rgba(0,0,0,0.1)',
@@ -373,203 +352,174 @@ const styles = StyleSheet.create({
   },
   illustrationContainer: {
     alignItems: 'center',
-    marginBottom: 20,
   },
   cryptoContainer: {
     position: 'relative',
     alignItems: 'center',
-    marginBottom: 12,
-    width: 120,
-    height: 80,
+    width: 90,
+    height: 60,
   },
   bitcoinIcon: {
     position: 'absolute',
     top: 0,
     left: 0,
     backgroundColor: 'rgba(247, 147, 26, 0.2)',
-    borderRadius: 30,
-    padding: 8,
+    borderRadius: 20,
+    padding: 6,
   },
   algorandIcon: {
     position: 'absolute',
-    top: 10,
+    top: 8,
     right: 0,
     backgroundColor: 'rgba(0, 212, 170, 0.2)',
-    borderRadius: 25,
-    padding: 6,
+    borderRadius: 18,
+    padding: 4,
   },
   nftBadge: {
     position: 'absolute',
     bottom: 0,
     left: '50%',
-    transform: [{ translateX: -25 }],
+    transform: [{ translateX: -20 }],
     backgroundColor: '#8B5CF6',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#FFFFFF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
+    elevation: 2,
   },
   nftText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginLeft: 4,
-  },
-  illustrationText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '600',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    marginLeft: 2,
   },
   featuresContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 25,
-    marginTop: 10,
-  },
-  featuresHeader: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textAlign: 'center',
-    width: '100%',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    marginTop: 12,
+    marginBottom: 4,
   },
   featureCard: {
     width: '48%',
     backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 8,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-    minHeight: 140,
+    shadowRadius: 4,
+    elevation: 3,
+    minHeight: 85,
   },
   featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 6,
   },
   featureTitle: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: '700',
     color: '#1E3A8A',
-    marginBottom: 6,
+    marginBottom: 3,
     textAlign: 'center',
   },
   featureDescription: {
-    fontSize: 12,
+    fontSize: 9,
     color: '#64748B',
-    lineHeight: 16,
+    lineHeight: 12,
     textAlign: 'center',
     fontWeight: '500',
   },
   valuePropsSection: {
     backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 25,
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 4,
+    marginBottom: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  valuePropsHeader: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1E3A8A',
-    marginBottom: 16,
-    textAlign: 'center',
+    shadowRadius: 4,
+    elevation: 3,
   },
   valuePropsList: {
-    gap: 12,
+    gap: 6,
   },
   valuePropItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   valuePropText: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#374151',
-    marginLeft: 12,
+    marginLeft: 8,
     fontWeight: '500',
     flex: 1,
   },
   ctaSection: {
     alignItems: 'center',
-    marginTop: 15,
-    paddingBottom: 20,
+    marginTop: 8,
   },
   primaryButton: {
-    borderRadius: 20,
-    marginBottom: 16,
+    borderRadius: 16,
+    marginBottom: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowRadius: 4,
+    elevation: 4,
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 280,
   },
   buttonGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
   },
   primaryButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#3B82F6',
   },
   disclaimer: {
-    fontSize: 12,
+    fontSize: 10,
     color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 14,
     fontWeight: '600',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
   devButton: {
-    marginTop: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    marginTop: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
   },
   devButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#FFFFFF',
     fontWeight: '600',
     textAlign: 'center',

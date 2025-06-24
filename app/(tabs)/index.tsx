@@ -336,7 +336,7 @@ export default function HomeScreen() {
               style={styles.balanceCardGradient}
             >
               <View style={styles.balanceHeader}>
-                <Text style={styles.balanceLabel}>Your Garden Value</Text>
+                <Text style={styles.balanceLabel}>Portfolio Value</Text>
                 <TouchableOpacity
                   onPress={() => setBalanceVisible(!balanceVisible)}
                   style={styles.eyeButton}
@@ -356,15 +356,15 @@ export default function HomeScreen() {
               {/* Multi-Chain Asset Breakdown */}
               {balanceVisible && (
                 <View style={styles.assetsBreakdown}>
-                  <View style={styles.assetItem}>
-                    <View style={styles.assetIcon}>
-                      <Text style={styles.assetSymbol}>₿</Text>
+                  <View style={[styles.assetItem, styles.bitcoinAsset]}>
+                    <View style={[styles.assetIcon, styles.bitcoinIcon]}>
+                      <Text style={[styles.assetSymbol, styles.bitcoinSymbol]}>₿</Text>
                     </View>
-                    <Text style={styles.assetLabel}>Bitcoin</Text>
-                    <Text style={styles.assetAmount}>
+                    <Text style={[styles.assetLabel, styles.bitcoinLabel]}>Bitcoin</Text>
+                    <Text style={[styles.assetAmount, styles.bitcoinAmount]}>
                       {dashboardData.balanceBTC > 0 ? `${dashboardData.balanceBTC.toFixed(8)} BTC` : '$0.00'}
                     </Text>
-                    <Text style={styles.assetPercentage}>
+                    <Text style={[styles.assetPercentage, styles.bitcoinPercentage]}>
                       {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(1)}%
                     </Text>
                   </View>
@@ -742,6 +742,37 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#5A5A5A',
     marginLeft: 8,
+  },
+  // Bitcoin-specific emphasis styles
+  bitcoinAsset: {
+    backgroundColor: 'rgba(247, 147, 26, 0.1)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#F7931A',
+  },
+  bitcoinIcon: {
+    backgroundColor: '#F7931A',
+  },
+  bitcoinSymbol: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  bitcoinLabel: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#F7931A',
+  },
+  bitcoinAmount: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#F7931A',
+  },
+  bitcoinPercentage: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#F7931A',
   },
   yieldContainer: {
     flexDirection: 'row',

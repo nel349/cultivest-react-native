@@ -204,9 +204,9 @@ export default function FundingModal({
     }
   }, [userID, visible]);
 
-  const estimatedUSDCa = (amount: number) => {
-    // Based on FUNDING_FLOW.md: ~3.5% MoonPay fee + ~0.3% DEX fee
-    return amount * 0.962; // ~96.2% efficiency
+  const estimatedCrypto = (amount: number) => {
+    // Based on MoonPay fees: ~3.8% total fees
+    return amount * 0.962; // ~96.2% efficiency after fees
   };
 
   const handleInitiateFunding = async () => {
@@ -231,8 +231,8 @@ export default function FundingModal({
     try {
       console.log('🚀 Initiating funding with MoonPay SDK:', { amount, userID, walletAddress });
       
-      // Create deposit record in backend first
-      const depositResponse = await apiClient.initiateDeposit(amount, 'usdca');
+      // Create deposit record in backend first  
+      const depositResponse = await apiClient.initiateDeposit(amount, 'crypto');
       
       if (depositResponse.success) {
         console.log('✅ Backend deposit record created:', depositResponse.transactionId);
@@ -333,7 +333,7 @@ export default function FundingModal({
           >
             {/* Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Plant More Seeds 🌱</Text>
+              <Text style={styles.modalTitle}>Buy Other Crypto 🚀</Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <X size={24} color="#FFFFFF" />
               </TouchableOpacity>
@@ -347,7 +347,7 @@ export default function FundingModal({
                   <Text style={styles.infoTitle}>How Funding Works</Text>
                 </View>
                 <Text style={styles.infoText}>
-                  💳 Pay with credit card → ⚡ Receive ALGO → 💰 Auto-convert to USDCa stablecoins
+                  💳 Pay with credit card → 🚀 Choose from multiple cryptocurrencies → 📈 Build your portfolio
                 </Text>
               </View>
 
@@ -406,12 +406,12 @@ export default function FundingModal({
                     <Text style={styles.feeValue}>${getActualAmount().toFixed(2)}</Text>
                   </View>
                   <View style={styles.feeRow}>
-                    <Text style={styles.feeLabel}>MoonPay + DEX fees (~3.8%)</Text>
+                    <Text style={styles.feeLabel}>MoonPay fees (~3.8%)</Text>
                     <Text style={styles.feeValue}>-${(getActualAmount() * 0.038).toFixed(2)}</Text>
                   </View>
                   <View style={[styles.feeRow, styles.feeRowTotal]}>
-                    <Text style={styles.feeLabelTotal}>USDCa for investing</Text>
-                    <Text style={styles.feeValueTotal}>~${estimatedUSDCa(getActualAmount()).toFixed(2)}</Text>
+                    <Text style={styles.feeLabelTotal}>Crypto for investing</Text>
+                    <Text style={styles.feeValueTotal}>~${estimatedCrypto(getActualAmount()).toFixed(2)}</Text>
                   </View>
                 </View>
               </View>
@@ -420,11 +420,7 @@ export default function FundingModal({
               <View style={styles.benefitsSection}>
                 <View style={styles.benefitItem}>
                   <Zap size={16} color="#58CC02" />
-                  <Text style={styles.benefitText}>GENIUS Act compliant stablecoins</Text>
-                </View>
-                <View style={styles.benefitItem}>
-                  <Target size={16} color="#58CC02" />
-                  <Text style={styles.benefitText}>Auto-convert ALGO → USDCa</Text>
+                  <Text style={styles.benefitText}>Wide selection of cryptocurrencies</Text>
                 </View>
                 <View style={styles.benefitItem}>
                   <CreditCard size={16} color="#58CC02" />

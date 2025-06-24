@@ -31,12 +31,18 @@ export interface ApiResponse<T = any> {
   // Wallet fields
   walletCreated?: boolean;
   walletAddress?: string;
+  addresses?: {
+    bitcoin?: string;
+    algorand?: string;
+  };
   balance?: {
     databaseBalance: {
+      btc: number;
       algo: number;
       usdca: number;
     };
     onChainBalance?: {
+      btc: number;
       algo: number;
       usdca: number;
       lastUpdated: string;
@@ -103,6 +109,89 @@ export interface InvestmentPosition {
   totalYieldEarned: number;
   startDate: string;
   status: 'active' | 'closed';
+}
+
+// Bitcoin Investment Types
+export interface BitcoinInvestment {
+  investmentId: string;
+  type: string;
+  amountUSD: number;
+  estimatedBTC: number;
+  bitcoinPrice: number;
+  fees: {
+    moonpayFee: number;
+    networkFee: number;
+    total: number;
+  };
+  walletAddress: string;
+  status: string;
+  riskLevel: string;
+  custodyType: string;
+}
+
+export interface BitcoinPosition {
+  investmentId: string;
+  type: string;
+  purchaseDate: string;
+  amountInvestedUSD: number;
+  bitcoinAmount: number;
+  purchasePrice: number;
+  currentPrice: number;
+  currentValueUSD: number;
+  unrealizedPnL: number;
+  performancePercentage: string;
+  status: string;
+  fees: number;
+}
+
+export interface PortfolioOverview {
+  summary: {
+    totalValueUSD: number;
+    totalInvestedUSD: number;
+    unrealizedPnL: number;
+    portfolioPerformance: string;
+    lastUpdated: string;
+  };
+  allocation: {
+    bitcoin: {
+      balance: number;
+      valueUSD: number;
+      percentage: string;
+      price: number;
+    };
+    algorand: {
+      balance: number;
+      valueUSD: number;
+      percentage: string;
+      price: number;
+    };
+    usdc: {
+      balance: number;
+      valueUSD: number;
+      percentage: string;
+      price: number;
+    };
+  };
+  holdings: {
+    bitcoin: {
+      address: string;
+      balance: number;
+      valueUSD: number;
+    };
+    algorand: {
+      address: string;
+      balance: number;
+      valueUSD: number;
+      usdcBalance: number;
+      usdcValueUSD: number;
+      isOptedIntoUSDC: boolean;
+    };
+  };
+  analytics: {
+    bitcoinFirst: boolean;
+    diversificationScore: string;
+    riskLevel: string;
+  };
 }
 
 // Badge Types

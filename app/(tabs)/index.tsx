@@ -26,11 +26,15 @@ export default function HomeScreen() {
     walletAddress?: string;
   } | null>(null);
   const [dashboardData, setDashboardData] = useState({
-    // Real wallet balances
+    // Real multi-chain wallet balances
+    balanceBTC: 0,
     balanceUSDCa: 0,
     balanceALGO: 0,
     totalBalanceUSD: 0,
-    walletAddress: '',
+    addresses: {
+      bitcoin: '',
+      algorand: ''
+    },
     
     // Investment data (will be real later)
     dailyYield: 0,
@@ -39,7 +43,14 @@ export default function HomeScreen() {
     weeklyGrowth: 0,
     investmentStreak: 0,
     plantsGrown: 0,
-    nextMilestone: 50
+    nextMilestone: 50,
+    
+    // Portfolio allocation
+    portfolioAllocation: {
+      bitcoinPercentage: 0,
+      algorandPercentage: 0,
+      usdcPercentage: 0
+    }
   });
 
   // Load user info from storage
@@ -64,7 +75,7 @@ export default function HomeScreen() {
   // Fetch wallet balance from backend
   const fetchWalletBalance = async (userID: string) => {
     try {
-      console.log('🔍 Fetching wallet balance for user:', userID);
+      console.log('🔍 Fetching multi-chain wallet balance for user:', userID);
       
       // Fetch both database balance and live blockchain balance
       const [dbResponse, liveResponse] = await Promise.all([
@@ -76,29 +87,54 @@ export default function HomeScreen() {
       console.log('🔗 Live blockchain response:', liveResponse);
 
       if (dbResponse.success) {
-        // Handle the actual API response structure
-        const walletAddress = dbResponse.walletAddress || '';
+        // Handle the updated multi-chain API response structure
+        const addresses = dbResponse.addresses || { bitcoin: '', algorand: '' };
         const dbBalance = dbResponse.balance?.databaseBalance || {};
         const liveBalance = dbResponse.balance?.onChainBalance || (liveResponse.success ? liveResponse.balance?.onChainBalance : null);
         
         // Use live balance if available, fallback to database
+        const btcBalance = liveBalance?.btc || dbBalance.btc || 0;
         const algoBalance = liveBalance?.algo || dbBalance.algo || 0;
         const usdcaBalance = liveBalance?.usdca || dbBalance.usdca || 0;
         
-        console.log('💰 Parsed balances:', { algoBalance, usdcaBalance, walletAddress });
+        // Calculate portfolio values (using rough estimates)
+        const btcPriceUSD = 45000; // Placeholder - should come from API
+        const algoPriceUSD = 0.30;  // Placeholder - should come from API
+        
+        const btcValueUSD = btcBalance * btcPriceUSD;
+        const algoValueUSD = algoBalance * algoPriceUSD;
+        const usdcValueUSD = usdcaBalance * 1.0;
+        const totalValueUSD = btcValueUSD + algoValueUSD + usdcValueUSD;
+        
+        // Calculate portfolio allocation percentages
+        const bitcoinPercentage = totalValueUSD > 0 ? (btcValueUSD / totalValueUSD) * 100 : 0;
+        const algorandPercentage = totalValueUSD > 0 ? (algoValueUSD / totalValueUSD) * 100 : 0;
+        const usdcPercentage = totalValueUSD > 0 ? (usdcValueUSD / totalValueUSD) * 100 : 0;
+        
+        console.log('💰 Parsed multi-chain balances:', { 
+          btcBalance, algoBalance, usdcaBalance, 
+          btcValueUSD, algoValueUSD, usdcValueUSD, totalValueUSD,
+          addresses 
+        });
         
         setDashboardData(prev => ({
           ...prev,
+          balanceBTC: btcBalance,
           balanceUSDCa: usdcaBalance,
           balanceALGO: algoBalance,
-          totalBalanceUSD: usdcaBalance + (algoBalance * 0.30), // Rough ALGO/USD rate
-          walletAddress: walletAddress
+          totalBalanceUSD: totalValueUSD,
+          addresses: addresses,
+          portfolioAllocation: {
+            bitcoinPercentage: bitcoinPercentage,
+            algorandPercentage: algorandPercentage,
+            usdcPercentage: usdcPercentage
+          }
         }));
         
-        // Update user info with wallet address
+        // Update user info with wallet addresses
         setUserInfo(prev => prev ? {
           ...prev,
-          walletAddress: walletAddress
+          walletAddress: addresses.algorand || addresses.bitcoin || ''
         } : null);
       } else {
         console.error('Failed to fetch wallet balance:', dbResponse.error);
@@ -145,28 +181,28 @@ export default function HomeScreen() {
 
   const quickActions = [
     {
-      title: 'Plant Seeds',
-      subtitle: 'Add more funds',
+      title: 'Buy Bitcoin',
+      subtitle: 'Digital gold investment',
+      icon: TrendingUp,
+      color: '#F7931A',
+      bgColor: '#FFF8E1',
+      onPress: () => router.push('/(tabs)/invest')
+    },
+    {
+      title: 'Other Crypto',
+      subtitle: 'ETH, SOL, USDC & more',
       icon: Plus,
       color: '#58CC02',
       bgColor: '#E8F5E8',
       onPress: () => setShowFundingModal(true)
     },
     {
-      title: 'Grow Garden',
-      subtitle: 'Invest & earn',
-      icon: TrendingUp,
+      title: 'Portfolio View',
+      subtitle: 'View positions',
+      icon: ArrowUpRight,
       color: '#00D4AA',
       bgColor: '#E0F7FA',
-      onPress: () => router.push('/(tabs)/invest')
-    },
-    {
-      title: 'Harvest',
-      subtitle: 'Withdraw funds',
-      icon: ArrowDownLeft,
-      color: '#FF9500',
-      bgColor: '#FFF3E0',
-      onPress: () => router.push('/withdraw')
+      onPress: () => router.push('/(tabs)/portfolio')
     },
     {
       title: 'Learn & Grow',
@@ -317,15 +353,30 @@ export default function HomeScreen() {
                 {balanceVisible ? `$${dashboardData.totalBalanceUSD.toFixed(2)}` : '••••••'}
               </Text>
               
-              {/* Asset Breakdown */}
+              {/* Multi-Chain Asset Breakdown */}
               {balanceVisible && (
                 <View style={styles.assetsBreakdown}>
+                  <View style={styles.assetItem}>
+                    <View style={styles.assetIcon}>
+                      <Text style={styles.assetSymbol}>₿</Text>
+                    </View>
+                    <Text style={styles.assetLabel}>Bitcoin</Text>
+                    <Text style={styles.assetAmount}>
+                      {dashboardData.balanceBTC > 0 ? `${dashboardData.balanceBTC.toFixed(8)} BTC` : '$0.00'}
+                    </Text>
+                    <Text style={styles.assetPercentage}>
+                      {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(1)}%
+                    </Text>
+                  </View>
                   <View style={styles.assetItem}>
                     <View style={styles.assetIcon}>
                       <Text style={styles.assetSymbol}>💰</Text>
                     </View>
                     <Text style={styles.assetLabel}>USDCa</Text>
                     <Text style={styles.assetAmount}>${dashboardData.balanceUSDCa.toFixed(2)}</Text>
+                    <Text style={styles.assetPercentage}>
+                      {dashboardData.portfolioAllocation.usdcPercentage.toFixed(1)}%
+                    </Text>
                   </View>
                   <View style={styles.assetItem}>
                     <View style={styles.assetIcon}>
@@ -333,6 +384,9 @@ export default function HomeScreen() {
                     </View>
                     <Text style={styles.assetLabel}>ALGO</Text>
                     <Text style={styles.assetAmount}>{dashboardData.balanceALGO.toFixed(2)}</Text>
+                    <Text style={styles.assetPercentage}>
+                      {dashboardData.portfolioAllocation.algorandPercentage.toFixed(1)}%
+                    </Text>
                   </View>
                 </View>
               )}
@@ -346,9 +400,10 @@ export default function HomeScreen() {
                 <View style={styles.yieldDivider} />
                 <View style={styles.yieldItem}>
                   <Target size={16} color="#FF9500" />
-                  <Text style={styles.yieldLabel}>Wallet</Text>
+                  <Text style={styles.yieldLabel}>Multi-Chain</Text>
                   <Text style={styles.yieldValue}>
-                    {dashboardData.walletAddress ? '✅' : '⏳'}
+                    {dashboardData.addresses.bitcoin && dashboardData.addresses.algorand ? '✅✅' : 
+                     dashboardData.addresses.bitcoin || dashboardData.addresses.algorand ? '✅⏳' : '⏳⏳'}
                   </Text>
                 </View>
               </View>
@@ -438,8 +493,8 @@ export default function HomeScreen() {
               console.log('Funding initiated:', transactionId);
               // Could add transaction tracking here
               Alert.alert(
-                'Funding Started! 💳',
-                'Complete your payment with MoonPay. Your ALGO will be automatically converted to USDCa for investing.',
+                'Crypto Purchase Started! 💳',
+                'Complete your payment with MoonPay. You can choose from various cryptocurrencies to diversify your portfolio.',
                 [
                   {
                     text: 'Got it!',
@@ -681,6 +736,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#2E7D32',
+  },
+  assetPercentage: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#5A5A5A',
+    marginLeft: 8,
   },
   yieldContainer: {
     flexDirection: 'row',

@@ -7,38 +7,50 @@ const { width } = Dimensions.get('window');
 
 export default function InvestScreen() {
   const [investmentAmount, setInvestmentAmount] = useState('');
-  const [selectedPool, setSelectedPool] = useState('usdca-pool');
+  const [selectedPool, setSelectedPool] = useState('bitcoin-investment');
 
   const investmentPools = [
     {
-      id: 'usdca-pool',
-      name: 'Stable Garden 🌿',
-      apy: '2.5%',
+      id: 'bitcoin-investment',
+      name: 'Bitcoin Investment ₿',
+      apy: 'Market Returns',
+      risk: 'High',
+      description: 'Direct Bitcoin ownership - Digital gold for the future',
+      tvl: 'Global Market',
+      color: '#F7931A',
+      icon: TrendingUp,
+      bgColor: '#FFF8E1',
+      isBitcoin: true
+    },
+    {
+      id: 'stablecoin-pool',
+      name: 'Stablecoins 🪙',
+      apy: '4.5%',
       risk: 'Low',
-      description: 'Steady growth from stable yields',
-      tvl: '$2.4M',
+      description: 'USDC, USDT, DAI - stable value with yield',
+      tvl: '$12.4M',
       color: '#58CC02',
       icon: Leaf,
       bgColor: '#E8F5E8'
     },
     {
-      id: 'algo-pool',
-      name: 'Growth Sprouts 🌱',
-      apy: '4.2%',
+      id: 'ethereum-pool',
+      name: 'Ethereum & L2s 🔥',
+      apy: '6.2%',
       risk: 'Medium',
-      description: 'Higher yields with moderate risk',
-      tvl: '$1.8M',
+      description: 'ETH, MATIC, ARB - leading smart contracts',
+      tvl: '$8.1M',
       color: '#00D4AA',
       icon: Sprout,
       bgColor: '#E0F7FA'
     },
     {
-      id: 'premium-pool',
-      name: 'Money Tree Forest 🌳',
-      apy: '6.8%',
+      id: 'altcoin-pool',
+      name: 'Top Altcoins 🚀',
+      apy: '8.8%',
       risk: 'High',
-      description: 'Premium yields for experienced gardeners',
-      tvl: '$960K',
+      description: 'SOL, ADA, DOT - high-growth potential',
+      tvl: '$3.2M',
       color: '#FF9500',
       icon: TreePine,
       bgColor: '#FFF3E0'
@@ -51,13 +63,28 @@ export default function InvestScreen() {
 
   const calculateEstimate = () => {
     const amount = parseFloat(investmentAmount) || 0;
-    const apy = parseFloat(selectedPoolData?.apy || '0') / 100;
-    const dailyRate = apy / 365;
-    return {
-      daily: amount * dailyRate,
-      monthly: amount * (apy / 12),
-      yearly: amount * apy
-    };
+    
+    if (selectedPoolData?.isBitcoin) {
+      // For Bitcoin, show estimated BTC amount instead of yield
+      const btcPrice = 45000; // Placeholder - should come from API
+      const estimatedBTC = amount / btcPrice;
+      const fees = amount * 0.03; // Rough 3% fee estimate
+      return {
+        estimatedBTC: estimatedBTC,
+        fees: fees,
+        netAmount: amount - fees,
+        btcPrice: btcPrice
+      };
+    } else {
+      // For yield farming pools
+      const apy = parseFloat(selectedPoolData?.apy || '0') / 100;
+      const dailyRate = apy / 365;
+      return {
+        daily: amount * dailyRate,
+        monthly: amount * (apy / 12),
+        yearly: amount * apy
+      };
+    }
   };
 
   const estimates = calculateEstimate();
@@ -83,8 +110,8 @@ export default function InvestScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Grow Your Garden 🌱</Text>
-          <Text style={styles.subtitle}>Plant seeds and watch your wealth bloom</Text>
+          <Text style={styles.title}>Bitcoin-First Investing ₿</Text>
+          <Text style={styles.subtitle}>Pure Bitcoin or explore the broader crypto ecosystem</Text>
         </View>
 
         {/* Investment Amount Card */}
@@ -121,9 +148,9 @@ export default function InvestScreen() {
           </LinearGradient>
         </View>
 
-        {/* Garden Selection */}
+        {/* Investment Options */}
         <View style={styles.poolsSection}>
-          <Text style={styles.sectionTitle}>Choose Your Garden 🌻</Text>
+          <Text style={styles.sectionTitle}>Bitcoin vs Crypto Ecosystem 📊</Text>
           
           {investmentPools.map((pool) => (
             <TouchableOpacity
@@ -171,7 +198,7 @@ export default function InvestScreen() {
           ))}
         </View>
 
-        {/* Growth Estimates */}
+        {/* Investment Estimates */}
         {investmentAmount && (
           <View style={styles.estimatesCard}>
             <LinearGradient
@@ -179,24 +206,43 @@ export default function InvestScreen() {
               style={styles.estimatesCardGradient}
             >
               <View style={styles.estimatesHeader}>
-                <Zap size={20} color="#58CC02" />
-                <Text style={styles.estimatesTitle}>Growth Forecast</Text>
+                <Zap size={20} color={selectedPoolData?.isBitcoin ? "#F7931A" : "#58CC02"} />
+                <Text style={styles.estimatesTitle}>
+                  {selectedPoolData?.isBitcoin ? 'Bitcoin Purchase Estimate' : 'Growth Forecast'}
+                </Text>
               </View>
               
-              <View style={styles.estimatesGrid}>
-                <View style={styles.estimateItem}>
-                  <Text style={styles.estimateLabel}>Daily</Text>
-                  <Text style={styles.estimateValue}>+${estimates.daily.toFixed(3)}</Text>
+              {selectedPoolData?.isBitcoin ? (
+                <View style={styles.estimatesGrid}>
+                  <View style={styles.estimateItem}>
+                    <Text style={styles.estimateLabel}>You'll Get</Text>
+                    <Text style={styles.estimateValue}>{estimates.estimatedBTC?.toFixed(8)} BTC</Text>
+                  </View>
+                  <View style={styles.estimateItem}>
+                    <Text style={styles.estimateLabel}>BTC Price</Text>
+                    <Text style={styles.estimateValue}>${estimates.btcPrice?.toLocaleString()}</Text>
+                  </View>
+                  <View style={styles.estimateItem}>
+                    <Text style={styles.estimateLabel}>Fees</Text>
+                    <Text style={styles.estimateValue}>~${estimates.fees?.toFixed(2)}</Text>
+                  </View>
                 </View>
-                <View style={styles.estimateItem}>
-                  <Text style={styles.estimateLabel}>Monthly</Text>
-                  <Text style={styles.estimateValue}>+${estimates.monthly.toFixed(2)}</Text>
+              ) : (
+                <View style={styles.estimatesGrid}>
+                  <View style={styles.estimateItem}>
+                    <Text style={styles.estimateLabel}>Daily</Text>
+                    <Text style={styles.estimateValue}>+${estimates.daily?.toFixed(3)}</Text>
+                  </View>
+                  <View style={styles.estimateItem}>
+                    <Text style={styles.estimateLabel}>Monthly</Text>
+                    <Text style={styles.estimateValue}>+${estimates.monthly?.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.estimateItem}>
+                    <Text style={styles.estimateLabel}>Yearly</Text>
+                    <Text style={styles.estimateValue}>+${estimates.yearly?.toFixed(2)}</Text>
+                  </View>
                 </View>
-                <View style={styles.estimateItem}>
-                  <Text style={styles.estimateLabel}>Yearly</Text>
-                  <Text style={styles.estimateValue}>+${estimates.yearly.toFixed(2)}</Text>
-                </View>
-              </View>
+              )}
             </LinearGradient>
           </View>
         )}
@@ -214,7 +260,10 @@ export default function InvestScreen() {
             style={styles.investButtonGradient}
           >
             <Text style={styles.investButtonText}>
-              Plant ${investmentAmount || '0'} Seeds 🌱
+              {selectedPoolData?.isBitcoin 
+                ? `Buy ${investmentAmount || '0'} of Bitcoin ₿`
+                : `Plant $${investmentAmount || '0'} Seeds 🌱`
+              }
             </Text>
             <ArrowRight size={20} color="#58CC02" />
           </LinearGradient>

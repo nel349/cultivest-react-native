@@ -97,8 +97,8 @@ class ApiClient {
     return this.request(`/wallet/balance?userID=${userID}&live=${live}`, {}, true);
   }
 
-  // MoonPay Deposit endpoints (Updated for ALGO → USDCa flow)
-  async initiateDeposit(amountUSD: number, targetCurrency: string = 'usdca') {
+  // MoonPay Deposit endpoints (Multi-crypto support)
+  async initiateDeposit(amountUSD: number, targetCurrency: string = 'crypto') {
     return this.request('/deposit/initiate', {
       method: 'POST',
       body: JSON.stringify({ amountUSD, targetCurrency }),
@@ -123,6 +123,33 @@ class ApiClient {
 
   async getInvestmentPositions(userID: string) {
     return this.request(`/investment/positions?userID=${userID}`);
+  }
+
+  // Bitcoin Investment endpoints
+  async initiateBitcoinInvestment(userID: string, amountUSD: number, riskAccepted: boolean = true) {
+    return this.request('/investment/bitcoin/initiate', {
+      method: 'POST',
+      body: JSON.stringify({ userID, amountUSD, riskAccepted, investmentType: 'market_buy' }),
+    });
+  }
+
+  async getBitcoinPositions(userID: string) {
+    return this.request('/investment/bitcoin/positions', {
+      method: 'POST',
+      body: JSON.stringify({ userID }),
+    });
+  }
+
+  async getPortfolioOverview(userID: string) {
+    return this.request('/investment/portfolio', {
+      method: 'POST',
+      body: JSON.stringify({ userID }),
+    });
+  }
+
+  // Bitcoin Balance endpoints
+  async getBitcoinBalance(address: string) {
+    return this.request(`/wallet/balance/bitcoin/${address}`);
   }
 
   // Dashboard endpoints

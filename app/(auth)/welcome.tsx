@@ -21,11 +21,11 @@ export default function WelcomeScreen() {
   // Development bypass function
   const devBypass = async () => {
     // Using the user ID from our earlier backend test
-    const devUserID = "34f9176d-172d-431d-adb2-000d6459d4d2";
+    const devUserID = "6ed81d5d-d15b-41f1-825c-8eff55a1a9fd";
     const devUserName = "Norman E. Lopez";
     
     // Real JWT token from our test session
-    const realToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNGY5MTc2ZC0xNzJkLTQzMWQtYWRiMi0wMDBkNjQ1OWQ0ZDIiLCJwaG9uZU51bWJlciI6IisxOTE1NDA4MjAzMCIsImlhdCI6MTc1MDU3MTU4MiwiZXhwIjoxNzUwNjU3OTgyfQ.5hjgk5-ak25Uph0dOw4t3ne9z5e5IGojIVAGr7SriXw";
+    const realToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZWQ4MWQ1ZC1kMTViLTQxZjEtODI1Yy04ZWZmNTVhMWE5ZmQiLCJwaG9uZU51bWJlciI6IisxOTE1NDA4MjAzMCIsImlhdCI6MTc1MDcyNTIyMCwiZXhwIjoxNzUwODExNjIwfQ._mHDru0F7WvZMcegWagPihBElK_sFeAMUSF8zjWFlGU";
     
     try {
       await AsyncStorage.setItem('auth_token', realToken);

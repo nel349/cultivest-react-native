@@ -215,6 +215,25 @@ class ApiClient {
       method: 'POST',
     });
   }
+
+  // Smart Contract endpoints
+  async deployAndCallHelloWorld(name: string, userAddress: string) {
+    return this.request('/smart-contract/hello-world', {
+      method: 'POST',
+      body: JSON.stringify({ name, userAddress }),
+    }, true);
+  }
+
+  async getContractInfo(appId: string) {
+    return this.request(`/smart-contract/hello-world/${appId}`, {}, true);
+  }
+
+  async callExistingContract(appId: string, name: string, userAddress: string) {
+    return this.request(`/smart-contract/hello-world/${appId}/call`, {
+      method: 'POST',
+      body: JSON.stringify({ name, userAddress }),
+    }, true);
+  }
 }
 
 export const apiClient = new ApiClient();

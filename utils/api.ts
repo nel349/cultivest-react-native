@@ -200,6 +200,21 @@ class ApiClient {
       body: JSON.stringify({ userID, transactionID, email, transactionType }),
     });
   }
+
+  // Cryptocurrency prices endpoints
+  async getCryptoPrices() {
+    return this.request('/prices');
+  }
+
+  async getCryptoPrice(coinId: string) {
+    return this.request(`/prices/${coinId}`);
+  }
+
+  async refreshPrices() {
+    return this.request('/prices/refresh', {
+      method: 'POST',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

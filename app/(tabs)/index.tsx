@@ -77,29 +77,47 @@ export default function HomeScreen() {
     try {
       console.log('🔍 Fetching multi-chain wallet balance for user:', userID);
       
-      // Fetch both database balance and live blockchain balance
-      const [dbResponse, liveResponse] = await Promise.all([
+      // Fetch both database balance, live blockchain balance, and live prices
+      const [dbResponse, liveResponse, pricesResponse] = await Promise.allSettled([
         apiClient.getWalletBalance(userID, false), // Database balance
-        apiClient.getWalletBalance(userID, true)   // Live blockchain balance
+        apiClient.getWalletBalance(userID, true),   // Live blockchain balance
+        apiClient.getCryptoPrices()                 // Live cryptocurrency prices
       ]);
 
-      console.log('💾 Database balance response:', dbResponse);
-      console.log('🔗 Live blockchain response:', liveResponse);
+      // Extract results from Promise.allSettled
+      const dbResult = dbResponse.status === 'fulfilled' ? dbResponse.value : null;
+      const liveResult = liveResponse.status === 'fulfilled' ? liveResponse.value : null;
+      const pricesResult = pricesResponse.status === 'fulfilled' ? pricesResponse.value : null;
 
-      if (dbResponse.success) {
+      console.log('💾 Database balance response:', dbResult);
+      console.log('🔗 Live blockchain response:', liveResult);
+      console.log('💰 Live prices response:', pricesResult);
+
+      if (dbResult?.success) {
         // Handle the updated multi-chain API response structure
-        const addresses = dbResponse.addresses || { bitcoin: '', algorand: '' };
-        const dbBalance = dbResponse.balance?.databaseBalance || {};
-        const liveBalance = dbResponse.balance?.onChainBalance || (liveResponse.success ? liveResponse.balance?.onChainBalance : null);
+        const addresses = dbResult.addresses || { bitcoin: '', algorand: '' };
+        const dbBalance = dbResult.balance?.databaseBalance || {};
+        const liveBalance = dbResult.balance?.onChainBalance || (liveResult?.success ? liveResult.balance?.onChainBalance : null);
         
         // Use live balance if available, fallback to database
         const btcBalance = liveBalance?.btc || dbBalance.btc || 0;
         const algoBalance = liveBalance?.algo || dbBalance.algo || 0;
         const usdcaBalance = liveBalance?.usdca || dbBalance.usdca || 0;
         
-        // Calculate portfolio values (using rough estimates)
-        const btcPriceUSD = 45000; // Placeholder - should come from API
-        const algoPriceUSD = 0.30;  // Placeholder - should come from API
+        // Get live cryptocurrency prices with fallbacks
+        let btcPriceUSD = 97000;  // Fallback price
+        let algoPriceUSD = 0.40;  // Fallback price
+        
+        if (pricesResult?.success && pricesResult.prices) {
+          btcPriceUSD = pricesResult.prices.bitcoin?.usd || btcPriceUSD;
+          algoPriceUSD = pricesResult.prices.algorand?.usd || algoPriceUSD;
+          console.log('✅ Using live prices:', { 
+            BTC: `$${btcPriceUSD.toLocaleString()}`, 
+            ALGO: `$${algoPriceUSD.toFixed(4)}` 
+          });
+        } else {
+          console.log('⚠️ Using fallback prices due to API error');
+        }
         
         const btcValueUSD = btcBalance * btcPriceUSD;
         const algoValueUSD = algoBalance * algoPriceUSD;
@@ -137,7 +155,7 @@ export default function HomeScreen() {
           walletAddress: addresses.algorand || addresses.bitcoin || ''
         } : null);
       } else {
-        console.error('Failed to fetch wallet balance:', dbResponse.error);
+        console.error('Failed to fetch wallet balance:', dbResult?.error || 'Database request failed');
       }
     } catch (error) {
       console.error('Error fetching wallet balance:', error);

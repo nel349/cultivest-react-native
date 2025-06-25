@@ -375,36 +375,48 @@ export default function HomeScreen() {
               {balanceVisible && (
                 <View style={styles.assetsBreakdown}>
                   <View style={[styles.assetItem, styles.bitcoinAsset]}>
-                    <View style={[styles.assetIcon, styles.bitcoinIcon]}>
-                      <Text style={[styles.assetSymbol, styles.bitcoinSymbol]}>₿</Text>
+                    <View style={styles.assetTopRow}>
+                      <View style={[styles.assetIcon, styles.bitcoinIcon]}>
+                        <Text style={[styles.assetSymbol, styles.bitcoinSymbol]}>₿</Text>
+                      </View>
+                      <Text style={[styles.assetLabel, styles.bitcoinLabel]}>Bitcoin</Text>
                     </View>
-                    <Text style={[styles.assetLabel, styles.bitcoinLabel]}>Bitcoin</Text>
-                    <Text style={[styles.assetAmount, styles.bitcoinAmount]}>
-                      {dashboardData.balanceBTC > 0 ? `${dashboardData.balanceBTC.toFixed(8)} BTC` : '$0.00'}
-                    </Text>
-                    <Text style={[styles.assetPercentage, styles.bitcoinPercentage]}>
-                      {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(1)}%
-                    </Text>
+                    <View style={styles.assetBottomRow}>
+                      <Text style={[styles.assetAmount, styles.bitcoinAmount]}>
+                        {dashboardData.balanceBTC > 0 ? `${dashboardData.balanceBTC.toFixed(8)} BTC` : '$0.00'}
+                      </Text>
+                      <Text style={[styles.assetPercentage, styles.bitcoinPercentage]}>
+                        {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(1)}%
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.assetItem}>
-                    <View style={styles.assetIcon}>
-                      <Text style={styles.assetSymbol}>💰</Text>
+                  <View style={[styles.assetItem, styles.standardAsset]}>
+                    <View style={styles.assetTopRow}>
+                      <View style={styles.assetIcon}>
+                        <Text style={styles.assetSymbol}>💰</Text>
+                      </View>
+                      <Text style={styles.assetLabel}>USDCa</Text>
                     </View>
-                    <Text style={styles.assetLabel}>USDCa</Text>
-                    <Text style={styles.assetAmount}>${dashboardData.balanceUSDCa.toFixed(2)}</Text>
-                    <Text style={styles.assetPercentage}>
-                      {dashboardData.portfolioAllocation.usdcPercentage.toFixed(1)}%
-                    </Text>
+                    <View style={styles.assetBottomRow}>
+                      <Text style={styles.assetAmount}>${dashboardData.balanceUSDCa.toFixed(2)}</Text>
+                      <Text style={styles.assetPercentage}>
+                        {dashboardData.portfolioAllocation.usdcPercentage.toFixed(1)}%
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.assetItem}>
-                    <View style={styles.assetIcon}>
-                      <Text style={styles.assetSymbol}>⚡</Text>
+                  <View style={[styles.assetItem, styles.standardAsset]}>
+                    <View style={styles.assetTopRow}>
+                      <View style={styles.assetIcon}>
+                        <Text style={styles.assetSymbol}>⚡</Text>
+                      </View>
+                      <Text style={styles.assetLabel}>ALGO</Text>
                     </View>
-                    <Text style={styles.assetLabel}>ALGO</Text>
-                    <Text style={styles.assetAmount}>{dashboardData.balanceALGO.toFixed(2)}</Text>
-                    <Text style={styles.assetPercentage}>
-                      {dashboardData.portfolioAllocation.algorandPercentage.toFixed(1)}%
-                    </Text>
+                    <View style={styles.assetBottomRow}>
+                      <Text style={styles.assetAmount}>{dashboardData.balanceALGO.toFixed(2)}</Text>
+                      <Text style={styles.assetPercentage}>
+                        {dashboardData.portfolioAllocation.algorandPercentage.toFixed(1)}%
+                      </Text>
+                    </View>
                   </View>
                 </View>
               )}
@@ -732,6 +744,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
   },
+  assetTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  assetBottomRow: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    paddingLeft: 44, // Align with text above (icon width + margin)
+    minHeight: 20,
+    gap: 8,
+  },
   assetIcon: {
     width: 32,
     height: 32,
@@ -763,11 +789,18 @@ const styles = StyleSheet.create({
   },
   // Bitcoin-specific emphasis styles
   bitcoinAsset: {
+    flexDirection: 'column',
     backgroundColor: 'rgba(247, 147, 26, 0.1)',
     borderRadius: 8,
     paddingHorizontal: 8,
+    paddingVertical: 8,
     borderLeftWidth: 3,
     borderLeftColor: '#F7931A',
+  },
+  // Standard asset styles
+  standardAsset: {
+    flexDirection: 'column',
+    paddingVertical: 8,
   },
   bitcoinIcon: {
     backgroundColor: '#F7931A',
@@ -796,12 +829,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
   },
   yieldItem: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   yieldDivider: {
     width: 1,
@@ -810,15 +847,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   yieldLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#5A5A5A',
-    fontWeight: '500',
+    fontWeight: '600',
+    flex: 1,
   },
   yieldValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     color: '#2E7D32',
-    marginLeft: 'auto',
+    textAlign: 'right',
   },
   achievementsSection: {
     marginBottom: 24,

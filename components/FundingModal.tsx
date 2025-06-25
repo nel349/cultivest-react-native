@@ -79,7 +79,8 @@ export default function FundingModal({
       environment: 'sandbox',
       params: {
         apiKey: process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123',
-        defaultCurrencyCode: 'sol',
+        defaultCurrencyCode: purchaseType === 'bitcoin' ? 'btc' : 'eth',
+        currencyCode: purchaseType === 'bitcoin' ? 'btc' : 'eth',
         // theme: 'dark',
         colorCode: '%2310B981', // URL encoded #10B981
         walletAddress: walletAddress,
@@ -87,16 +88,31 @@ export default function FundingModal({
     },
     browserOpener: {
       open: async (url: string) => {
-        // Get current amount and wallet from stored values to avoid closure issues
+        // Get current amount, wallet, and purchase type from stored values to avoid closure issues
         const currentAmount = (window as any).currentFundingAmount || getActualAmount();
         const currentWallet = (window as any).currentWalletAddress || walletAddress;
+        const currentPurchaseType = (window as any).currentPurchaseType || purchaseType;
         
         console.log('🌐 Original MoonPay URL:', url);
         console.log('🔍 Using amount from storage:', currentAmount);
         console.log('🔍 Using wallet from storage:', currentWallet);
+        console.log('🔍 Using purchase type from storage:', currentPurchaseType);
         
         // Parse the URL and add/update parameters
         const urlObj = new URL(url);
+        
+        // Set currency based on purchase type
+        if (currentPurchaseType === 'bitcoin') {
+          // For Bitcoin purchases, set BTC as the currency
+          urlObj.searchParams.set('currencyCode', 'btc');
+          urlObj.searchParams.set('defaultCurrencyCode', 'btc');
+          console.log('🪙 Setting currency to Bitcoin (BTC)');
+        } else {
+          // For general crypto purchases, allow user to choose from popular options
+          urlObj.searchParams.set('currencyCode', 'eth'); // Default to ETH but allow selection
+          urlObj.searchParams.set('defaultCurrencyCode', 'eth');
+          console.log('🚀 Setting currency to Ethereum (ETH) with selection allowed');
+        }
         
         // Add current amount
         urlObj.searchParams.set('baseCurrencyAmount', currentAmount.toString());
@@ -106,10 +122,24 @@ export default function FundingModal({
           urlObj.searchParams.set('walletAddress', currentWallet);
         }
         
+        // Configure MoonPay experience based on purchase type
+        if (currentPurchaseType === 'bitcoin') {
+          // Bitcoin-focused experience
+          urlObj.searchParams.set('lockAmount', 'false'); // Allow amount adjustment
+          urlObj.searchParams.set('showAllCurrencies', 'false'); // Focus on Bitcoin
+          urlObj.searchParams.set('showWalletAddressForm', 'false'); // Use provided wallet
+        } else {
+          // General crypto experience - allow more flexibility
+          urlObj.searchParams.set('lockAmount', 'false'); // Allow amount adjustment
+          urlObj.searchParams.set('showAllCurrencies', 'true'); // Show crypto options
+          urlObj.searchParams.set('showWalletAddressForm', 'true'); // Allow wallet input
+        }
+        
         const finalUrl = urlObj.toString();
         console.log('🌐 Updated MoonPay URL:', finalUrl);
         console.log('🔍 URL contains amount:', finalUrl.includes(`baseCurrencyAmount=${currentAmount}`));
         console.log('🔍 URL contains wallet:', currentWallet ? finalUrl.includes('walletAddress') : 'No wallet set');
+        console.log('🔍 URL contains currency:', finalUrl.includes('currencyCode'));
         
         await WebBrowser.openBrowserAsync(finalUrl, {
           presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
@@ -123,13 +153,15 @@ export default function FundingModal({
   useEffect(() => {
     console.log('🌙 MoonPay SDK Configuration:');
     console.log('- API Key being used:', process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123');
+    console.log('- Purchase Type:', purchaseType);
+    console.log('- Currency Code:', purchaseType === 'bitcoin' ? 'btc' : 'eth');
     console.log('- Wallet Address:', walletAddress);
     console.log('- Amount:', getActualAmount());
     console.log('- Selected Amount:', selectedAmount);
     console.log('- Custom Amount:', customAmount);
     console.log('- Use Custom Amount:', useCustomAmount);
     console.log('- Environment: sandbox');
-  }, [walletAddress, selectedAmount, customAmount, useCustomAmount]);
+  }, [walletAddress, selectedAmount, customAmount, useCustomAmount, purchaseType]);
 
   // TODO: Re-enable URL signing for production
   // Sign URL with backend when wallet address is ready
@@ -176,22 +208,41 @@ export default function FundingModal({
   // Get wallet address on component mount
   useEffect(() => {
     const fetchWalletAddress = async () => {
+      if (!userID) {
+        console.log('⚠️ No userID provided to FundingModal');
+        setWalletLoading(false);
+        return;
+      }
+
       setWalletLoading(true);
       try {
         const walletResponse = await apiClient.getWalletBalance(userID, false);
         console.log('🔍 Wallet response:', walletResponse);
+        console.log('🔍 Available addresses:', walletResponse.addresses);
+        console.log('🔍 Purchase type:', purchaseType);
         
-        if (walletResponse.success && walletResponse.addresses?.algorand) {
-          setWalletAddress(walletResponse.addresses.algorand);
-          console.log('✅ Wallet address set for FundingModal:', walletResponse.addresses.algorand);
+        // Use the appropriate wallet address based on purchase type
+        const targetAddress = purchaseType === 'bitcoin' 
+          ? walletResponse.addresses?.bitcoin 
+          : walletResponse.addresses?.algorand;
+
+        console.log('🔍 Target address for', purchaseType, ':', targetAddress);
+
+        if (walletResponse.success && targetAddress) {
+          setWalletAddress(targetAddress);
+          console.log('✅ Wallet address set for FundingModal:', targetAddress, '(type:', purchaseType, ')');
         } else {
           console.log('⚠️ No wallet found, attempting to create one...');
           
           // Try to create a wallet if none exists
           const createResponse = await apiClient.createWallet(userID);
-          if (createResponse.success && createResponse.wallet?.algorandAddress) {
-            setWalletAddress(createResponse.wallet.algorandAddress);
-            console.log('✅ New wallet created:', createResponse.wallet.algorandAddress);
+          const createdAddress = purchaseType === 'bitcoin' 
+            ? createResponse.wallet?.bitcoinAddress 
+            : createResponse.wallet?.algorandAddress;
+
+          if (createResponse.success && createdAddress) {
+            setWalletAddress(createdAddress);
+            console.log('✅ New wallet created:', createdAddress, '(type:', purchaseType, ')');
           } else {
             console.error('❌ Failed to create wallet:', createResponse.error);
           }
@@ -216,6 +267,11 @@ export default function FundingModal({
   const handleInitiateFunding = async () => {
     const amount = getActualAmount();
     
+    if (!userID) {
+      Alert.alert('Error', 'Please log in to make investments');
+      return;
+    }
+
     if (amount < 1) {
       Alert.alert('Invalid Amount', 'Minimum funding amount is $1');
       return;
@@ -233,7 +289,13 @@ export default function FundingModal({
 
     setIsLoading(true);
     try {
-      console.log('🚀 Initiating funding with MoonPay SDK:', { amount, userID, walletAddress });
+      console.log('🚀 Initiating funding with MoonPay SDK:', { 
+        amount, 
+        userID, 
+        walletAddress, 
+        purchaseType,
+        targetCurrency: purchaseType === 'bitcoin' ? 'btc' : 'crypto'
+      });
       
       // Create deposit record in backend first
       const depositResponse = purchaseType === 'bitcoin' 
@@ -251,6 +313,7 @@ export default function FundingModal({
         // Store current values in a way the browser opener can access them
         (window as any).currentFundingAmount = amount;
         (window as any).currentWalletAddress = walletAddress;
+        (window as any).currentPurchaseType = purchaseType;
         
         // open the moonpay sdk
         await openWithInAppBrowser();
@@ -356,8 +419,8 @@ export default function FundingModal({
                 </View>
                 <Text style={styles.infoText}>
                   {purchaseType === 'bitcoin' 
-                    ? '💳 Pay with credit card → ₿ Receive Bitcoin → 🏦 Stored in your custodial wallet'
-                    : '💳 Pay with credit card → 🚀 Choose from multiple cryptocurrencies → 📈 Build your portfolio'
+                    ? '💳 Pay with credit card → ₿ Receive Bitcoin directly → 🏦 Stored in your secure custodial wallet'
+                    : '💳 Pay with credit card → 🚀 Get various cryptocurrencies → 📈 Build your diversified portfolio'
                   }
                 </Text>
               </View>
@@ -431,7 +494,12 @@ export default function FundingModal({
               <View style={styles.benefitsSection}>
                 <View style={styles.benefitItem}>
                   <Zap size={16} color="#58CC02" />
-                  <Text style={styles.benefitText}>Wide selection of cryptocurrencies</Text>
+                  <Text style={styles.benefitText}>
+                    {purchaseType === 'bitcoin' 
+                      ? 'Direct Bitcoin ownership - no intermediaries'
+                      : 'Wide selection of cryptocurrencies'
+                    }
+                  </Text>
                 </View>
                 <View style={styles.benefitItem}>
                   <CreditCard size={16} color="#58CC02" />

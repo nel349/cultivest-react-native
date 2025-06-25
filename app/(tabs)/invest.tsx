@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrendingUp, Shield, Info, ArrowRight, Leaf, Sprout, TreePine, Star, Zap } from 'lucide-react-native';
-import { apiClient } from '@/utils/api';
+import { TrendingUp, Shield, ArrowRight, Leaf, Sprout, TreePine, Star } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
 
 const { width } = Dimensions.get('window');
 
 export default function InvestScreen() {
-  const [investmentAmount, setInvestmentAmount] = useState('');
   const [selectedPool, setSelectedPool] = useState('bitcoin-investment');
-  const [isLoading, setIsLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [showFundingModal, setShowFundingModal] = useState(false);
 
   const investmentPools = [
@@ -63,45 +60,22 @@ export default function InvestScreen() {
     }
   ];
 
-  const quickAmounts = ['$25', '$50', '$100'];
-
   const selectedPoolData = investmentPools.find(pool => pool.id === selectedPool);
 
-  const calculateEstimate = () => {
-    const amount = parseFloat(investmentAmount) || 0;
-    
-    if (selectedPoolData?.isBitcoin) {
-      // For Bitcoin, show estimated BTC amount instead of yield
-      const btcPrice = 45000; // Placeholder - should come from API
-      const estimatedBTC = amount / btcPrice;
-      const fees = amount * 0.03; // Rough 3% fee estimate
-      return {
-        estimatedBTC: estimatedBTC,
-        fees: fees,
-        netAmount: amount - fees,
-        btcPrice: btcPrice
-      };
-    } else {
-      // For yield farming pools
-      const apy = parseFloat(selectedPoolData?.apy || '0') / 100;
-      const dailyRate = apy / 365;
-      return {
-        daily: amount * dailyRate,
-        monthly: amount * (apy / 12),
-        yearly: amount * apy
-      };
-    }
-  };
-
-  const estimates = calculateEstimate();
 
   // Load user info
   useEffect(() => {
     const loadUserInfo = async () => {
       try {
-        const userString = await AsyncStorage.getItem('userInfo');
-        if (userString) {
-          setUserInfo(JSON.parse(userString));
+        const userID = await AsyncStorage.getItem('user_id');
+        const userName = await AsyncStorage.getItem('user_name');
+        
+        if (userID && userName) {
+          setUserInfo({
+            userID,
+            name: userName
+          });
+          console.log('🔍 Invest screen loaded user info:', { userID, userName });
         }
       } catch (error) {
         console.error('Failed to load user info:', error);
@@ -111,23 +85,7 @@ export default function InvestScreen() {
   }, []);
 
   const handleInvestment = () => {
-    if (!userInfo?.userID) {
-      Alert.alert('Error', 'Please log in to make investments');
-      return;
-    }
-
-    if (!investmentAmount || parseFloat(investmentAmount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid investment amount');
-      return;
-    }
-
-    const amount = parseFloat(investmentAmount);
-    if (amount < 5) {
-      Alert.alert('Error', 'Minimum investment amount is $5');
-      return;
-    }
-
-    // Open the FundingModal which handles both Bitcoin and other crypto
+    // Open the FundingModal which handles amount selection, authentication, and both Bitcoin and other crypto
     setShowFundingModal(true);
   };
 
@@ -156,39 +114,6 @@ export default function InvestScreen() {
           <Text style={styles.subtitle}>Pure Bitcoin or explore the broader crypto ecosystem</Text>
         </View>
 
-        {/* Investment Amount Card */}
-        <View style={styles.amountCard}>
-          <LinearGradient
-            colors={['#FFFFFF', '#F8F8F8']}
-            style={styles.amountCardGradient}
-          >
-            <Text style={styles.amountLabel}>How much would you like to plant?</Text>
-            
-            <View style={styles.amountInputContainer}>
-              <Text style={styles.dollarSign}>$</Text>
-              <TextInput
-                style={styles.amountInput}
-                value={investmentAmount}
-                onChangeText={setInvestmentAmount}
-                placeholder="0"
-                placeholderTextColor="#C0C0C0"
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.quickAmountsContainer}>
-              {quickAmounts.map((amount) => (
-                <TouchableOpacity
-                  key={amount}
-                  style={styles.quickAmountButton}
-                  onPress={() => setInvestmentAmount(amount.substring(1))}
-                >
-                  <Text style={styles.quickAmountText}>{amount}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </LinearGradient>
-        </View>
 
         {/* Investment Options */}
         <View style={styles.poolsSection}>
@@ -240,62 +165,10 @@ export default function InvestScreen() {
           ))}
         </View>
 
-        {/* Investment Estimates */}
-        {investmentAmount && (
-          <View style={styles.estimatesCard}>
-            <LinearGradient
-              colors={['#FFFFFF', '#F8F8F8']}
-              style={styles.estimatesCardGradient}
-            >
-              <View style={styles.estimatesHeader}>
-                <Zap size={20} color={selectedPoolData?.isBitcoin ? "#F7931A" : "#58CC02"} />
-                <Text style={styles.estimatesTitle}>
-                  {selectedPoolData?.isBitcoin ? 'Bitcoin Purchase Estimate' : 'Growth Forecast'}
-                </Text>
-              </View>
-              
-              {selectedPoolData?.isBitcoin ? (
-                <View style={styles.estimatesGrid}>
-                  <View style={styles.estimateItem}>
-                    <Text style={styles.estimateLabel}>You'll Get</Text>
-                    <Text style={styles.estimateValue}>{estimates.estimatedBTC?.toFixed(8)} BTC</Text>
-                  </View>
-                  <View style={styles.estimateItem}>
-                    <Text style={styles.estimateLabel}>BTC Price</Text>
-                    <Text style={styles.estimateValue}>${estimates.btcPrice?.toLocaleString()}</Text>
-                  </View>
-                  <View style={styles.estimateItem}>
-                    <Text style={styles.estimateLabel}>Fees</Text>
-                    <Text style={styles.estimateValue}>~${estimates.fees?.toFixed(2)}</Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.estimatesGrid}>
-                  <View style={styles.estimateItem}>
-                    <Text style={styles.estimateLabel}>Daily</Text>
-                    <Text style={styles.estimateValue}>+${estimates.daily?.toFixed(3)}</Text>
-                  </View>
-                  <View style={styles.estimateItem}>
-                    <Text style={styles.estimateLabel}>Monthly</Text>
-                    <Text style={styles.estimateValue}>+${estimates.monthly?.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.estimateItem}>
-                    <Text style={styles.estimateLabel}>Yearly</Text>
-                    <Text style={styles.estimateValue}>+${estimates.yearly?.toFixed(2)}</Text>
-                  </View>
-                </View>
-              )}
-            </LinearGradient>
-          </View>
-        )}
 
         {/* Invest Button */}
         <TouchableOpacity
-          style={[
-            styles.investButton,
-            (!investmentAmount || parseFloat(investmentAmount) <= 0) && styles.investButtonDisabled
-          ]}
-          disabled={!investmentAmount || parseFloat(investmentAmount) <= 0}
+          style={styles.investButton}
           onPress={handleInvestment}
         >
           <LinearGradient
@@ -304,8 +177,8 @@ export default function InvestScreen() {
           >
             <Text style={styles.investButtonText}>
               {selectedPoolData?.isBitcoin 
-                ? `Buy $${investmentAmount || '0'} of Bitcoin ₿`
-                : `Buy $${investmentAmount || '0'} in ${selectedPoolData?.name || 'Crypto'} 🚀`
+                ? 'Buy Bitcoin ₿'
+                : `Buy ${selectedPoolData?.name || 'Crypto'} 🚀`
               }
             </Text>
             <ArrowRight size={20} color="#58CC02" />
@@ -320,7 +193,6 @@ export default function InvestScreen() {
         visible={showFundingModal}
         onClose={() => setShowFundingModal(false)}
         userID={userInfo?.userID}
-        prefilledAmount={investmentAmount}
         purchaseType={selectedPoolData?.isBitcoin ? 'bitcoin' : 'crypto'}
         onFundingInitiated={(transactionId) => {
           console.log('Funding initiated:', transactionId);
@@ -332,7 +204,6 @@ export default function InvestScreen() {
               {
                 text: 'Got it!',
                 onPress: () => {
-                  setInvestmentAmount('');
                   setShowFundingModal(false);
                 }
               }

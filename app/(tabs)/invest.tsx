@@ -1,13 +1,19 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TrendingUp, Shield, Info, ArrowRight, Leaf, Sprout, TreePine, Star, Zap } from 'lucide-react-native';
+import { apiClient } from '@/utils/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import FundingModal from '@/components/FundingModal';
 
 const { width } = Dimensions.get('window');
 
 export default function InvestScreen() {
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [selectedPool, setSelectedPool] = useState('bitcoin-investment');
+  const [isLoading, setIsLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+  const [showFundingModal, setShowFundingModal] = useState(false);
 
   const investmentPools = [
     {
@@ -88,6 +94,42 @@ export default function InvestScreen() {
   };
 
   const estimates = calculateEstimate();
+
+  // Load user info
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('userInfo');
+        if (userString) {
+          setUserInfo(JSON.parse(userString));
+        }
+      } catch (error) {
+        console.error('Failed to load user info:', error);
+      }
+    };
+    loadUserInfo();
+  }, []);
+
+  const handleInvestment = () => {
+    if (!userInfo?.userID) {
+      Alert.alert('Error', 'Please log in to make investments');
+      return;
+    }
+
+    if (!investmentAmount || parseFloat(investmentAmount) <= 0) {
+      Alert.alert('Error', 'Please enter a valid investment amount');
+      return;
+    }
+
+    const amount = parseFloat(investmentAmount);
+    if (amount < 5) {
+      Alert.alert('Error', 'Minimum investment amount is $5');
+      return;
+    }
+
+    // Open the FundingModal which handles both Bitcoin and other crypto
+    setShowFundingModal(true);
+  };
 
   return (
     <LinearGradient
@@ -254,6 +296,7 @@ export default function InvestScreen() {
             (!investmentAmount || parseFloat(investmentAmount) <= 0) && styles.investButtonDisabled
           ]}
           disabled={!investmentAmount || parseFloat(investmentAmount) <= 0}
+          onPress={handleInvestment}
         >
           <LinearGradient
             colors={['#FFFFFF', '#F0F0F0']}
@@ -261,8 +304,8 @@ export default function InvestScreen() {
           >
             <Text style={styles.investButtonText}>
               {selectedPoolData?.isBitcoin 
-                ? `Buy ${investmentAmount || '0'} of Bitcoin ₿`
-                : `Plant $${investmentAmount || '0'} Seeds 🌱`
+                ? `Buy $${investmentAmount || '0'} of Bitcoin ₿`
+                : `Buy $${investmentAmount || '0'} in ${selectedPoolData?.name || 'Crypto'} 🚀`
               }
             </Text>
             <ArrowRight size={20} color="#58CC02" />
@@ -271,6 +314,32 @@ export default function InvestScreen() {
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
+
+      {/* Funding Modal */}
+      <FundingModal
+        visible={showFundingModal}
+        onClose={() => setShowFundingModal(false)}
+        userID={userInfo?.userID}
+        prefilledAmount={investmentAmount}
+        purchaseType={selectedPoolData?.isBitcoin ? 'bitcoin' : 'crypto'}
+        onFundingInitiated={(transactionId) => {
+          console.log('Funding initiated:', transactionId);
+          const selectedPoolData = investmentPools.find(pool => pool.id === selectedPool);
+          Alert.alert(
+            selectedPoolData?.isBitcoin ? 'Bitcoin Purchase Started! ₿' : 'Crypto Purchase Started! 🚀',
+            `Complete your payment with MoonPay. You'll receive ${selectedPoolData?.isBitcoin ? 'Bitcoin' : selectedPoolData?.name || 'cryptocurrency'} in your wallet.`,
+            [
+              {
+                text: 'Got it!',
+                onPress: () => {
+                  setInvestmentAmount('');
+                  setShowFundingModal(false);
+                }
+              }
+            ]
+          );
+        }}
+      />
     </LinearGradient>
   );
 }

@@ -89,7 +89,7 @@ class ApiClient {
   async createWallet(userID: string) {
     return this.request('/wallet/create', {
       method: 'POST',
-      body: JSON.stringify({ userID }),
+      body: JSON.stringify({ userId: userID }), // Backend expects 'userId', not 'userID'
     }, true);
   }
 

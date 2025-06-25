@@ -34,19 +34,23 @@ interface FundingModalProps {
   onClose: () => void;
   onFundingInitiated?: (transactionId: string) => void;
   userID: string;
+  prefilledAmount?: string;
+  purchaseType?: 'bitcoin' | 'crypto'; // 'bitcoin' for direct Bitcoin investment, 'crypto' for general crypto
 }
 
 export default function FundingModal({
   visible,
   onClose,
   onFundingInitiated,
-  userID
+  userID,
+  prefilledAmount,
+  purchaseType = 'crypto'
 }: FundingModalProps) {
   const insets = useSafeAreaInsets();
-  const [selectedAmount, setSelectedAmount] = useState(10);
-  const [customAmount, setCustomAmount] = useState('');
+  const [selectedAmount, setSelectedAmount] = useState(prefilledAmount ? parseFloat(prefilledAmount) : 10);
+  const [customAmount, setCustomAmount] = useState(prefilledAmount || '');
   const [isLoading, setIsLoading] = useState(false);
-  const [useCustomAmount, setUseCustomAmount] = useState(false);
+  const [useCustomAmount, setUseCustomAmount] = useState(!!prefilledAmount);
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [walletLoading, setWalletLoading] = useState(false);
   const [showTestnetFunding, setShowTestnetFunding] = useState(false);
@@ -177,17 +181,17 @@ export default function FundingModal({
         const walletResponse = await apiClient.getWalletBalance(userID, false);
         console.log('🔍 Wallet response:', walletResponse);
         
-        if (walletResponse.success && walletResponse.walletAddress) {
-          setWalletAddress(walletResponse.walletAddress);
-          console.log('✅ Wallet address set for FundingModal:', walletResponse.walletAddress);
+        if (walletResponse.success && walletResponse.addresses?.algorand) {
+          setWalletAddress(walletResponse.addresses.algorand);
+          console.log('✅ Wallet address set for FundingModal:', walletResponse.addresses.algorand);
         } else {
           console.log('⚠️ No wallet found, attempting to create one...');
           
           // Try to create a wallet if none exists
           const createResponse = await apiClient.createWallet(userID);
-          if (createResponse.success && createResponse.walletAddress) {
-            setWalletAddress(createResponse.walletAddress);
-            console.log('✅ New wallet created:', createResponse.walletAddress);
+          if (createResponse.success && createResponse.wallet?.algorandAddress) {
+            setWalletAddress(createResponse.wallet.algorandAddress);
+            console.log('✅ New wallet created:', createResponse.wallet.algorandAddress);
           } else {
             console.error('❌ Failed to create wallet:', createResponse.error);
           }
@@ -231,8 +235,10 @@ export default function FundingModal({
     try {
       console.log('🚀 Initiating funding with MoonPay SDK:', { amount, userID, walletAddress });
       
-      // Create deposit record in backend first  
-      const depositResponse = await apiClient.initiateDeposit(amount, 'crypto');
+      // Create deposit record in backend first
+      const depositResponse = purchaseType === 'bitcoin' 
+        ? await apiClient.initiateBitcoinInvestment(userID, amount)
+        : await apiClient.initiateDeposit(amount, 'crypto');
       
       if (depositResponse.success) {
         console.log('✅ Backend deposit record created:', depositResponse.transactionId);
@@ -333,7 +339,9 @@ export default function FundingModal({
           >
             {/* Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Buy Other Crypto 🚀</Text>
+              <Text style={styles.modalTitle}>
+                {purchaseType === 'bitcoin' ? 'Buy Bitcoin ₿' : 'Buy Other Crypto 🚀'}
+              </Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <X size={24} color="#FFFFFF" />
               </TouchableOpacity>
@@ -347,7 +355,10 @@ export default function FundingModal({
                   <Text style={styles.infoTitle}>How Funding Works</Text>
                 </View>
                 <Text style={styles.infoText}>
-                  💳 Pay with credit card → 🚀 Choose from multiple cryptocurrencies → 📈 Build your portfolio
+                  {purchaseType === 'bitcoin' 
+                    ? '💳 Pay with credit card → ₿ Receive Bitcoin → 🏦 Stored in your custodial wallet'
+                    : '💳 Pay with credit card → 🚀 Choose from multiple cryptocurrencies → 📈 Build your portfolio'
+                  }
                 </Text>
               </View>
 

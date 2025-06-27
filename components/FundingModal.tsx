@@ -17,15 +17,17 @@ import {
   CreditCard,
   ArrowRight,
   Info,
-  Zap,
-  Target
-} from 'lucide-react-native';
+  Zap} from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import { useMoonPaySdk } from '@moonpay/react-native-moonpay-sdk';
 import 'react-native-url-polyfill/auto';
 import * as WebBrowser from 'expo-web-browser';
 import TestnetFundingModal from './TestnetFundingModal';
+
+// Type definitions for wallet responses
+// Import types from organized type files
+import { WalletResponse, InvestmentResponse } from '../types';
 
 const { width } = Dimensions.get('window');
 
@@ -216,7 +218,7 @@ export default function FundingModal({
 
       setWalletLoading(true);
       try {
-        const walletResponse = await apiClient.getWalletBalance(userID, false);
+        const walletResponse = await apiClient.getWalletBalance(userID, false) as WalletResponse;
         console.log('🔍 Wallet response:', walletResponse);
         console.log('🔍 Available addresses:', walletResponse.addresses);
         console.log('🔍 Purchase type:', purchaseType);
@@ -243,7 +245,7 @@ export default function FundingModal({
           console.log('⚠️ No wallet found, attempting to create one...');
           
           // Try to create a wallet if none exists
-          const createResponse = await apiClient.createWallet(userID);
+          const createResponse = await apiClient.createWallet(userID) as WalletResponse;
           const createdAddress = purchaseType === 'bitcoin' 
             ? createResponse.wallet?.bitcoinAddress 
             : createResponse.wallet?.algorandAddress;
@@ -328,7 +330,7 @@ export default function FundingModal({
       if (depositResponse.success) {
         // Handle different response structures between unified investment and deposit endpoints
         const transactionId = purchaseType === 'bitcoin' 
-          ? depositResponse.data?.investment?.investmentId 
+          ? (depositResponse as InvestmentResponse).data?.investment?.investmentId 
           : depositResponse.transactionId;
         console.log('✅ Backend deposit record created:', transactionId);
 
@@ -379,7 +381,7 @@ export default function FundingModal({
         } else {
           // Production mode - normal MoonPay flow
           const transactionId = purchaseType === 'bitcoin' 
-            ? depositResponse.data?.investment?.investmentId 
+            ? (depositResponse as InvestmentResponse).data?.investment?.investmentId 
             : depositResponse.transactionId;
           if (onFundingInitiated && transactionId) {
             onFundingInitiated(transactionId);

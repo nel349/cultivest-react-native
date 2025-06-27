@@ -125,8 +125,9 @@ class ApiClient {
     return this.request(`/investment/positions?userID=${userID}`);
   }
 
-  // Bitcoin Investment endpoints
+  // DEPRECATED: Bitcoin Investment endpoints (use unified invest endpoint instead)
   async initiateBitcoinInvestment(userID: string, amountUSD: number, riskAccepted: boolean = true) {
+    console.warn('⚠️ DEPRECATED: Use createUserInvestment() instead');
     return this.request('/investment/bitcoin/initiate', {
       method: 'POST',
       body: JSON.stringify({ userID, amountUSD, riskAccepted, investmentType: 'market_buy' }),
@@ -144,6 +145,49 @@ class ApiClient {
     return this.request('/investment/portfolio', {
       method: 'POST',
       body: JSON.stringify({ userID }),
+    });
+  }
+
+  // NEW: Unified User Investment endpoints
+  async createUserInvestment(userID: string, investmentData: any) {
+    return this.request(`/users/${userID}/invest`, {
+      method: 'POST',
+      body: JSON.stringify(investmentData),
+    });
+  }
+
+  async getUserInvestments(userID: string) {
+    return this.request(`/users/${userID}/investments`);
+  }
+
+  async getUserInvestmentById(userID: string, positionTokenId: string) {
+    return this.request(`/users/${userID}/investments/${positionTokenId}`);
+  }
+
+  // User Portfolio endpoints
+  async getUserPortfolio(userID: string) {
+    return this.request(`/users/${userID}/portfolio`);
+  }
+
+  async getUserPrimaryPortfolio(userID: string) {
+    return this.request(`/users/${userID}/portfolio/primary`);
+  }
+
+  async getUserPortfolioPositions(userID: string) {
+    return this.request(`/users/${userID}/portfolio/positions`);
+  }
+
+  async createUserPortfolio(userID: string, portfolioData: any) {
+    return this.request(`/users/${userID}/portfolio`, {
+      method: 'POST',
+      body: JSON.stringify(portfolioData),
+    });
+  }
+
+  async updatePortfolioName(userID: string, portfolioId: string, customName: string) {
+    return this.request(`/users/${userID}/portfolio/${portfolioId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ customName }),
     });
   }
 

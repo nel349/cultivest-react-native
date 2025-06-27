@@ -272,3 +272,90 @@ export interface Notification {
   sentAt: string;
   delivered: boolean;
 }
+
+// NFT Types
+export interface PositionNFT {
+  tokenId: string;
+  owner: string;
+  ownerBase64: string;
+  assetType: string;
+  assetTypeName: string;
+  holdings: string;
+  purchaseValue: string;
+  portfolioTokenId?: string;
+}
+
+export interface PortfolioNFT {
+  id: string;
+  tokenId: string;
+  customName: string;
+  isPrimary: boolean;
+  positionCount: number;
+  positions: PositionNFT[];
+}
+
+export interface NFTStats {
+  totalTokensMinted: string;
+  currentSupply: string;
+  maxSupply: string;
+  contractVersion: string;
+  positionNFTAppId: string;
+}
+
+export interface UserInvestmentData {
+  hasInvestments: boolean;
+  portfolio: PortfolioNFT | null;
+  positions: PositionNFT[];
+  stats: NFTStats;
+}
+
+export interface UnifiedInvestmentRequest {
+  algorandAddress: string;
+  assetType: 1 | 2 | 3; // 1=Bitcoin, 2=Algorand, 3=USDC
+  // For direct investment recording
+  holdings?: string;
+  purchaseValueUsd?: string;
+  // For MoonPay purchases
+  amountUSD?: number;
+  useMoonPay?: boolean;
+  riskAccepted?: boolean;
+  portfolioName?: string;
+}
+
+export interface UnifiedInvestmentResponse {
+  message: string;
+  investment: {
+    positionTokenId: string;
+    portfolioTokenId: string;
+    assetType: string;
+    assetTypeName: string;
+    holdings: string;
+    purchaseValueUsd: string;
+    owner: string;
+    investmentId?: string;
+    status?: string;
+  };
+  portfolio: {
+    id: string;
+    tokenId: string;
+    customName: string;
+    isPrimary: boolean;
+  };
+  blockchain: {
+    positionTransactionId?: string;
+    portfolioTransactionId?: string;
+    positionAppId: string;
+    portfolioAppId: string;
+  };
+  moonpay?: {
+    url: string;
+    estimatedBTC: number;
+    bitcoinPrice: number;
+    fees: {
+      moonpayFee: number;
+      networkFee: number;
+      total: number;
+    };
+  };
+  nextSteps: string[];
+}

@@ -1,18 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
   TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, 
-  Leaf, TreePine, Sprout, Flower, Calendar, DollarSign 
+  Leaf, TreePine, Sprout, Flower, Calendar, DollarSign, RefreshCw 
 } from 'lucide-react-native';
+import { apiClient } from '@/utils/api';
+import { UserInvestmentData, DashboardData } from '@/types/api';
+import { NFTPortfolioCard } from '@/components/NFTPortfolioCard';
+import { PositionNFTList } from '@/components/PositionNFTList';
 
 const { width } = Dimensions.get('window');
 
 export default function PortfolioScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState('1W');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [userInvestments, setUserInvestments] = useState<UserInvestmentData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   
+  // Fallback portfolio data (for display when no NFT data available)
   const portfolioData = {
-    totalValue: 127.45,
+    totalValue: userInvestments?.portfolio ? 
+      userInvestments.positions.reduce((sum, pos) => sum + (parseFloat(pos.purchaseValue) / 100), 0) 
+      : 127.45,
     totalGain: 12.87,
     totalGainPercent: 11.2,
     dailyChange: 0.31,
@@ -21,7 +33,70 @@ export default function PortfolioScreen() {
 
   const timePeriods = ['1D', '1W', '1M', '3M', '1Y'];
 
-  const holdings = [
+  // Load user investment data
+  useEffect(() => {
+    loadPortfolioData();
+  }, []);
+
+  const loadPortfolioData = async () => {
+    try {
+      setLoading(true);
+      const userID = await AsyncStorage.getItem('userID');
+      if (!userID) {
+        console.log('No user ID found');
+        setLoading(false);
+        return;
+      }
+
+      // Load user investments (NFT data)
+      const investmentsResponse = await apiClient.getUserInvestments(userID);
+      if (investmentsResponse.success && investmentsResponse.data) {
+        setUserInvestments(investmentsResponse.data);
+      }
+
+      // Load dashboard data for additional insights
+      const dashboardResponse = await apiClient.getDashboardData(userID);
+      if (dashboardResponse.success && dashboardResponse.dashboard) {
+        setDashboardData(dashboardResponse.dashboard);
+      }
+    } catch (error) {
+      console.error('Failed to load portfolio data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadPortfolioData();
+    setRefreshing(false);
+  };
+
+  // Generate holdings from NFT positions
+  const holdings = userInvestments?.positions?.map((position, index) => {
+    const value = parseFloat(position.purchaseValue) / 100;
+    const assetTypeMap = {
+      '1': { name: 'Bitcoin Garden ₿', color: '#FF9500', icon: Sprout },
+      '2': { name: 'Algorand Forest 🌲', color: '#58CC02', icon: TreePine },
+      '3': { name: 'USDC Flowers 💐', color: '#00D4AA', icon: Flower }
+    };
+    
+    const theme = assetTypeMap[position.assetType] || assetTypeMap['2'];
+    
+    return {
+      id: `nft-${position.tokenId}`,
+      name: theme.name,
+      amount: value,
+      shares: parseFloat(position.holdings),
+      apy: 'NFT',
+      gain: 0, // TODO: Calculate gain when we have historical data
+      gainPercent: 0,
+      color: theme.color,
+      icon: theme.icon,
+      nftData: position
+    };
+  }) || [
+    // Fallback data when no NFT positions
     {
       id: 'stable-garden',
       name: 'Stable Garden 🌿',
@@ -97,8 +172,26 @@ export default function PortfolioScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Your Garden Portfolio 🌻</Text>
-          <Text style={styles.subtitle}>Watch your investments bloom</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Your Garden Portfolio 🌻</Text>
+            <TouchableOpacity 
+              style={styles.refreshButton} 
+              onPress={handleRefresh}
+              disabled={refreshing}
+            >
+              <RefreshCw 
+                size={20} 
+                color="#FFFFFF" 
+                style={refreshing ? styles.spinning : {}} 
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.subtitle}>
+            {userInvestments?.hasInvestments 
+              ? 'Your digital garden is growing with NFT certificates!' 
+              : 'Watch your investments bloom'
+            }
+          </Text>
         </View>
 
         {/* Portfolio Value Card */}
@@ -137,6 +230,28 @@ export default function PortfolioScreen() {
             </View>
           </LinearGradient>
         </View>
+
+        {/* NFT Portfolio Section */}
+        {userInvestments?.portfolio && (
+          <NFTPortfolioCard 
+            portfolioNFT={userInvestments.portfolio}
+            onPress={() => {
+              // TODO: Navigate to NFT portfolio details
+              console.log('NFT Portfolio pressed');
+            }}
+          />
+        )}
+
+        {/* Position NFTs Section */}
+        {userInvestments?.hasInvestments && userInvestments.positions && (
+          <PositionNFTList 
+            positions={userInvestments.positions}
+            onPositionPress={(position) => {
+              // TODO: Navigate to position NFT details
+              console.log('Position NFT pressed:', position.tokenId);
+            }}
+          />
+        )}
 
         {/* Time Period Selector */}
         <View style={styles.periodSelector}>
@@ -271,15 +386,27 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: 'center',
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   title: {
     fontSize: 28,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 8,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+    flex: 1,
+  },
+  refreshButton: {
+    padding: 8,
+    marginLeft: 12,
+  },
+  spinning: {
+    transform: [{ rotate: '180deg' }],
   },
   subtitle: {
     fontSize: 16,

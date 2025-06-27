@@ -297,13 +297,24 @@ export default function FundingModal({
         targetCurrency: purchaseType === 'bitcoin' ? 'btc' : 'crypto'
       });
       
-      // Create deposit record in backend first
+      // Create investment/deposit record in backend first
       const depositResponse = purchaseType === 'bitcoin' 
-        ? await apiClient.initiateBitcoinInvestment(userID, amount)
+        ? await apiClient.createUserInvestment(userID, {
+            algorandAddress: walletAddress,
+            assetType: 1, // Bitcoin
+            amountUSD: amount,
+            useMoonPay: true,
+            riskAccepted: true,
+            portfolioName: 'My Bitcoin Portfolio'
+          })
         : await apiClient.initiateDeposit(amount, 'crypto');
       
       if (depositResponse.success) {
-        console.log('✅ Backend deposit record created:', depositResponse.transactionId);
+        // Handle different response structures between unified investment and deposit endpoints
+        const transactionId = purchaseType === 'bitcoin' 
+          ? depositResponse.data?.investment?.investmentId 
+          : depositResponse.transactionId;
+        console.log('✅ Backend deposit record created:', transactionId);
 
         // Debug: Check if openWithInAppBrowser is available
         console.log('🔍 MoonPay SDK ready:', typeof openWithInAppBrowser);
@@ -351,8 +362,11 @@ export default function FundingModal({
           );
         } else {
           // Production mode - normal MoonPay flow
-          if (onFundingInitiated && depositResponse.transactionId) {
-            onFundingInitiated(depositResponse.transactionId);
+          const transactionId = purchaseType === 'bitcoin' 
+            ? depositResponse.data?.investment?.investmentId 
+            : depositResponse.transactionId;
+          if (onFundingInitiated && transactionId) {
+            onFundingInitiated(transactionId);
           }
           onClose();
         }

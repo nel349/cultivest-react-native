@@ -231,6 +231,14 @@ export default function FundingModal({
         if (walletResponse.success && targetAddress) {
           setWalletAddress(targetAddress);
           console.log('✅ Wallet address set for FundingModal:', targetAddress, '(type:', purchaseType, ')');
+          console.log('🔍 DEBUG - User ID:', userID);
+          console.log('🔍 DEBUG - Wallet data:', {
+            wallet_id: walletResponse.wallet_id,
+            bitcoin_address: walletResponse.addresses?.bitcoin,
+            algorand_address: walletResponse.addresses?.algorand,
+            btc_len: walletResponse.addresses?.bitcoin?.length,
+            algo_len: walletResponse.addresses?.algorand?.length
+          });
         } else {
           console.log('⚠️ No wallet found, attempting to create one...');
           
@@ -243,6 +251,14 @@ export default function FundingModal({
           if (createResponse.success && createdAddress) {
             setWalletAddress(createdAddress);
             console.log('✅ New wallet created:', createdAddress, '(type:', purchaseType, ')');
+            console.log('🔍 DEBUG - User ID:', userID);
+            console.log('🔍 DEBUG - Wallet data:', {
+              wallet_id: createResponse.wallet_id,
+              bitcoin_address: createResponse.wallet?.bitcoinAddress,
+              algorand_address: createResponse.wallet?.algorandAddress,
+              btc_len: createResponse.wallet?.bitcoinAddress?.length,
+              algo_len: createResponse.wallet?.algorandAddress?.length
+            });
           } else {
             console.error('❌ Failed to create wallet:', createResponse.error);
           }

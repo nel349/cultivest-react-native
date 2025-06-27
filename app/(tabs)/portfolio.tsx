@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Refre
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
-  TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, 
-  Leaf, TreePine, Sprout, Flower, Calendar, DollarSign, RefreshCw 
+  TrendingUp, ArrowUpRight, ArrowDownLeft, 
+  Leaf, TreePine, Sprout, Flower, RefreshCw 
 } from 'lucide-react-native';
 import { apiClient } from '@/utils/api';
-import { UserInvestmentData, DashboardData } from '@/types/api';
+import { UserInvestmentData } from '@/types/api';
 import { NFTPortfolioCard } from '@/components/NFTPortfolioCard';
 import { PositionNFTList } from '@/components/PositionNFTList';
 
@@ -15,10 +15,8 @@ const { width } = Dimensions.get('window');
 
 export default function PortfolioScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState('1W');
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [userInvestments, setUserInvestments] = useState<UserInvestmentData | null>(null);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   
   // Fallback portfolio data (for display when no NFT data available)
   const portfolioData = {
@@ -40,11 +38,9 @@ export default function PortfolioScreen() {
 
   const loadPortfolioData = async () => {
     try {
-      setLoading(true);
       const userID = await AsyncStorage.getItem('user_id');
       if (!userID) {
         console.log('No user ID found');
-        setLoading(false);
         return;
       }
 
@@ -54,15 +50,9 @@ export default function PortfolioScreen() {
         setUserInvestments(investmentsResponse.data as any);
       }
 
-      // Load dashboard data for additional insights
-      const dashboardResponse = await apiClient.getDashboardData(userID);
-      if (dashboardResponse.success && (dashboardResponse as any).dashboard) {
-        setDashboardData((dashboardResponse as any).dashboard);
-      }
+
     } catch (error) {
       console.error('Failed to load portfolio data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -73,7 +63,7 @@ export default function PortfolioScreen() {
   };
 
   // Generate holdings from NFT positions
-  const holdings = userInvestments?.positions?.map((position, index) => {
+  const holdings = userInvestments?.positions?.map((position) => {
     const value = parseFloat(position.purchaseValue) / 100;
     const assetTypeMap = {
       '1': { name: 'Bitcoin Garden ₿', color: '#FF9500', icon: Sprout },

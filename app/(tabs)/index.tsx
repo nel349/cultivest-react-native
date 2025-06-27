@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, D
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { 
-  Eye, EyeOff, Plus, TrendingUp, Leaf, DollarSign, 
-  ArrowUpRight, ArrowDownLeft, Bell, Settings, TreePine, 
+  Eye, EyeOff, Plus, TrendingUp, Leaf, 
+  ArrowUpRight, Bell, Settings, TreePine, 
   Sprout, Flower, Star, Trophy, Zap, Target
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +18,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [showFundingModal, setShowFundingModal] = useState(false);
   const [userInfo, setUserInfo] = useState<{
     userID: string;
@@ -95,22 +95,25 @@ export default function HomeScreen() {
 
       if (dbResult?.success) {
         // Handle the updated multi-chain API response structure
-        const addresses = dbResult.addresses || { bitcoin: '', algorand: '' };
-        const dbBalance = dbResult.balance?.databaseBalance || {};
-        const liveBalance = dbResult.balance?.onChainBalance || (liveResult?.success ? liveResult.balance?.onChainBalance : null);
+        const addresses = {
+          bitcoin: dbResult.addresses?.bitcoin || '',
+          algorand: dbResult.addresses?.algorand || ''
+        };
+        const dbBalance = dbResult.balance?.databaseBalance || { btc: 0, algo: 0, usdca: 0 };
+        const liveBalance = dbResult.balance?.onChainBalance || (liveResult?.success ? liveResult.balance?.onChainBalance : null) || { btc: 0, algo: 0, usdca: 0 };
         
         // Use live balance if available, fallback to database
-        const btcBalance = liveBalance?.btc || dbBalance.btc || 0;
-        const algoBalance = liveBalance?.algo || dbBalance.algo || 0;
-        const usdcaBalance = liveBalance?.usdca || dbBalance.usdca || 0;
+        const btcBalance = liveBalance.btc || dbBalance.btc || 0;
+        const algoBalance = liveBalance.algo || dbBalance.algo || 0;
+        const usdcaBalance = liveBalance.usdca || dbBalance.usdca || 0;
         
         // Get live cryptocurrency prices with fallbacks
         let btcPriceUSD = 97000;  // Fallback price
         let algoPriceUSD = 0.40;  // Fallback price
         
-        if (pricesResult?.success && pricesResult.prices) {
-          btcPriceUSD = pricesResult.prices.bitcoin?.usd || btcPriceUSD;
-          algoPriceUSD = pricesResult.prices.algorand?.usd || algoPriceUSD;
+        if (pricesResult?.success && (pricesResult as any).prices) {
+          btcPriceUSD = (pricesResult as any).prices.bitcoin?.usd || btcPriceUSD;
+          algoPriceUSD = (pricesResult as any).prices.algorand?.usd || algoPriceUSD;
           console.log('✅ Using live prices:', { 
             BTC: `$${btcPriceUSD.toLocaleString()}`, 
             ALGO: `$${algoPriceUSD.toFixed(4)}` 

@@ -74,7 +74,7 @@ export default function FundingModal({
   }, []);
 
   // Initialize MoonPay SDK with basic configuration (we'll override parameters manually)
-  const { openWithInAppBrowser, generateUrlForSigning, updateSignature } = useMoonPaySdk({
+  const { openWithInAppBrowser } = useMoonPaySdk({
     sdkConfig: {
       debug: true,
       flow: 'buy',

@@ -12,6 +12,19 @@ export interface WalletResponse extends ApiResponse {
   };
 }
 
+export interface BalanceData {
+  btc: number;
+  algo: number;
+  usdca: number;
+}
+
+export interface PricesResponse extends ApiResponse {
+  prices?: {
+    bitcoin?: { usd: number };
+    algorand?: { usd: number };
+  };
+}
+
 export interface WalletBalance {
   bitcoin: number;
   algorand: number;

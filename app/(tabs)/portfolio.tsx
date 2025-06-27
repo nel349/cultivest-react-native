@@ -41,7 +41,7 @@ export default function PortfolioScreen() {
   const loadPortfolioData = async () => {
     try {
       setLoading(true);
-      const userID = await AsyncStorage.getItem('userID');
+      const userID = await AsyncStorage.getItem('user_id');
       if (!userID) {
         console.log('No user ID found');
         setLoading(false);
@@ -51,13 +51,13 @@ export default function PortfolioScreen() {
       // Load user investments (NFT data)
       const investmentsResponse = await apiClient.getUserInvestments(userID);
       if (investmentsResponse.success && investmentsResponse.data) {
-        setUserInvestments(investmentsResponse.data);
+        setUserInvestments(investmentsResponse.data as any);
       }
 
       // Load dashboard data for additional insights
       const dashboardResponse = await apiClient.getDashboardData(userID);
-      if (dashboardResponse.success && dashboardResponse.dashboard) {
-        setDashboardData(dashboardResponse.dashboard);
+      if (dashboardResponse.success && (dashboardResponse as any).dashboard) {
+        setDashboardData((dashboardResponse as any).dashboard);
       }
     } catch (error) {
       console.error('Failed to load portfolio data:', error);
@@ -81,7 +81,7 @@ export default function PortfolioScreen() {
       '3': { name: 'USDC Flowers 💐', color: '#00D4AA', icon: Flower }
     };
     
-    const theme = assetTypeMap[position.assetType] || assetTypeMap['2'];
+    const theme = assetTypeMap[position.assetType as keyof typeof assetTypeMap] || assetTypeMap['2'];
     
     return {
       id: `nft-${position.tokenId}`,
@@ -234,7 +234,10 @@ export default function PortfolioScreen() {
         {/* NFT Portfolio Section */}
         {userInvestments?.portfolio && (
           <NFTPortfolioCard 
-            portfolioNFT={userInvestments.portfolio}
+            portfolioNFT={{
+              ...userInvestments.portfolio,
+              positions: userInvestments.positions || []
+            }}
             onPress={() => {
               // TODO: Navigate to NFT portfolio details
               console.log('NFT Portfolio pressed');

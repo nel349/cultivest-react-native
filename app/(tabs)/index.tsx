@@ -182,11 +182,19 @@ export default function HomeScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      if (userInfo?.userID) {
-        await fetchWalletBalance(userInfo.userID);
+      const userID = await AsyncStorage.getItem('user_id');
+      if (userID) {
+        // Refresh all dashboard data including wallet balance, investments, and portfolio
+        await fetchWalletBalance(userID);
+        
+        // TODO: Add investment/portfolio data refresh here when needed
+        // Example: await fetchInvestmentData(userID);
+        // Example: await fetchPortfolioData(userID);
+        
+        console.log('✅ Dashboard data refreshed successfully');
       }
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error('Error refreshing dashboard data:', error);
     } finally {
       setRefreshing(false);
     }

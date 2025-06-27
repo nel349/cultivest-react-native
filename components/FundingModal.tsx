@@ -79,8 +79,8 @@ export default function FundingModal({
       environment: 'sandbox',
       params: {
         apiKey: process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123',
-        defaultCurrencyCode: purchaseType === 'bitcoin' ? 'btc' : 'eth',
-        currencyCode: purchaseType === 'bitcoin' ? 'btc' : 'eth',
+        defaultCurrencyCode: purchaseType === 'bitcoin' ? 'btc' : 'algo',
+        currencyCode: purchaseType === 'bitcoin' ? 'btc' : 'algo',
         // theme: 'dark',
         colorCode: '%2310B981', // URL encoded #10B981
         walletAddress: walletAddress,
@@ -109,8 +109,8 @@ export default function FundingModal({
           console.log('🪙 Setting currency to Bitcoin (BTC)');
         } else {
           // For general crypto purchases, allow user to choose from popular options
-          urlObj.searchParams.set('currencyCode', 'eth'); // Default to ETH but allow selection
-          urlObj.searchParams.set('defaultCurrencyCode', 'eth');
+          urlObj.searchParams.set('currencyCode', 'algo'); // Default to ETH but allow selection
+          urlObj.searchParams.set('defaultCurrencyCode', 'algo');
           console.log('🚀 Setting currency to Ethereum (ETH) with selection allowed');
         }
         

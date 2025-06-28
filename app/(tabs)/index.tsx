@@ -20,6 +20,11 @@ interface DashboardData {
   balanceALGO: number;
   balanceSOL: number;
   totalBalanceUSD: number;
+  // USD values for each asset
+  btcValueUSD: number;
+  usdcaValueUSD: number;
+  algoValueUSD: number;
+  solValueUSD: number;
   addresses: {
     bitcoin: string;
     algorand: string;
@@ -52,6 +57,10 @@ export default function HomeScreen() {
     balanceALGO: 0,
     balanceSOL: 0,
     totalBalanceUSD: 0,
+    btcValueUSD: 0,
+    usdcaValueUSD: 0,
+    algoValueUSD: 0,
+    solValueUSD: 0,
     addresses: {
       bitcoin: '',
       algorand: '',
@@ -175,6 +184,10 @@ export default function HomeScreen() {
           balanceALGO: algoBalance,
           balanceSOL: solBalance,
           totalBalanceUSD: totalValueUSD,
+          btcValueUSD: btcValueUSD,
+          usdcaValueUSD: usdcValueUSD,
+          algoValueUSD: algoValueUSD,
+          solValueUSD: solValueUSD,
           addresses: addresses,
           portfolioAllocation: {
             bitcoinPercentage: bitcoinPercentage,
@@ -401,9 +414,14 @@ export default function HomeScreen() {
                       <Text style={[styles.assetLabel, styles.bitcoinLabel]}>Bitcoin</Text>
                     </View>
                     <View style={styles.assetBottomRow}>
-                      <Text style={[styles.assetAmount, styles.bitcoinAmount]}>
-                        {dashboardData.balanceBTC > 0 ? `${dashboardData.balanceBTC.toFixed(8)} BTC` : '$0.00'}
-                      </Text>
+                      <View style={styles.assetAmountContainer}>
+                        <Text style={[styles.assetAmount, styles.bitcoinAmount]}>
+                          {dashboardData.balanceBTC.toFixed(8)} BTC
+                        </Text>
+                        <Text style={[styles.assetUsdValue, styles.bitcoinUsdValue]}>
+                          ${dashboardData.btcValueUSD.toFixed(2)}
+                        </Text>
+                      </View>
                       <Text style={[styles.assetPercentage, styles.bitcoinPercentage]}>
                         {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(1)}%
                       </Text>
@@ -417,7 +435,14 @@ export default function HomeScreen() {
                       <Text style={styles.assetLabel}>USDCa</Text>
                     </View>
                     <View style={styles.assetBottomRow}>
-                      <Text style={styles.assetAmount}>${dashboardData.balanceUSDCa.toFixed(2)}</Text>
+                      <View style={styles.assetAmountContainer}>
+                        <Text style={styles.assetAmount}>
+                          {dashboardData.balanceUSDCa.toFixed(2)} USDC
+                        </Text>
+                        <Text style={styles.assetUsdValue}>
+                          ${dashboardData.usdcaValueUSD.toFixed(2)}
+                        </Text>
+                      </View>
                       <Text style={styles.assetPercentage}>
                         {dashboardData.portfolioAllocation.usdcPercentage.toFixed(1)}%
                       </Text>
@@ -431,7 +456,14 @@ export default function HomeScreen() {
                       <Text style={styles.assetLabel}>ALGO</Text>
                     </View>
                     <View style={styles.assetBottomRow}>
-                      <Text style={styles.assetAmount}>{dashboardData.balanceALGO.toFixed(2)}</Text>
+                      <View style={styles.assetAmountContainer}>
+                        <Text style={styles.assetAmount}>
+                          {dashboardData.balanceALGO.toFixed(2)} ALGO
+                        </Text>
+                        <Text style={styles.assetUsdValue}>
+                          ${dashboardData.algoValueUSD.toFixed(2)}
+                        </Text>
+                      </View>
                       <Text style={styles.assetPercentage}>
                         {dashboardData.portfolioAllocation.algorandPercentage.toFixed(1)}%
                       </Text>
@@ -445,7 +477,14 @@ export default function HomeScreen() {
                       <Text style={styles.assetLabel}>SOL</Text>
                     </View>
                     <View style={styles.assetBottomRow}>
-                      <Text style={styles.assetAmount}>{dashboardData.balanceSOL.toFixed(2)}</Text>
+                      <View style={styles.assetAmountContainer}>
+                        <Text style={styles.assetAmount}>
+                          {dashboardData.balanceSOL.toFixed(2)} SOL
+                        </Text>
+                        <Text style={styles.assetUsdValue}>
+                          ${dashboardData.solValueUSD.toFixed(2)}
+                        </Text>
+                      </View>
                       <Text style={styles.assetPercentage}>
                         {dashboardData.portfolioAllocation.solanaPercentage.toFixed(1)}%
                       </Text>
@@ -809,6 +848,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2E7D32',
   },
+  assetAmountContainer: {
+    flex: 1,
+  },
+  assetUsdValue: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#5A5A5A',
+    marginTop: 2,
+  },
   assetPercentage: {
     fontSize: 12,
     fontWeight: '600',
@@ -847,6 +895,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     color: '#F7931A',
+  },
+  bitcoinUsdValue: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#D68910',
+    marginTop: 2,
   },
   bitcoinPercentage: {
     fontSize: 13,

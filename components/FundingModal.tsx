@@ -27,14 +27,14 @@ import TestnetFundingModal from './TestnetFundingModal';
 
 // Type definitions for wallet responses
 // Import types from organized type files
-import { WalletResponse, InvestmentResponse } from '../types';
+import { WalletResponse } from '../types';
 
 const { width } = Dimensions.get('window');
 
 interface FundingModalProps {
   visible: boolean;
   onClose: () => void;
-  onFundingInitiated?: (transactionId: string) => void;
+  onFundingInitiated?: () => void;
   userID: string;
   prefilledAmount?: string;
   purchaseType?: 'bitcoin' | 'crypto'; // 'bitcoin' for direct Bitcoin investment, 'crypto' for general crypto
@@ -350,107 +350,63 @@ export default function FundingModal({
 
     setIsLoading(true);
     try {
-      console.log('🚀 Initiating funding with MoonPay SDK:', { 
+      console.log('🚀 Opening MoonPay for cryptocurrency purchase:', { 
         amount, 
         userID, 
         walletAddress, 
         purchaseType,
-        targetCurrency: purchaseType === 'bitcoin' ? 'btc' : 'crypto'
+        selectedCrypto: purchaseType === 'bitcoin' ? 'btc' : selectedCrypto
       });
       
-      // Create investment record using unified endpoint for ALL crypto types
-      const getAssetTypeAndPortfolioName = () => {
-        switch (selectedCrypto) {
-          case 'btc':
-            return { assetType: 1, portfolioName: 'My Bitcoin Portfolio' };
-          case 'algo':
-            return { assetType: 2, portfolioName: 'My Algorand Portfolio' };
-          case 'sol':
-            return { assetType: 4, portfolioName: 'My Solana Portfolio' }; // Fixed: SOL is asset type 4
-          default:
-            return { assetType: 2, portfolioName: 'My Crypto Portfolio' };
-        }
-      };
+      // Store fresh values for browser opener (needed due to closure issues)
+      (window as any).currentFundingAmount = amount;
+      (window as any).currentWalletAddress = walletAddress;
+      (window as any).currentPurchaseType = purchaseType;
+      (window as any).currentSelectedCrypto = selectedCrypto;
       
-      const { assetType, portfolioName } = getAssetTypeAndPortfolioName();
+      // Open MoonPay browser - webhook will handle investment creation
+      await openWithInAppBrowser();
+      console.log('✅ MoonPay browser opened successfully');
       
-      console.log(`🚀 Using unified investment endpoint for ${selectedCrypto} (assetType: ${assetType})`);
+      // Check if we're in testnet/development mode
+      const isTestnetMode = process.env.EXPO_PUBLIC_API_URL?.includes('localhost') || 
+                           process.env.NODE_ENV === 'development';
       
-      // Use unified investment endpoint for ALL crypto types ✅
-      const depositResponse = await apiClient.createUserInvestment(userID, {
-        algorandAddress: walletAddress,
-        assetType: assetType,
-        amountUSD: amount,
-        useMoonPay: true,
-        riskAccepted: true,
-        portfolioName: portfolioName
-      });
-      
-      if (depositResponse.success) {
-        // Get investment ID from unified endpoint response
-        const transactionId = (depositResponse as InvestmentResponse).data?.investment?.investmentId;
-        console.log('✅ Backend investment record created:', transactionId);
-
-        // Debug: Check if openWithInAppBrowser is available
-        console.log('🔍 MoonPay SDK ready:', typeof openWithInAppBrowser);
-        console.log('🔍 About to call openWithInAppBrowser...');
-        console.log('🔍 Current amount before opening:', amount);
-        
-        // Store current values in a way the browser opener can access them
-        (window as any).currentFundingAmount = amount;
-        (window as any).currentWalletAddress = walletAddress;
-        (window as any).currentPurchaseType = purchaseType;
-        (window as any).currentSelectedCrypto = selectedCrypto;
-        
-        // open the moonpay sdk
-        await openWithInAppBrowser();
-        console.log('🔍 openWithInAppBrowser call completed');
-        
-        // Check if we're in testnet/development mode
-        const isTestnetMode = process.env.EXPO_PUBLIC_API_URL?.includes('localhost') || 
-                             process.env.NODE_ENV === 'development';
-        
-        if (isTestnetMode) {
-          // Show testnet funding option since MoonPay doesn't work on testnet
-          Alert.alert(
-            'Development Mode Detected',
-            'MoonPay sandbox doesn\'t process real transactions. Would you like to use testnet faucets instead?',
-            [
-              {
-                text: 'Cancel',
-                style: 'cancel',
-                onPress: () => {
-                  onClose();
-                }
-              },
-              {
-                text: 'Use Testnet Faucets',
-                style: 'default',
-                onPress: () => {
-                  console.log('🚰 Opening testnet funding modal');
-                  onClose(); // Close MoonPay modal first
-                  setTimeout(() => {
-                    setShowTestnetFunding(true);
-                  }, 500); // Small delay for smooth transition
-                }
+      if (isTestnetMode) {
+        // Show testnet funding option since MoonPay doesn't work on testnet
+        Alert.alert(
+          'Development Mode Detected',
+          'MoonPay sandbox doesn\'t process real transactions. Would you like to use testnet faucets instead?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => {
+                onClose();
               }
-            ]
-          );
-        } else {
-          // Production mode - normal MoonPay flow
-          if (onFundingInitiated && transactionId) {
-            onFundingInitiated(transactionId);
-          }
-          onClose();
-        }
-        
+            },
+            {
+              text: 'Use Testnet Faucets',
+              style: 'default',
+              onPress: () => {
+                console.log('🚰 Opening testnet funding modal');
+                onClose(); // Close MoonPay modal first
+                setTimeout(() => {
+                  setShowTestnetFunding(true);
+                }, 500); // Small delay for smooth transition
+              }
+            }
+          ]
+        );
       } else {
-        console.error('❌ Deposit initiation failed:', depositResponse.error);
-        Alert.alert('Error', depositResponse.error || 'Failed to initialize payment. Please try again.');
+        // Production mode - MoonPay opened, webhook will handle the rest
+        console.log('💡 Investment creation will be handled by webhook when payment completes');
+        onClose();
       }
+        
     } catch (error) {
       console.error('❌ Funding error:', error);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      Alert.alert('Error', 'Failed to open payment interface. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -462,7 +418,7 @@ export default function FundingModal({
     
     // Notify parent component that funding was completed
     if (onFundingInitiated) {
-      onFundingInitiated('testnet-funding-' + Date.now());
+      onFundingInitiated();
     }
     
     // Show success message

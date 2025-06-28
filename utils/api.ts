@@ -21,9 +21,6 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Debug: Log the API URL being used (remove this after testing)
-console.log('🌐 API Base URL:', API_BASE_URL);
-
 class ApiClient {
   private async getAuthHeaders(): Promise<Record<string, string>> {
     try {

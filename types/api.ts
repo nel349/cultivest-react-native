@@ -311,7 +311,7 @@ export interface UserInvestmentData {
 
 export interface UnifiedInvestmentRequest {
   algorandAddress: string;
-  assetType: 1 | 2 | 3; // 1=Bitcoin, 2=Algorand, 3=USDC
+  assetType: 1 | 2 | 3 | 4; // 1=Bitcoin, 2=Algorand, 3=USDC, 4=Solana
   // For direct investment recording
   holdings?: string;
   purchaseValueUsd?: string;

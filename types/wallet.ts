@@ -16,6 +16,7 @@ export interface BalanceData {
   btc: number;
   algo: number;
   usdca: number;
+  sol: number;
 }
 
 export interface PricesResponse extends ApiResponse {
@@ -29,6 +30,7 @@ export interface WalletBalance {
   bitcoin: number;
   algorand: number;
   usdc: number;
+  solana: number;
 }
 
 export interface CreateWalletRequest {

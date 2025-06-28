@@ -1,7 +1,28 @@
 import { ApiResponse } from '@/types/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+// For React Native development on physical devices, use local IP
+// For simulators/emulators, use localhost
+const getApiBaseUrl = () => {
+  // First try environment variable
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  
+  // Then try expo config
+  if (Constants.expoConfig?.extra?.apiUrl) {
+    return Constants.expoConfig.extra.apiUrl;
+  }
+  
+  // Fallback to localhost for development
+  return 'http://localhost:3000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Debug: Log the API URL being used (remove this after testing)
+console.log('🌐 API Base URL:', API_BASE_URL);
 
 class ApiClient {
   private async getAuthHeaders(): Promise<Record<string, string>> {

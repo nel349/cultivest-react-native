@@ -68,19 +68,33 @@ export default function HomeScreen() {
   // Load user info from storage
   const loadUserInfo = async (): Promise<string | null> => {
     try {
+      // Check multiple possible keys
       const userDataStr = await AsyncStorage.getItem('userData');
+      const userIdStr = await AsyncStorage.getItem('user_id');
+      const authTokenStr = await AsyncStorage.getItem('auth_token');
+      
       if (userDataStr) {
         const userData = JSON.parse(userDataStr);
+
         setUserInfo({
           name: userData.name || 'User',
           walletAddress: userData.walletAddress || '',
-          userID: userData.userID || userData.userId || ''
+          userID: userData.userID || userData.userId || userIdStr || ''
         });
-        return userData.userID || userData.userId;
+        return userData.userID || userData.userId || userIdStr;
+      } else if (userIdStr) {
+        // Fallback: just use userID if no full userData
+        setUserInfo({
+          name: 'User',
+          walletAddress: '',
+          userID: userIdStr
+        });
+        return userIdStr;
       }
     } catch (error) {
       console.error('Error loading user info:', error);
     }
+
     return null;
   };
 
@@ -89,11 +103,15 @@ export default function HomeScreen() {
     try {
       const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
       
+
+
       // Get database balance
-      const dbResult = await apiClient.request(`/wallet/balance?userID=${userID}&live=false`);
+      const dbResult = await apiClient.getWalletBalance(userID, false);
+      
+
       
       // Get live balance
-      const liveResult = await apiClient.request(`/wallet/balance?userID=${userID}&live=true`);
+      const liveResult = await apiClient.getWalletBalance(userID, true);
       
       // Get live crypto prices 
       const pricesResult = await apiClient.request('/prices');
@@ -173,6 +191,8 @@ export default function HomeScreen() {
         } : null);
       } else {
         console.error('Failed to fetch wallet balance:', dbResult?.error || 'Database request failed');
+        
+        console.error('Failed to fetch wallet balance:', dbResult?.error);
       }
     } catch (error) {
       console.error('Error fetching wallet balance:', error);
@@ -237,7 +257,9 @@ export default function HomeScreen() {
       icon: Plus,
       color: '#58CC02',
       bgColor: '#E8F5E8',
-      onPress: () => setShowFundingModal(true)
+      onPress: () => {
+        setShowFundingModal(true);
+      }
     },
     {
       title: 'Portfolio View',
@@ -522,11 +544,10 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* Funding Modal */}
-        {userInfo && (
-          <FundingModal
-            visible={showFundingModal}
-            onClose={() => setShowFundingModal(false)}
-            userID={userInfo.userID}
+        <FundingModal
+          visible={showFundingModal}
+          onClose={() => setShowFundingModal(false)}
+          userID={userInfo?.userID || ''}
             onFundingInitiated={(transactionId) => {
               console.log('Funding initiated:', transactionId);
               // Could add transaction tracking here
@@ -549,7 +570,6 @@ export default function HomeScreen() {
               );
             }}
           />
-        )}
       </LinearGradient>
     </View>
   );

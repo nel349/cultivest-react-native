@@ -112,7 +112,8 @@ class ApiClient {
   }
 
   async getWalletBalance(userID: string, live: boolean = false) {
-    return this.request(`/wallet/balance?userID=${userID}&live=${live}`, {}, true);
+    // Try userId (lowercase i) to match createWallet expectation
+    return this.request(`/wallet/balance?userId=${userID}&live=${live}`, {}, true);
   }
 
   // MoonPay Deposit endpoints (Multi-crypto support)

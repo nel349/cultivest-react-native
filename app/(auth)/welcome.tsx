@@ -21,7 +21,7 @@ export default function WelcomeScreen() {
   // Development bypass function
   const devBypass = async () => {
     // Using the user ID from our earlier backend test
-    const devUserID = "6c4ba2a7-76fa-4f8a-b45d-098aa7ad96f6";
+    const devUserID = "75b6d2e8-fd5a-4970-adca-13c820ee19b1";
     const devUserName = "Norman E. Lopez";
     
     // Real JWT token from our test session

@@ -155,6 +155,8 @@ export default function FundingModal({
           urlObj.searchParams.set('walletAddress', currentWallet);
         }
         
+
+        
         // Configure MoonPay experience based on purchase type
         if (currentPurchaseType === 'bitcoin') {
           // Bitcoin-focused experience
@@ -350,7 +352,7 @@ export default function FundingModal({
 
     setIsLoading(true);
     try {
-      console.log('🚀 Opening MoonPay for cryptocurrency purchase:', { 
+      console.log('🚀 Preparing MoonPay for cryptocurrency purchase:', { 
         amount, 
         userID, 
         walletAddress, 
@@ -363,11 +365,7 @@ export default function FundingModal({
       (window as any).currentWalletAddress = walletAddress;
       (window as any).currentPurchaseType = purchaseType;
       (window as any).currentSelectedCrypto = selectedCrypto;
-      
-      // Open MoonPay browser - webhook will handle investment creation
-      await openWithInAppBrowser();
-      console.log('✅ MoonPay browser opened successfully');
-      
+            
       // Check if we're in testnet/development mode
       const isTestnetMode = process.env.EXPO_PUBLIC_API_URL?.includes('localhost') || 
                            process.env.NODE_ENV === 'development';
@@ -376,41 +374,83 @@ export default function FundingModal({
         // Show testnet funding option since MoonPay doesn't work on testnet
         Alert.alert(
           'Development Mode Detected',
-          'MoonPay sandbox doesn\'t process real transactions. Would you like to use testnet faucets instead?',
+          'MoonPay sandbox doesn\'t process real transactions. Would you like to get coins even if transaction fails? This will create an investment after you complete the moonpay flow. If you don\'t want to create an investment, you can cancel the flow and try again.',
           [
             {
               text: 'Cancel',
               style: 'cancel',
               onPress: () => {
+                console.log('❌ User cancelled funding');
                 onClose();
+                setIsLoading(false);
               }
             },
+            // {
+            //   text: 'Use Testnet Faucets',
+            //   style: 'default',
+            //   onPress: () => {
+            //     console.log('🚰 Opening testnet funding modal');
+            //     onClose(); // Close MoonPay modal first
+            //     setIsLoading(false);
+            //     setTimeout(() => {
+            //       setShowTestnetFunding(true);
+            //     }, 500); // Small delay for smooth transition
+            //   }
+            // },
             {
-              text: 'Use Testnet Faucets',
+              text: 'Continue with MoonPay',
               style: 'default',
-              onPress: () => {
-                console.log('🚰 Opening testnet funding modal');
-                onClose(); // Close MoonPay modal first
-                setTimeout(() => {
-                  setShowTestnetFunding(true);
-                }, 500); // Small delay for smooth transition
+              onPress: async () => {
+                console.log('🌙 User chose to continue with MoonPay despite testnet mode');
+                                 // Store user preference for auto-funding on failure
+                 console.log('🏁 Storing auto-fund preference for user in dev mode');
+                 try {
+                   await apiClient.request('/debug/set-auto-fund-preference', {
+                     method: 'POST',
+                     body: JSON.stringify({ userID, autoFundOnFailure: true }),
+                   }, true);
+                 } catch (error) {
+                   console.error('Failed to store auto-fund preference:', error);
+                 }
+                
+                try {
+                  // Open MoonPay browser - webhook will handle investment creation
+                  await openWithInAppBrowser();
+                  console.log('✅ MoonPay browser opened successfully');
+                  onClose();
+                } catch (error) {
+                  console.error('❌ Failed to open MoonPay:', error);
+                  Alert.alert('Error', 'Failed to open MoonPay. Please try again.');
+                } finally {
+                  setIsLoading(false);
+                }
               }
             }
           ]
         );
       } else {
-        // Production mode - MoonPay opened, webhook will handle the rest
-        console.log('💡 Investment creation will be handled by webhook when payment completes');
-        onClose();
+        // Production mode - directly open MoonPay
+        console.log('💡 Production mode - opening MoonPay directly');
+        try {
+          await openWithInAppBrowser();
+          console.log('✅ MoonPay browser opened successfully');
+          onClose();
+        } catch (error) {
+          console.error('❌ Failed to open MoonPay:', error);
+          Alert.alert('Error', 'Failed to open MoonPay. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
       }
-        
+
     } catch (error) {
       console.error('❌ Funding error:', error);
       Alert.alert('Error', 'Failed to open payment interface. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
+
+
 
   const handleTestnetFundingComplete = () => {
     console.log('✅ Testnet funding completed');

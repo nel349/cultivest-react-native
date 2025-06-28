@@ -34,12 +34,15 @@ interface TestnetFundingModalProps {
 
 interface FundingStatus {
   walletAddress: string;
+  bitcoinAddress?: string;
   currentBalance: {
     algo: number;
     usdca: number;
+    bitcoin: number;
   };
   algoFunded: boolean;
   usdcaFunded: boolean;
+  bitcoinFunded: boolean;
   isOptedIntoUSDCa?: boolean;
   readyForInvestment: boolean;
   nextSteps: string;
@@ -92,21 +95,26 @@ export default function TestnetFundingModal({
 
         const algoBalance = response.balance?.onChainBalance?.algo || 0;
         const usdcaBalance = response.balance?.onChainBalance?.usdca || 0;
+        const bitcoinBalance = response.balance?.onChainBalance?.btc || 0;
         const isOptedIn = response.balance?.onChainBalance?.isOptedIntoUSDCa || false;
         
         const fundingStatus = {
           walletAddress: response.walletAddress,
+          bitcoinAddress: response.addresses?.bitcoin,
           currentBalance: {
             algo: algoBalance,
             usdca: usdcaBalance,
+            bitcoin: bitcoinBalance,
           },
           algoFunded: algoBalance > 0,
           usdcaFunded: usdcaBalance > 0,
+          bitcoinFunded: bitcoinBalance > 0,
           isOptedIntoUSDCa: isOptedIn,
-          readyForInvestment: algoBalance > 0 && usdcaBalance > 0,
-          nextSteps: algoBalance > 0 && usdcaBalance > 0 ? 'Continue to Investment' : 
+          readyForInvestment: algoBalance > 0 && usdcaBalance > 0 && bitcoinBalance > 0,
+          nextSteps: algoBalance > 0 && usdcaBalance > 0 && bitcoinBalance > 0 ? 'Continue to Investment' : 
                      !isOptedIn ? 'Need to opt into USDCa first' :
                      algoBalance === 0 ? 'Need ALGO for transaction fees' : 
+                     bitcoinBalance === 0 ? 'Need Bitcoin testnet tokens' :
                      'Need USDCa tokens from faucet',
         }
         setFundingStatus(fundingStatus as FundingStatus);
@@ -171,6 +179,42 @@ export default function TestnetFundingModal({
       }
     } catch (error) {
       console.error('Opt-in error:', error);
+      Alert.alert('Error', 'Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBitcoinFaucet = async () => {
+    if (!fundingStatus?.bitcoinAddress) {
+      Alert.alert('Error', 'Bitcoin address not found. Please check your wallet setup.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('🪙 Requesting Bitcoin testnet from local faucet...');
+      const response = await apiClient.request('/faucet/bitcoin', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          userID,
+          bitcoinAddress: fundingStatus.bitcoinAddress 
+        }),
+      }, true);
+
+      if (response.success) {
+        Alert.alert(
+          'Bitcoin Sent! ₿', 
+          `Successfully sent ${(response as any).amount || '0.001'} BTC testnet to your wallet. Check your balance in a few minutes.`,
+          [{ text: 'Check Balance', onPress: () => {
+            setTimeout(() => checkFundingStatus(), 2000); // Give it a moment
+          }}]
+        );
+      } else {
+        Alert.alert('Faucet Error', response.error || 'Failed to send Bitcoin testnet. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Bitcoin faucet error:', error);
       Alert.alert('Error', 'Network error. Please try again.');
     } finally {
       setIsLoading(false);
@@ -251,6 +295,48 @@ export default function TestnetFundingModal({
         </TouchableOpacity>
       </View>
 
+      {/* Step 1.5: Get Bitcoin Testnet */}
+      <View style={styles.stepCard}>
+        <View style={styles.stepHeader}>
+          <Coins size={24} color="#F7931A" />
+          <Text style={styles.stepTitle}>Step 1.5: Get Bitcoin Testnet ₿</Text>
+        </View>
+        
+        {fundingStatus?.bitcoinAddress && (
+          <View style={styles.addressContainer}>
+            <Text style={styles.addressLabel}>Your Bitcoin Address:</Text>
+            <TouchableOpacity 
+              style={styles.addressRow}
+              onPress={() => copyToClipboard(fundingStatus.bitcoinAddress || '')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.addressText} numberOfLines={1}>
+                {fundingStatus.bitcoinAddress}
+              </Text>
+              <View style={styles.copyButton}>
+                <Copy size={18} color="#FFFFFF" />
+              </View>
+            </TouchableOpacity>
+            <Text style={styles.copyHint}>👆 Tap to copy Bitcoin address</Text>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={[styles.actionButton, isLoading && styles.actionButtonDisabled]}
+          onPress={handleBitcoinFaucet}
+          disabled={isLoading || !fundingStatus?.bitcoinAddress}
+        >
+          <Text style={styles.actionButtonText}>
+            {isLoading ? 'Sending Bitcoin...' : '🪙 Get Bitcoin Testnet (Local Faucet)'}
+          </Text>
+          {!isLoading && <Zap size={16} color="#FFFFFF" />}
+        </TouchableOpacity>
+
+        <Text style={styles.stepInstructions}>
+          💡 Our local Bitcoin faucet will send 0.001 BTC testnet directly to your wallet. No external websites needed!
+        </Text>
+      </View>
+
       {/* Step 2: Opt into USDCa */}
       <View style={styles.stepCard}>
         <View style={styles.stepHeader}>
@@ -289,6 +375,12 @@ export default function TestnetFundingModal({
             <CheckCircle size={16} color={fundingStatus.algoFunded ? "#10B981" : "#9CA3AF"} />
             <Text style={styles.statusText}>
               ALGO: {fundingStatus.currentBalance.algo.toFixed(4)}
+            </Text>
+          </View>
+          <View style={styles.statusRow}>
+            <CheckCircle size={16} color={fundingStatus.bitcoinFunded ? "#10B981" : "#9CA3AF"} />
+            <Text style={styles.statusText}>
+              Bitcoin: {fundingStatus.currentBalance.bitcoin.toFixed(6)} BTC
             </Text>
           </View>
           <View style={styles.statusRow}>
@@ -524,6 +616,10 @@ export default function TestnetFundingModal({
           <View style={styles.balanceRow}>
             <Text style={styles.balanceLabel}>ALGO:</Text>
             <Text style={styles.balanceValue}>{fundingStatus.currentBalance.algo.toFixed(4)}</Text>
+          </View>
+          <View style={styles.balanceRow}>
+            <Text style={styles.balanceLabel}>Bitcoin:</Text>
+            <Text style={styles.balanceValue}>{fundingStatus.currentBalance.bitcoin.toFixed(6)} BTC</Text>
           </View>
           <View style={styles.balanceRow}>
             <Text style={styles.balanceLabel}>USDCa:</Text>

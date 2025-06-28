@@ -116,8 +116,9 @@ class ApiClient {
     return this.request(`/wallet/balance?userId=${userID}&live=${live}`, {}, true);
   }
 
-  // MoonPay Deposit endpoints (Multi-crypto support)
+  // DEPRECATED: MoonPay Deposit endpoints (use unified invest endpoint instead)
   async initiateDeposit(amountUSD: number, targetCurrency: string = 'crypto') {
+    console.warn('⚠️ DEPRECATED: Use createUserInvestment() instead');
     return this.request('/deposit/initiate', {
       method: 'POST',
       body: JSON.stringify({ amountUSD, targetCurrency }),
@@ -125,10 +126,12 @@ class ApiClient {
   }
 
   async getDepositStatus(transactionId: string) {
+    console.warn('⚠️ DEPRECATED: Deposit status endpoint deprecated');
     return this.request(`/deposit/status/${transactionId}`, {}, true);
   }
 
   async calculateDepositFees(amountUSD: number) {
+    console.warn('⚠️ DEPRECATED: Use unified invest endpoint with fee calculation');
     return this.request(`/deposit/calculate-fees?amountUSD=${amountUSD}`);
   }
 

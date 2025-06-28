@@ -358,7 +358,7 @@ export default function FundingModal({
         targetCurrency: purchaseType === 'bitcoin' ? 'btc' : 'crypto'
       });
       
-      // Create investment/deposit record in backend first  
+      // Create investment record using unified endpoint for ALL crypto types
       const getAssetTypeAndPortfolioName = () => {
         switch (selectedCrypto) {
           case 'btc':
@@ -366,7 +366,7 @@ export default function FundingModal({
           case 'algo':
             return { assetType: 2, portfolioName: 'My Algorand Portfolio' };
           case 'sol':
-            return { assetType: 3, portfolioName: 'My Solana Portfolio' };
+            return { assetType: 4, portfolioName: 'My Solana Portfolio' }; // Fixed: SOL is asset type 4
           default:
             return { assetType: 2, portfolioName: 'My Crypto Portfolio' };
         }
@@ -374,36 +374,22 @@ export default function FundingModal({
       
       const { assetType, portfolioName } = getAssetTypeAndPortfolioName();
       
-      // Map frontend crypto codes to backend-supported currency codes
-      const getBackendCurrencyCode = () => {
-        switch (selectedCrypto) {
-          case 'btc': return 'btc';
-          case 'algo': return 'algo';
-          case 'sol': return 'crypto'; // Backend doesn't support 'sol' yet, use 'crypto' as fallback
-          default: return 'crypto';
-        }
-      };
+      console.log(`🚀 Using unified investment endpoint for ${selectedCrypto} (assetType: ${assetType})`);
       
-      const backendCurrency = getBackendCurrencyCode();
-      console.log(`🔄 Mapping frontend currency '${selectedCrypto}' to backend currency '${backendCurrency}'`);
-      
-      const depositResponse = purchaseType === 'bitcoin' || selectedCrypto === 'btc'
-        ? await apiClient.createUserInvestment(userID, {
-            algorandAddress: walletAddress,
-            assetType: assetType,
-            amountUSD: amount,
-            useMoonPay: true,
-            riskAccepted: true,
-            portfolioName: portfolioName
-          })
-        : await apiClient.initiateDeposit(amount, backendCurrency);
+      // Use unified investment endpoint for ALL crypto types ✅
+      const depositResponse = await apiClient.createUserInvestment(userID, {
+        algorandAddress: walletAddress,
+        assetType: assetType,
+        amountUSD: amount,
+        useMoonPay: true,
+        riskAccepted: true,
+        portfolioName: portfolioName
+      });
       
       if (depositResponse.success) {
-        // Handle different response structures between unified investment and deposit endpoints
-        const transactionId = purchaseType === 'bitcoin' 
-          ? (depositResponse as InvestmentResponse).data?.investment?.investmentId 
-          : depositResponse.transactionId;
-        console.log('✅ Backend deposit record created:', transactionId);
+        // Get investment ID from unified endpoint response
+        const transactionId = (depositResponse as InvestmentResponse).data?.investment?.investmentId;
+        console.log('✅ Backend investment record created:', transactionId);
 
         // Debug: Check if openWithInAppBrowser is available
         console.log('🔍 MoonPay SDK ready:', typeof openWithInAppBrowser);
@@ -452,9 +438,6 @@ export default function FundingModal({
           );
         } else {
           // Production mode - normal MoonPay flow
-          const transactionId = purchaseType === 'bitcoin' 
-            ? (depositResponse as InvestmentResponse).data?.investment?.investmentId 
-            : depositResponse.transactionId;
           if (onFundingInitiated && transactionId) {
             onFundingInitiated(transactionId);
           }

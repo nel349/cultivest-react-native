@@ -10,7 +10,7 @@ export interface InvestmentResponse extends ApiResponse {
 
 export interface InvestmentRequest {
   amount: number;
-  assetType: 'bitcoin' | 'algorand' | 'usdc';
+  assetType: 'bitcoin' | 'algorand' | 'usdc' | 'solana';
 }
 
 export interface PortfolioPosition {

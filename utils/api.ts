@@ -1,7 +1,25 @@
 import { ApiResponse } from '@/types/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+// For React Native development on physical devices, use local IP
+// For simulators/emulators, use localhost
+const getApiBaseUrl = () => {
+  // First try environment variable
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  
+  // Then try expo config
+  if (Constants.expoConfig?.extra?.apiUrl) {
+    return Constants.expoConfig.extra.apiUrl;
+  }
+  
+  // Fallback to localhost for development
+  return 'http://localhost:3000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiClient {
   private async getAuthHeaders(): Promise<Record<string, string>> {
@@ -94,7 +112,8 @@ class ApiClient {
   }
 
   async getWalletBalance(userID: string, live: boolean = false) {
-    return this.request(`/wallet/balance?userID=${userID}&live=${live}`, {}, true);
+    // Try userId (lowercase i) to match createWallet expectation
+    return this.request(`/wallet/balance?userId=${userID}&live=${live}`, {}, true);
   }
 
   // MoonPay Deposit endpoints (Multi-crypto support)

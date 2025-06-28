@@ -56,6 +56,16 @@ export default function FundingModal({
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [walletLoading, setWalletLoading] = useState(false);
   const [showTestnetFunding, setShowTestnetFunding] = useState(false);
+  
+  // New state for crypto selection
+  const [selectedCrypto, setSelectedCrypto] = useState<'btc' | 'algo' | 'sol'>(
+    purchaseType === 'bitcoin' ? 'btc' : 'algo'
+  );
+  const [availableWallets, setAvailableWallets] = useState<{
+    bitcoin?: string;
+    algorand?: string;
+    solana?: string;
+  }>({});
 
   const presetAmounts = [20, 40, 80, 100];
 
@@ -73,7 +83,17 @@ export default function FundingModal({
     console.log('- All process.env keys:', Object.keys(process.env).filter(key => key.startsWith('EXPO_PUBLIC')));
   }, []);
 
-  // Initialize MoonPay SDK with basic configuration (we'll override parameters manually)
+  // Get currency code based on selected crypto
+  const getCurrencyCode = () => {
+    switch (selectedCrypto) {
+      case 'btc': return 'btc';
+      case 'algo': return 'algo';
+      case 'sol': return 'sol';
+      default: return 'algo';
+    }
+  };
+
+  // Initialize MoonPay SDK with dynamic configuration
   const { openWithInAppBrowser } = useMoonPaySdk({
     sdkConfig: {
       debug: true,
@@ -81,8 +101,8 @@ export default function FundingModal({
       environment: 'sandbox',
       params: {
         apiKey: process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123',
-        defaultCurrencyCode: purchaseType === 'bitcoin' ? 'btc' : 'algo',
-        currencyCode: purchaseType === 'bitcoin' ? 'btc' : 'algo',
+        defaultCurrencyCode: getCurrencyCode(),
+        currencyCode: getCurrencyCode(),
         // theme: 'dark',
         colorCode: '%2310B981', // URL encoded #10B981
         walletAddress: walletAddress,
@@ -103,18 +123,29 @@ export default function FundingModal({
         // Parse the URL and add/update parameters
         const urlObj = new URL(url);
         
-        // Set currency based on purchase type
-        if (currentPurchaseType === 'bitcoin') {
-          // For Bitcoin purchases, set BTC as the currency
-          urlObj.searchParams.set('currencyCode', 'btc');
-          urlObj.searchParams.set('defaultCurrencyCode', 'btc');
-          console.log('🪙 Setting currency to Bitcoin (BTC)');
-        } else {
-          // For general crypto purchases, allow user to choose from popular options
-          urlObj.searchParams.set('currencyCode', 'algo'); // Default to ETH but allow selection
-          urlObj.searchParams.set('defaultCurrencyCode', 'algo');
-          console.log('🚀 Setting currency to Ethereum (ETH) with selection allowed');
+        // Set currency based on selected crypto type
+        const currentSelectedCrypto = (window as any).currentSelectedCrypto || selectedCrypto;
+        let currencyCode = 'algo'; // Default fallback
+        
+        switch (currentSelectedCrypto) {
+          case 'btc':
+            currencyCode = 'btc';
+            console.log('🪙 Setting currency to Bitcoin (BTC)');
+            break;
+          case 'algo':
+            currencyCode = 'algo';
+            console.log('⚡ Setting currency to Algorand (ALGO)');
+            break;
+          case 'sol':
+            currencyCode = 'sol';
+            console.log('🌟 Setting currency to Solana (SOL)');
+            break;
+          default:
+            console.log('🚀 Using default currency (ALGO)');
         }
+        
+        urlObj.searchParams.set('currencyCode', currencyCode);
+        urlObj.searchParams.set('defaultCurrencyCode', currencyCode);
         
         // Add current amount
         urlObj.searchParams.set('baseCurrencyAmount', currentAmount.toString());
@@ -156,14 +187,16 @@ export default function FundingModal({
     console.log('🌙 MoonPay SDK Configuration:');
     console.log('- API Key being used:', process.env.EXPO_PUBLIC_MOONPAY_API_KEY || 'pk_test_123');
     console.log('- Purchase Type:', purchaseType);
-    console.log('- Currency Code:', purchaseType === 'bitcoin' ? 'btc' : 'eth');
+    console.log('- Selected Crypto:', selectedCrypto);
+    console.log('- Currency Code:', getCurrencyCode());
     console.log('- Wallet Address:', walletAddress);
     console.log('- Amount:', getActualAmount());
     console.log('- Selected Amount:', selectedAmount);
     console.log('- Custom Amount:', customAmount);
     console.log('- Use Custom Amount:', useCustomAmount);
+    console.log('- Available Wallets:', availableWallets);
     console.log('- Environment: sandbox');
-  }, [walletAddress, selectedAmount, customAmount, useCustomAmount, purchaseType]);
+  }, [walletAddress, selectedAmount, customAmount, useCustomAmount, purchaseType, selectedCrypto, availableWallets]);
 
   // TODO: Re-enable URL signing for production
   // Sign URL with backend when wallet address is ready
@@ -207,9 +240,9 @@ export default function FundingModal({
   // }, [walletAddress, visible, generateUrlForSigning, updateSignature]);
 
 
-  // Get wallet address on component mount
+  // Get all wallet addresses on component mount
   useEffect(() => {
-    const fetchWalletAddress = async () => {
+    const fetchWalletAddresses = async () => {
       if (!userID) {
         console.log('⚠️ No userID provided to FundingModal');
         setWalletLoading(false);
@@ -221,61 +254,71 @@ export default function FundingModal({
         const walletResponse = await apiClient.getWalletBalance(userID, false) as WalletResponse;
         console.log('🔍 Wallet response:', walletResponse);
         console.log('🔍 Available addresses:', walletResponse.addresses);
-        console.log('🔍 Purchase type:', purchaseType);
         
-        // Use the appropriate wallet address based on purchase type
-        const targetAddress = purchaseType === 'bitcoin' 
-          ? walletResponse.addresses?.bitcoin 
-          : walletResponse.addresses?.algorand;
-
-        console.log('🔍 Target address for', purchaseType, ':', targetAddress);
-
-        if (walletResponse.success && targetAddress) {
-          setWalletAddress(targetAddress);
-          console.log('✅ Wallet address set for FundingModal:', targetAddress, '(type:', purchaseType, ')');
-          console.log('🔍 DEBUG - User ID:', userID);
-          console.log('🔍 DEBUG - Wallet data:', {
-            wallet_id: walletResponse.wallet_id,
-            bitcoin_address: walletResponse.addresses?.bitcoin,
-            algorand_address: walletResponse.addresses?.algorand,
-            btc_len: walletResponse.addresses?.bitcoin?.length,
-            algo_len: walletResponse.addresses?.algorand?.length
+        if (walletResponse.success && walletResponse.addresses) {
+          // Store all available wallet addresses
+          setAvailableWallets({
+            bitcoin: walletResponse.addresses.bitcoin,
+            algorand: walletResponse.addresses.algorand,
+            solana: walletResponse.addresses.solana
+          });
+          
+          console.log('✅ All wallet addresses loaded:', {
+            bitcoin: walletResponse.addresses.bitcoin,
+            algorand: walletResponse.addresses.algorand,
+            solana: walletResponse.addresses.solana
           });
         } else {
           console.log('⚠️ No wallet found, attempting to create one...');
           
           // Try to create a wallet if none exists
           const createResponse = await apiClient.createWallet(userID) as WalletResponse;
-          const createdAddress = purchaseType === 'bitcoin' 
-            ? createResponse.wallet?.bitcoinAddress 
-            : createResponse.wallet?.algorandAddress;
 
-          if (createResponse.success && createdAddress) {
-            setWalletAddress(createdAddress);
-            console.log('✅ New wallet created:', createdAddress, '(type:', purchaseType, ')');
-            console.log('🔍 DEBUG - User ID:', userID);
-            console.log('🔍 DEBUG - Wallet data:', {
-              wallet_id: createResponse.wallet_id,
-              bitcoin_address: createResponse.wallet?.bitcoinAddress,
-              algorand_address: createResponse.wallet?.algorandAddress,
-              btc_len: createResponse.wallet?.bitcoinAddress?.length,
-              algo_len: createResponse.wallet?.algorandAddress?.length
+          if (createResponse.success && createResponse.wallet) {
+            setAvailableWallets({
+              bitcoin: createResponse.wallet.bitcoinAddress,
+              algorand: createResponse.wallet.algorandAddress,
+              solana: createResponse.wallet.solanaAddress
+            });
+            
+            console.log('✅ New wallet created with addresses:', {
+              bitcoin: createResponse.wallet.bitcoinAddress,
+              algorand: createResponse.wallet.algorandAddress,
+              solana: createResponse.wallet.solanaAddress
             });
           } else {
             console.error('❌ Failed to create wallet:', createResponse.error);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch wallet address:', error);
+        console.error('Failed to fetch wallet addresses:', error);
       } finally {
         setWalletLoading(false);
       }
     };
 
     if (userID && visible) {
-      fetchWalletAddress();
+      fetchWalletAddresses();
     }
   }, [userID, visible]);
+
+  // Update wallet address when crypto selection changes
+  useEffect(() => {
+    const getWalletForCrypto = () => {
+      switch (selectedCrypto) {
+        case 'btc':
+          return availableWallets.bitcoin || '';
+        case 'algo':
+          return availableWallets.algorand || '';
+        case 'sol':
+          return availableWallets.solana || '';
+        default:
+          return '';
+      }
+    };
+    
+    setWalletAddress(getWalletForCrypto());
+  }, [selectedCrypto, availableWallets]);
 
   const estimatedCrypto = (amount: number) => {
     // Based on MoonPay fees: ~3.8% total fees
@@ -315,17 +358,45 @@ export default function FundingModal({
         targetCurrency: purchaseType === 'bitcoin' ? 'btc' : 'crypto'
       });
       
-      // Create investment/deposit record in backend first
-      const depositResponse = purchaseType === 'bitcoin' 
+      // Create investment/deposit record in backend first  
+      const getAssetTypeAndPortfolioName = () => {
+        switch (selectedCrypto) {
+          case 'btc':
+            return { assetType: 1, portfolioName: 'My Bitcoin Portfolio' };
+          case 'algo':
+            return { assetType: 2, portfolioName: 'My Algorand Portfolio' };
+          case 'sol':
+            return { assetType: 3, portfolioName: 'My Solana Portfolio' };
+          default:
+            return { assetType: 2, portfolioName: 'My Crypto Portfolio' };
+        }
+      };
+      
+      const { assetType, portfolioName } = getAssetTypeAndPortfolioName();
+      
+      // Map frontend crypto codes to backend-supported currency codes
+      const getBackendCurrencyCode = () => {
+        switch (selectedCrypto) {
+          case 'btc': return 'btc';
+          case 'algo': return 'algo';
+          case 'sol': return 'crypto'; // Backend doesn't support 'sol' yet, use 'crypto' as fallback
+          default: return 'crypto';
+        }
+      };
+      
+      const backendCurrency = getBackendCurrencyCode();
+      console.log(`🔄 Mapping frontend currency '${selectedCrypto}' to backend currency '${backendCurrency}'`);
+      
+      const depositResponse = purchaseType === 'bitcoin' || selectedCrypto === 'btc'
         ? await apiClient.createUserInvestment(userID, {
             algorandAddress: walletAddress,
-            assetType: 1, // Bitcoin
+            assetType: assetType,
             amountUSD: amount,
             useMoonPay: true,
             riskAccepted: true,
-            portfolioName: 'My Bitcoin Portfolio'
+            portfolioName: portfolioName
           })
-        : await apiClient.initiateDeposit(amount, 'crypto');
+        : await apiClient.initiateDeposit(amount, backendCurrency);
       
       if (depositResponse.success) {
         // Handle different response structures between unified investment and deposit endpoints
@@ -343,6 +414,7 @@ export default function FundingModal({
         (window as any).currentFundingAmount = amount;
         (window as any).currentWalletAddress = walletAddress;
         (window as any).currentPurchaseType = purchaseType;
+        (window as any).currentSelectedCrypto = selectedCrypto;
         
         // open the moonpay sdk
         await openWithInAppBrowser();
@@ -435,7 +507,7 @@ export default function FundingModal({
             {/* Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                {purchaseType === 'bitcoin' ? 'Buy Bitcoin ₿' : 'Buy Other Crypto 🚀'}
+                {purchaseType === 'bitcoin' ? 'Buy Bitcoin ₿' : 'Buy Cryptocurrency 🚀'}
               </Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <X size={24} color="#FFFFFF" />
@@ -452,10 +524,86 @@ export default function FundingModal({
                 <Text style={styles.infoText}>
                   {purchaseType === 'bitcoin' 
                     ? '💳 Pay with credit card → ₿ Receive Bitcoin directly → 🏦 Stored in your secure custodial wallet'
-                    : '💳 Pay with credit card → 🚀 Get various cryptocurrencies → 📈 Build your diversified portfolio'
+                    : `💳 Pay with credit card → ${selectedCrypto === 'btc' ? '₿' : selectedCrypto === 'algo' ? '⚡' : '🌟'} Receive ${selectedCrypto === 'btc' ? 'Bitcoin' : selectedCrypto === 'algo' ? 'Algorand' : 'Solana'} directly → 🏦 Stored in your secure wallet`
                   }
                 </Text>
               </View>
+
+              {/* Crypto Selection - Only show for 'crypto' purchase type */}
+              {purchaseType === 'crypto' && (
+                <View style={styles.cryptoSection}>
+                  <Text style={styles.sectionTitle}>Choose Cryptocurrency</Text>
+                  <View style={styles.cryptoGrid}>
+                    {[
+                      { 
+                        key: 'btc', 
+                        name: 'Bitcoin', 
+                        symbol: '₿', 
+                        address: availableWallets.bitcoin,
+                        color: '#F7931A' 
+                      },
+                      { 
+                        key: 'algo', 
+                        name: 'Algorand', 
+                        symbol: '⚡', 
+                        address: availableWallets.algorand,
+                        color: '#00D4AA' 
+                      },
+                      { 
+                        key: 'sol', 
+                        name: 'Solana', 
+                        symbol: '🌟', 
+                        address: availableWallets.solana,
+                        color: '#9945FF' 
+                      }
+                    ].map((crypto) => (
+                      <TouchableOpacity
+                        key={crypto.key}
+                        style={[
+                          styles.cryptoOption,
+                          selectedCrypto === crypto.key && styles.cryptoOptionSelected,
+                          !crypto.address && styles.cryptoOptionDisabled
+                        ]}
+                        onPress={() => crypto.address && setSelectedCrypto(crypto.key as 'btc' | 'algo' | 'sol')}
+                        disabled={!crypto.address}
+                      >
+                        <View style={styles.cryptoHeader}>
+                          <View style={[styles.cryptoIcon, { backgroundColor: crypto.color }]}>
+                            <Text style={styles.cryptoSymbol}>{crypto.symbol}</Text>
+                          </View>
+                          <View style={styles.cryptoInfo}>
+                            <Text style={[
+                              styles.cryptoName,
+                              selectedCrypto === crypto.key && styles.cryptoNameSelected,
+                              !crypto.address && styles.cryptoNameDisabled
+                            ]}>
+                              {crypto.name}
+                            </Text>
+                            <Text style={styles.cryptoCode}>
+                              {crypto.key.toUpperCase()}
+                            </Text>
+                          </View>
+                          {selectedCrypto === crypto.key && (
+                            <View style={styles.selectedIndicator}>
+                              <Text style={styles.selectedCheckmark}>✓</Text>
+                            </View>
+                          )}
+                        </View>
+                        {crypto.address && (
+                          <Text style={styles.walletAddress} numberOfLines={1}>
+                            {crypto.address.substring(0, 12)}...{crypto.address.substring(crypto.address.length - 8)}
+                          </Text>
+                        )}
+                        {!crypto.address && (
+                          <Text style={styles.walletUnavailable}>
+                            Wallet not available
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
 
               {/* Amount Selection */}
               <View style={styles.amountSection}>
@@ -798,5 +946,95 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingHorizontal: 20,
     paddingBottom: 40,
+  },
+  // Crypto selection styles
+  cryptoSection: {
+    marginBottom: 24,
+  },
+  cryptoGrid: {
+    gap: 12,
+  },
+  cryptoOption: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  cryptoOptionSelected: {
+    borderColor: '#58CC02',
+    backgroundColor: 'rgba(255,255,255,1)',
+    shadowColor: '#58CC02',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  cryptoOptionDisabled: {
+    opacity: 0.5,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  cryptoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cryptoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  cryptoSymbol: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  cryptoInfo: {
+    flex: 1,
+  },
+  cryptoName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 2,
+  },
+  cryptoNameSelected: {
+    color: '#58CC02',
+  },
+  cryptoNameDisabled: {
+    color: '#8B9DC3',
+  },
+  cryptoCode: {
+    fontSize: 12,
+    color: '#8B9DC3',
+    fontWeight: '600',
+  },
+  selectedIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#58CC02',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedCheckmark: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  walletAddress: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '500',
+    fontFamily: 'monospace',
+  },
+  walletUnavailable: {
+    fontSize: 12,
+    color: '#FF6B6B',
+    fontWeight: '500',
+    fontStyle: 'italic',
   },
 });

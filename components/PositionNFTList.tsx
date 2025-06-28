@@ -6,16 +6,18 @@ import {
 } from 'lucide-react-native';
 import { PositionNFT } from '@/types/api';
 
-const assetIcons = {
+const assetIcons: { [key: string]: any } = {
   '1': Bitcoin,     // Bitcoin
   '2': Coins,       // Algorand  
   '3': DollarSign,  // USDC
+  '4': Coins,       // Solana (using Coins icon for now)
 };
 
-const assetPlantThemes = {
+const assetPlantThemes: { [key: string]: any } = {
   '1': { plant: Sprout, color: '#FF9500', bgColor: '#FFF3E0', name: 'Bitcoin Sprout' },
   '2': { plant: Leaf, color: '#58CC02', bgColor: '#E8F5E8', name: 'Algorand Leaf' },
   '3': { plant: Flower, color: '#00D4AA', bgColor: '#E0F7F4', name: 'USDC Flower' },
+  '4': { plant: Sprout, color: '#9945FF', bgColor: '#F3E8FF', name: 'Solana Sprout' },
 };
 
 interface PositionNFTListProps {
@@ -70,7 +72,11 @@ export function PositionNFTList({ positions, onPositionPress }: PositionNFTListP
                 ? `${(holdings / 100000000).toFixed(8)} BTC` // Satoshis to BTC
                 : item.assetType === '2'
                 ? `${(holdings / 1000000).toFixed(2)} ALGO` // microALGO to ALGO
-                : `${(holdings / 100).toFixed(2)} USDC` // Cents to USDC
+                : item.assetType === '3'
+                ? `${(holdings / 100).toFixed(2)} USDC` // Cents to USDC
+                : item.assetType === '4'
+                ? `${(holdings / 1000000000).toFixed(6)} SOL` // Lamports to SOL
+                : `${holdings} units`
               }
             </Text>
             <View style={[styles.certifiedBadge, { backgroundColor: theme.bgColor }]}>

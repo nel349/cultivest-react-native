@@ -6,7 +6,7 @@ export default function AuthLayout() {
       <Stack.Screen name="welcome" />
       <Stack.Screen name="signup" />
       <Stack.Screen name="verify-otp" />
-      <Stack.Screen name="kyc" />
+      <Stack.Screen name="setup" />
     </Stack>
   );
 }

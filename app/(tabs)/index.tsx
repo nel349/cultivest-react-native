@@ -14,109 +14,137 @@ import FundingModal from '@/components/FundingModal';
 
 const { width } = Dimensions.get('window');
 
+interface DashboardData {
+  balanceBTC: number;
+  balanceUSDCa: number;
+  balanceALGO: number;
+  balanceSOL: number;
+  totalBalanceUSD: number;
+  addresses: {
+    bitcoin: string;
+    algorand: string;
+    solana: string;
+  };
+  portfolioAllocation: {
+    bitcoinPercentage: number;
+    algorandPercentage: number;
+    usdcPercentage: number;
+    solanaPercentage: number;
+  };
+}
+
+interface UserInfo {
+  name: string;
+  walletAddress: string;
+  userID: string;
+}
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [, setIsLoading] = useState(true);
   const [showFundingModal, setShowFundingModal] = useState(false);
-  const [userInfo, setUserInfo] = useState<{
-    userID: string;
-    name: string;
-    walletAddress?: string;
-  } | null>(null);
-  const [dashboardData, setDashboardData] = useState({
-    // Real multi-chain wallet balances
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
     balanceBTC: 0,
     balanceUSDCa: 0,
     balanceALGO: 0,
+    balanceSOL: 0,
     totalBalanceUSD: 0,
     addresses: {
       bitcoin: '',
-      algorand: ''
+      algorand: '',
+      solana: ''
     },
-    
-    // Investment data (will be real later)
-    dailyYield: 0,
-    totalYieldEarned: 0,
-    moneyTreeLevel: 1,
-    weeklyGrowth: 0,
-    investmentStreak: 0,
-    plantsGrown: 0,
-    nextMilestone: 50,
-    
-    // Portfolio allocation
     portfolioAllocation: {
       bitcoinPercentage: 0,
       algorandPercentage: 0,
-      usdcPercentage: 0
+      usdcPercentage: 0,
+      solanaPercentage: 0
     }
   });
 
   // Load user info from storage
-  const loadUserInfo = async () => {
+  const loadUserInfo = async (): Promise<string | null> => {
     try {
-      const userID = await AsyncStorage.getItem('user_id');
-      const userName = await AsyncStorage.getItem('user_name');
+      // Check multiple possible keys
+      const userDataStr = await AsyncStorage.getItem('userData');
+      const userIdStr = await AsyncStorage.getItem('user_id');
+      const authTokenStr = await AsyncStorage.getItem('auth_token');
       
-      if (userID && userName) {
+      if (userDataStr) {
+        const userData = JSON.parse(userDataStr);
+
         setUserInfo({
-          userID,
-          name: userName
+          name: userData.name || 'User',
+          walletAddress: userData.walletAddress || '',
+          userID: userData.userID || userData.userId || userIdStr || ''
         });
-        return userID;
+        return userData.userID || userData.userId || userIdStr;
+      } else if (userIdStr) {
+        // Fallback: just use userID if no full userData
+        setUserInfo({
+          name: 'User',
+          walletAddress: '',
+          userID: userIdStr
+        });
+        return userIdStr;
       }
     } catch (error) {
-      console.error('Failed to load user info:', error);
+      console.error('Error loading user info:', error);
     }
+
     return null;
   };
 
   // Fetch wallet balance from backend
   const fetchWalletBalance = async (userID: string) => {
     try {
-      console.log('🔍 Fetching multi-chain wallet balance for user:', userID);
+      const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
       
-      // Fetch both database balance, live blockchain balance, and live prices
-      const [dbResponse, liveResponse, pricesResponse] = await Promise.allSettled([
-        apiClient.getWalletBalance(userID, false), // Database balance
-        apiClient.getWalletBalance(userID, true),   // Live blockchain balance
-        apiClient.getCryptoPrices()                 // Live cryptocurrency prices
-      ]);
 
-      // Extract results from Promise.allSettled
-      const dbResult = dbResponse.status === 'fulfilled' ? dbResponse.value : null;
-      const liveResult = liveResponse.status === 'fulfilled' ? liveResponse.value : null;
-      const pricesResult = pricesResponse.status === 'fulfilled' ? pricesResponse.value : null;
 
-      console.log('💾 Database balance response:', dbResult);
-      console.log('🔗 Live blockchain response:', liveResult);
-      console.log('💰 Live prices response:', pricesResult);
+      // Get database balance
+      const dbResult = await apiClient.getWalletBalance(userID, false);
+      
+
+      
+      // Get live balance
+      const liveResult = await apiClient.getWalletBalance(userID, true);
+      
+      // Get live crypto prices 
+      const pricesResult = await apiClient.request('/prices');
 
       if (dbResult?.success) {
         // Handle the updated multi-chain API response structure
         const addresses = {
           bitcoin: dbResult.addresses?.bitcoin || '',
-          algorand: dbResult.addresses?.algorand || ''
+          algorand: dbResult.addresses?.algorand || '',
+          solana: (dbResult.addresses as any)?.solana || ''
         };
-        const dbBalance = dbResult.balance?.databaseBalance || { btc: 0, algo: 0, usdca: 0 };
-        const liveBalance = dbResult.balance?.onChainBalance || (liveResult?.success ? liveResult.balance?.onChainBalance : null) || { btc: 0, algo: 0, usdca: 0 };
+        const dbBalance = dbResult.balance?.databaseBalance || { btc: 0, algo: 0, usdca: 0, sol: 0 };
+        const liveBalance = dbResult.balance?.onChainBalance || (liveResult?.success ? liveResult.balance?.onChainBalance : null) || { btc: 0, algo: 0, usdca: 0, sol: 0 };
         
         // Use live balance if available, fallback to database
         const btcBalance = liveBalance.btc || dbBalance.btc || 0;
         const algoBalance = liveBalance.algo || dbBalance.algo || 0;
         const usdcaBalance = liveBalance.usdca || dbBalance.usdca || 0;
+        const solBalance = (liveBalance as any).sol || (dbBalance as any).sol || 0;
         
         // Get live cryptocurrency prices with fallbacks
         let btcPriceUSD = 97000;  // Fallback price
         let algoPriceUSD = 0.40;  // Fallback price
+        let solPriceUSD = 95;     // Fallback price
         
         if (pricesResult?.success && (pricesResult as any).prices) {
           btcPriceUSD = (pricesResult as any).prices.bitcoin?.usd || btcPriceUSD;
           algoPriceUSD = (pricesResult as any).prices.algorand?.usd || algoPriceUSD;
+          solPriceUSD = (pricesResult as any).prices.solana?.usd || solPriceUSD;
           console.log('✅ Using live prices:', { 
             BTC: `$${btcPriceUSD.toLocaleString()}`, 
-            ALGO: `$${algoPriceUSD.toFixed(4)}` 
+            ALGO: `$${algoPriceUSD.toFixed(4)}`,
+            SOL: `$${solPriceUSD.toFixed(2)}`
           });
         } else {
           console.log('⚠️ Using fallback prices due to API error');
@@ -125,16 +153,18 @@ export default function HomeScreen() {
         const btcValueUSD = btcBalance * btcPriceUSD;
         const algoValueUSD = algoBalance * algoPriceUSD;
         const usdcValueUSD = usdcaBalance * 1.0;
-        const totalValueUSD = btcValueUSD + algoValueUSD + usdcValueUSD;
+        const solValueUSD = solBalance * solPriceUSD;
+        const totalValueUSD = btcValueUSD + algoValueUSD + usdcValueUSD + solValueUSD;
         
         // Calculate portfolio allocation percentages
         const bitcoinPercentage = totalValueUSD > 0 ? (btcValueUSD / totalValueUSD) * 100 : 0;
         const algorandPercentage = totalValueUSD > 0 ? (algoValueUSD / totalValueUSD) * 100 : 0;
         const usdcPercentage = totalValueUSD > 0 ? (usdcValueUSD / totalValueUSD) * 100 : 0;
+        const solanaPercentage = totalValueUSD > 0 ? (solValueUSD / totalValueUSD) * 100 : 0;
         
         console.log('💰 Parsed multi-chain balances:', { 
-          btcBalance, algoBalance, usdcaBalance, 
-          btcValueUSD, algoValueUSD, usdcValueUSD, totalValueUSD,
+          btcBalance, algoBalance, usdcaBalance, solBalance,
+          btcValueUSD, algoValueUSD, usdcValueUSD, solValueUSD, totalValueUSD,
           addresses 
         });
         
@@ -143,22 +173,26 @@ export default function HomeScreen() {
           balanceBTC: btcBalance,
           balanceUSDCa: usdcaBalance,
           balanceALGO: algoBalance,
+          balanceSOL: solBalance,
           totalBalanceUSD: totalValueUSD,
           addresses: addresses,
           portfolioAllocation: {
             bitcoinPercentage: bitcoinPercentage,
             algorandPercentage: algorandPercentage,
-            usdcPercentage: usdcPercentage
+            usdcPercentage: usdcPercentage,
+            solanaPercentage: solanaPercentage
           }
         }));
         
         // Update user info with wallet addresses
         setUserInfo(prev => prev ? {
           ...prev,
-          walletAddress: addresses.algorand || addresses.bitcoin || ''
+          walletAddress: addresses.algorand || addresses.bitcoin || addresses.solana || ''
         } : null);
       } else {
         console.error('Failed to fetch wallet balance:', dbResult?.error || 'Database request failed');
+        
+        console.error('Failed to fetch wallet balance:', dbResult?.error);
       }
     } catch (error) {
       console.error('Error fetching wallet balance:', error);
@@ -223,7 +257,9 @@ export default function HomeScreen() {
       icon: Plus,
       color: '#58CC02',
       bgColor: '#E8F5E8',
-      onPress: () => setShowFundingModal(true)
+      onPress: () => {
+        setShowFundingModal(true);
+      }
     },
     {
       title: 'Portfolio View',
@@ -328,35 +364,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Money Tree Level Card */}
-          <View style={styles.treeCard}>
-            <LinearGradient
-              colors={['#FFFFFF', '#F8F8F8']}
-              style={styles.treeCardGradient}
-            >
-              <View style={styles.treeHeader}>
-                <View style={styles.treeIconContainer}>
-                  <TreePine size={32} color="#58CC02" />
-                  <View style={styles.levelBadge}>
-                    <Text style={styles.levelText}>{dashboardData.moneyTreeLevel}</Text>
-                  </View>
-                </View>
-                <View style={styles.treeInfo}>
-                  <Text style={styles.treeTitle}>Your Money Tree</Text>
-                  <Text style={styles.treeSubtitle}>Level {dashboardData.moneyTreeLevel} • {dashboardData.plantsGrown} plants grown</Text>
-                </View>
-              </View>
-              
-              <View style={styles.progressContainer}>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: `${(dashboardData.totalBalanceUSD / dashboardData.nextMilestone) * 100}%` }]} />
-                </View>
-                <Text style={styles.progressText}>
-                  ${dashboardData.totalBalanceUSD.toFixed(2)} / ${dashboardData.nextMilestone} to next level
-                </Text>
-              </View>
-            </LinearGradient>
-          </View>
+
 
           {/* Balance Card */}
           <View style={styles.balanceCard}>
@@ -429,22 +437,33 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                   </View>
+                  <View style={[styles.assetItem, styles.standardAsset]}>
+                    <View style={styles.assetTopRow}>
+                      <View style={styles.assetIcon}>
+                        <Text style={styles.assetSymbol}>🌟</Text>
+                      </View>
+                      <Text style={styles.assetLabel}>SOL</Text>
+                    </View>
+                    <View style={styles.assetBottomRow}>
+                      <Text style={styles.assetAmount}>{dashboardData.balanceSOL.toFixed(2)}</Text>
+                      <Text style={styles.assetPercentage}>
+                        {dashboardData.portfolioAllocation.solanaPercentage.toFixed(1)}%
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               )}
               
               <View style={styles.yieldContainer}>
                 <View style={styles.yieldItem}>
-                  <Zap size={16} color="#58CC02" />
-                  <Text style={styles.yieldLabel}>Today's Growth</Text>
-                  <Text style={styles.yieldValue}>+${dashboardData.dailyYield.toFixed(2)}</Text>
-                </View>
-                <View style={styles.yieldDivider} />
-                <View style={styles.yieldItem}>
                   <Target size={16} color="#FF9500" />
                   <Text style={styles.yieldLabel}>Multi-Chain</Text>
                   <Text style={styles.yieldValue}>
-                    {dashboardData.addresses.bitcoin && dashboardData.addresses.algorand ? '✅✅' : 
-                     dashboardData.addresses.bitcoin || dashboardData.addresses.algorand ? '✅⏳' : '⏳⏳'}
+                    {dashboardData.addresses.bitcoin && dashboardData.addresses.algorand && dashboardData.addresses.solana ? '✅✅✅' : 
+                     dashboardData.addresses.bitcoin && dashboardData.addresses.algorand ? '✅✅⏳' :
+                     dashboardData.addresses.bitcoin && dashboardData.addresses.solana ? '✅⏳✅' :
+                     dashboardData.addresses.algorand && dashboardData.addresses.solana ? '⏳✅✅' :
+                     dashboardData.addresses.bitcoin || dashboardData.addresses.algorand || dashboardData.addresses.solana ? '✅⏳⏳' : '⏳⏳⏳'}
                   </Text>
                 </View>
               </View>
@@ -525,11 +544,10 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* Funding Modal */}
-        {userInfo && (
-          <FundingModal
-            visible={showFundingModal}
-            onClose={() => setShowFundingModal(false)}
-            userID={userInfo.userID}
+        <FundingModal
+          visible={showFundingModal}
+          onClose={() => setShowFundingModal(false)}
+          userID={userInfo?.userID || ''}
             onFundingInitiated={(transactionId) => {
               console.log('Funding initiated:', transactionId);
               // Could add transaction tracking here
@@ -552,7 +570,6 @@ export default function HomeScreen() {
               );
             }}
           />
-        )}
       </LinearGradient>
     </View>
   );

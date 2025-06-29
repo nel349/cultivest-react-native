@@ -7,6 +7,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   AccessibilityInfo,
+  Image,
+  Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -111,6 +113,22 @@ export default function WelcomeScreen() {
           style={[styles.gradient, { paddingTop: insets.top }]}
           accessible={false}
         >
+          {/* Bolt.new Badge - Top Right */}
+          <TouchableOpacity
+            style={[styles.boltBadge, { top: 20 + insets.top, right: 20 }]}
+            onPress={() => Linking.openURL('https://bolt.new/')}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Built with Bolt.new"
+            accessibilityHint="Opens Bolt.new website in browser"
+          >
+            <Image
+              source={require('@/assets/images/bolt/black_circle_360x360.png')}
+              style={styles.boltBadgeImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+
           {/* Decorative Crypto Icons - Hidden from screen readers */}
           <View
             style={styles.decorationContainer}
@@ -390,6 +408,22 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
+  },
+  boltBadge: {
+    position: 'absolute',
+    width: Math.min(50, width * 0.12),
+    height: Math.min(50, width * 0.12),
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  boltBadgeImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.9,
   },
   decorationContainer: {
     position: 'absolute',

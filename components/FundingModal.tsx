@@ -20,6 +20,7 @@ import {
   Zap} from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
+import { celebrationManager } from '@/utils/celebration';
 import { useMoonPaySdk } from '@moonpay/react-native-moonpay-sdk';
 import 'react-native-url-polyfill/auto';
 import * as WebBrowser from 'expo-web-browser';
@@ -417,6 +418,11 @@ export default function FundingModal({
                   // Open MoonPay browser - webhook will handle investment creation
                   await openWithInAppBrowser();
                   console.log('✅ MoonPay browser opened successfully');
+                  
+                  // Start monitoring for first investment completion
+                  console.log('👀 Starting celebration monitoring for potential first investment');
+                  celebrationManager.startMonitoringFirstInvestment(userID);
+                  
                   onClose();
                 } catch (error) {
                   console.error('❌ Failed to open MoonPay:', error);
@@ -434,6 +440,11 @@ export default function FundingModal({
         try {
           await openWithInAppBrowser();
           console.log('✅ MoonPay browser opened successfully');
+          
+          // Start monitoring for first investment completion
+          console.log('👀 Starting celebration monitoring for potential first investment');
+          celebrationManager.startMonitoringFirstInvestment(userID);
+          
           onClose();
         } catch (error) {
           console.error('❌ Failed to open MoonPay:', error);

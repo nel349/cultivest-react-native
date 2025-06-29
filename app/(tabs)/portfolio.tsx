@@ -10,6 +10,7 @@ import { apiClient } from '@/utils/api';
 import { UserInvestmentData } from '@/types/api';
 import { NFTPortfolioCard } from '@/components/NFTPortfolioCard';
 import { PositionNFTList } from '@/components/PositionNFTList';
+import { useCelebrationCheck } from '@/hooks/useCelebrationCheck';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +18,10 @@ export default function PortfolioScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState('1W');
   const [refreshing, setRefreshing] = useState(false);
   const [userInvestments, setUserInvestments] = useState<UserInvestmentData | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
+
+  // Use celebration check hook
+  const { checkNow } = useCelebrationCheck({ userID });
   
   // Fallback portfolio data (for display when no NFT data available)
   const portfolioData = {
@@ -38,18 +43,25 @@ export default function PortfolioScreen() {
 
   const loadPortfolioData = async () => {
     try {
-      const userID = await AsyncStorage.getItem('user_id');
-      if (!userID) {
+      const currentUserID = await AsyncStorage.getItem('user_id');
+      if (!currentUserID) {
         console.log('No user ID found');
         return;
       }
 
+      // Set userID state for celebration hook
+      setUserID(currentUserID);
+
       // Load user investments (NFT data)
-      const investmentsResponse = await apiClient.getUserInvestments(userID);
+      const investmentsResponse = await apiClient.getUserInvestments(currentUserID);
       if (investmentsResponse.success && investmentsResponse.data) {
         setUserInvestments(investmentsResponse.data as any);
+        
+        // Check for pending celebrations after loading portfolio
+        setTimeout(() => {
+          checkNow();
+        }, 1000);
       }
-
 
     } catch (error) {
       console.error('Failed to load portfolio data:', error);

@@ -25,7 +25,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import VoiceComboComponent from '@/components/VoiceComboComponent';
 
 const { width } = Dimensions.get('window');
 
@@ -316,44 +315,6 @@ export default function WelcomeScreen() {
                   <ArrowRight size={16} color="#3B82F6" />
                 </LinearGradient>
               </TouchableOpacity>
-
-                {/* <VoiceButton 
-                  onPress={() => {
-                    console.log('Voice button pressed');
-                    setIsActive(!isActive);
-                  }}
-                  isActive={false}
-                  size={60}
-                /> */}
-
-              {/* Voice Accessibility Guide */}
-              {/* <View
-                style={{
-                  // flex: 1,
-                  width: 100,
-                  height: 100,
-                  // backgroundColor: 'red',
-                  paddingHorizontal: 20,
-                  marginBottom: 50,
-                  // alignContent: 'center',
-                  // justifyContent: 'center',
-                }}
-              >
-                <ChatGPTDots isAnimating={isActive} size={16} color="black" speed={400} />
-                <VoiceAccessibilityGuide 
-                  userID={'window.userID'} 
-                  onActivate={(isActive) => {
-                    console.log('Voice guide is now:', isActive ? 'active' : 'inactive');
-                    setIsActive(isActive);
-                  }} 
-                  onDeactivate={() => {
-                    console.log('Voice guide is now inactive');
-                    setIsActive(false);
-                  }}
-                />
-              </View> */}
-
-              <VoiceComboComponent userID={'window.userID'} />
 
               {/* Login Button */}
               <TouchableOpacity

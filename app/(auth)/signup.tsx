@@ -100,39 +100,39 @@ export default function SignupScreen() {
         const isDevelopmentMode = response.developmentMode || response.smsProvider === 'mock' || response.smsProvider === 'console';
         const userID = response.userID || (response.data as { userID?: string })?.userID || '';
         
+        // Navigation helper with auto-fill support
+        const navigateToOTP = () => {
+          router.push({
+            pathname: '/(auth)/verify-otp',
+            params: {
+              phoneNumber: formattedPhone,
+              userID: userID,
+              name: name.trim(),
+              // Pass OTP code for auto-fill in development
+              ...(response.consoleOTP && { autoFillOTP: response.consoleOTP })
+            }
+          });
+        };
+
         if (isDevelopmentMode && response.consoleOTP) {
           Alert.alert(
             'Development Mode 🛠️', 
-            `SMS service in development mode.\n\nYour OTP code is: ${response.consoleOTP}\n\nCheck the console for details.`,
+            `SMS service in development mode.\n\nYour OTP code is: ${response.consoleOTP}\n\nWe'll auto-fill it for you!`,
             [
               {
                 text: 'Continue',
-                onPress: () => router.push({
-                  pathname: '/(auth)/verify-otp',
-                  params: {
-                    phoneNumber: formattedPhone,
-                    userID: userID,
-                    name: name.trim()
-                  }
-                })
+                onPress: navigateToOTP
               }
             ]
           );
         } else if (isDevelopmentMode) {
           Alert.alert(
             'Development Mode 🛠️', 
-            'SMS service in development mode. Check the console/logs for your OTP code.',
+            'SMS service in development mode. We\'ll auto-fill the OTP for you!',
             [
               {
                 text: 'Continue',
-                onPress: () => router.push({
-                  pathname: '/(auth)/verify-otp',
-                  params: {
-                    phoneNumber: formattedPhone,
-                    userID: userID,
-                    name: name.trim()
-                  }
-                })
+                onPress: navigateToOTP
               }
             ]
           );
@@ -143,14 +143,7 @@ export default function SignupScreen() {
             [
               {
                 text: 'OK',
-                onPress: () => router.push({
-                  pathname: '/(auth)/verify-otp',
-                  params: {
-                    phoneNumber: formattedPhone,
-                    userID: userID,
-                    name: name.trim()
-                  }
-                })
+                onPress: navigateToOTP
               }
             ]
           );

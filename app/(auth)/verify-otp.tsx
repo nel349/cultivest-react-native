@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions, Keyboard, TouchableWithoutFeedback, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CircleCheck as CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CircleCheck as CheckCircle, Smartphone } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,11 +11,13 @@ const { width } = Dimensions.get('window');
 
 export default function VerifyOTPScreen() {
   const insets = useSafeAreaInsets();
-  const { phoneNumber, userID, name } = useLocalSearchParams();
+  const { phoneNumber, userID, name, autoFillOTP, isLogin } = useLocalSearchParams();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
+  const [showAutoFillNotification, setShowAutoFillNotification] = useState(false);
   const inputRefs = useRef<TextInput[]>([]);
+  const notificationOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,6 +26,43 @@ export default function VerifyOTPScreen() {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Auto-fill OTP if provided (simulating SMS notification)
+  useEffect(() => {
+    if (autoFillOTP && typeof autoFillOTP === 'string' && autoFillOTP.length === 6) {
+      console.log('📱 Auto-filling OTP:', autoFillOTP);
+      
+      // Show notification banner
+      setShowAutoFillNotification(true);
+      Animated.timing(notificationOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+
+      // Simulate SMS arrival delay (like a real phone notification)
+      setTimeout(() => {
+        const otpArray = autoFillOTP.split('');
+        setOtp(otpArray);
+        
+        // Auto-focus on last input to show completion
+        setTimeout(() => {
+          inputRefs.current[5]?.focus();
+        }, 100);
+
+        // Hide notification after auto-fill
+        setTimeout(() => {
+          Animated.timing(notificationOpacity, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }).start(() => {
+            setShowAutoFillNotification(false);
+          });
+        }, 2000);
+      }, 1500); // 1.5 second delay to simulate SMS arrival
+    }
+  }, [autoFillOTP]);
 
   const handleOtpChange = (value: string, index: number) => {
     const newOtp = [...otp];
@@ -168,9 +207,26 @@ export default function VerifyOTPScreen() {
               <Text style={styles.title}>Check your messages 📱</Text>
               <Text style={styles.subtitle}>
                 We sent a 6-digit code to{'\n'}
-                <Text style={styles.phoneNumber}>+1 {phoneNumber}</Text>
+                <Text style={styles.phoneNumber}>{phoneNumber}</Text>
               </Text>
             </View>
+
+            {/* Auto-fill Notification Banner */}
+            {showAutoFillNotification && (
+              <Animated.View 
+                style={[
+                  styles.autoFillNotification,
+                  { opacity: notificationOpacity }
+                ]}
+              >
+                <View style={styles.notificationContent}>
+                  <Smartphone size={16} color="#10B981" />
+                  <Text style={styles.notificationText}>
+                    Auto-filling verification code from SMS...
+                  </Text>
+                </View>
+              </Animated.View>
+            )}
 
             <View style={styles.otpContainer}>
               {otp.map((digit, index) => (
@@ -439,5 +495,29 @@ const styles = StyleSheet.create({
   resendButtonDisabled: {
     color: 'rgba(255,255,255,0.5)',
     textDecorationLine: 'none',
+  },
+  autoFillNotification: {
+    backgroundColor: 'rgba(16, 185, 129, 0.9)',
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  notificationContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  notificationText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+    flex: 1,
   },
 });

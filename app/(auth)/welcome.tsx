@@ -255,6 +255,19 @@ export default function WelcomeScreen() {
                 <ArrowRight size={16} color="#3B82F6" />
               </LinearGradient>
             </TouchableOpacity>
+
+            {/* Login Button */}
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => router.push('/(auth)/login')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Sign In to Existing Account"
+              accessibilityHint="Navigate to login screen if you already have a Cultivest account"
+              accessibilityState={{ disabled: false }}
+            >
+              <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
+            </TouchableOpacity>
             
             <Text 
               style={styles.disclaimer}
@@ -497,6 +510,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#3B82F6',
+  },
+  secondaryButton: {
+    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 12,
+    width: '100%',
+    maxWidth: 280,
+  },
+  secondaryButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.95)',
+    textAlign: 'center',
   },
   disclaimer: {
     fontSize: 10,

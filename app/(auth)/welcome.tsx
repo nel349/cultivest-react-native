@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, TouchableWithoutFeedback, AccessibilityInfo } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, TouchableWithoutFeedback, AccessibilityInfo, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Bitcoin, Coins, Shield, TrendingUp, Star, ArrowRight, Zap, Award } from 'lucide-react-native';
@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { Colors, Gradients, Typography, Spacing, Shadows, createTextStyle, createButtonStyle } from '@/utils/DesignSystem';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
@@ -86,216 +86,224 @@ export default function WelcomeScreen() {
       >
         <LinearGradient
           colors={Gradients.auth}
-          style={[styles.gradient, { paddingTop: insets.top }]}
+          style={styles.gradient}
           accessible={false}
         >
-        {/* Decorative Crypto Icons - Hidden from screen readers */}
-        <View 
-          style={styles.decorationContainer}
-          accessible={false}
-          importantForAccessibility="no-hide-descendants"
-        >
-          <View style={[styles.cryptoDecor, { top: 60 + insets.top, left: 20 }]}>
-            <Bitcoin size={20} color="rgba(255,255,255,0.3)" />
-          </View>
-          <View style={[styles.cryptoDecor, { top: 90 + insets.top, right: 30 }]}>
-            <Coins size={16} color="rgba(255,255,255,0.2)" />
-          </View>
-          <View style={[styles.cryptoDecor, { top: 120 + insets.top, left: width - 60 }]}>
-            <Award size={14} color="rgba(255,255,255,0.25)" />
-          </View>
-        </View>
-
-        <View 
-          style={styles.content}
-          accessible={false}
-          accessibilityLabel="Welcome screen content"
-        >
-          {/* Hero Section */}
+          {/* Decorative Crypto Icons - Hidden from screen readers */}
           <View 
-            style={styles.heroSection}
-            accessible={true}
-            accessibilityLabel="Cultivest app introduction"
-          >
-            <View 
-              style={styles.logoContainer}
-              accessible={true}
-              accessibilityRole="image"
-              accessibilityLabel="Cultivest logo with Bitcoin icon"
-            >
-              <View style={styles.logoBackground}>
-                <Bitcoin size={28} color={Colors.bitcoin} />
-              </View>
-            </View>
-            
-            <Text 
-              style={styles.title}
-              accessible={true}
-              accessibilityRole="header"
-              accessibilityLabel="Cultivest"
-            >
-              Cultivest
-            </Text>
-            <Text 
-              style={styles.subtitle}
-              accessible={true}
-              accessibilityLabel="The first Bitcoin and Algorand investment platform with Portfolio NFTs"
-            >
-              The first Bitcoin + Algorand investment platform with Portfolio NFTs 🏆
-            </Text>
-            
-            {/* Main Illustration */}
-            <View 
-              style={styles.illustrationContainer}
-              accessible={true}
-              accessibilityRole="image"
-              accessibilityLabel="Bitcoin and NFT portfolio illustration showing multi-chain investments"
-            >
-              <View style={styles.cryptoContainer}>
-                <View style={styles.bitcoinIcon}>
-                  <Bitcoin size={36} color={Colors.bitcoin} />
-                </View>
-                <View style={styles.algorandIcon}>
-                  <Coins size={30} color={Colors.accentTeal} />
-                </View>
-                <View 
-                  style={styles.nftBadge}
-                  accessible={true}
-                  accessibilityLabel="Portfolio NFT badge"
-                >
-                  <Award size={14} color={Colors.accentPurple} />
-                  <Text style={styles.nftText}>NFT</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Features Grid */}
-          <View 
-            style={styles.featuresContainer}
+            style={styles.decorationContainer}
             accessible={false}
-            accessibilityLabel="App features"
+            importantForAccessibility="no-hide-descendants"
           >
-            {features.map((feature, index) => (
+            <View style={[styles.cryptoDecor, { top: 60 + insets.top, left: 20 }]}>
+              <Bitcoin size={20} color="rgba(255,255,255,0.3)" />
+            </View>
+            <View style={[styles.cryptoDecor, { top: 90 + insets.top, right: 30 }]}>
+              <Coins size={16} color="rgba(255,255,255,0.2)" />
+            </View>
+            <View style={[styles.cryptoDecor, { top: 120 + insets.top, left: width - 60 }]}>
+              <Award size={14} color="rgba(255,255,255,0.25)" />
+            </View>
+          </View>
+
+          <ScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent, 
+              { 
+                paddingTop: insets.top + Spacing.lg,
+                paddingBottom: insets.bottom + Spacing.xl,
+                minHeight: height - insets.top - insets.bottom
+              }
+            ]}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+          >
+            {/* Hero Section */}
+            <View 
+              style={styles.heroSection}
+              accessible={true}
+              accessibilityLabel="Cultivest app introduction"
+            >
               <View 
-                key={index} 
-                style={styles.featureCard}
+                style={styles.logoContainer}
                 accessible={true}
-                accessibilityRole="summary"
-                accessibilityLabel={feature.accessibilityLabel}
-                accessibilityHint={feature.accessibilityHint}
+                accessibilityRole="image"
+                accessibilityLabel="Cultivest logo with Bitcoin icon"
               >
-                <View 
-                  style={[styles.featureIcon, { backgroundColor: feature.color + '20' }]}
-                  accessible={true}
-                  accessibilityRole="image"
-                  accessibilityLabel={`${feature.title} icon`}
-                >
-                  <feature.icon size={16} color={feature.color} />
+                <View style={styles.logoBackground}>
+                  <Bitcoin size={28} color={Colors.bitcoin} />
                 </View>
-                <Text 
-                  style={styles.featureTitle}
-                  accessible={true}
-                  accessibilityRole="header"
-                >
-                  {feature.title}
-                </Text>
-                <Text 
-                  style={styles.featureDescription}
-                  accessible={true}
-                >
-                  {feature.description}
-                </Text>
               </View>
-            ))}
-          </View>
-
-          {/* Value Propositions */}
-          <View style={styles.valuePropsSection}>
-            <View style={styles.valuePropsList}>
-              <View style={styles.valuePropItem}>
-                <TrendingUp size={12} color={Colors.success} />
-                <Text style={styles.valuePropText}>First NFT-based portfolio tracking</Text>
-              </View>
-              <View style={styles.valuePropItem}>
-                <Zap size={12} color={Colors.warning} />
-                <Text style={styles.valuePropText}>Multi-chain from day one</Text>
-              </View>
-              <View style={styles.valuePropItem}>
-                <Shield size={12} color={Colors.secondaryBlue} />
-                <Text style={styles.valuePropText}>Professional custody + self-custody opt-in</Text>
-              </View>
-              <View style={styles.valuePropItem}>
-                <Star size={12} color={Colors.accentPurple} />
-                <Text style={styles.valuePropText}>Tradeable, inheritable portfolios</Text>
+              
+              <Text 
+                style={styles.title}
+                accessible={true}
+                accessibilityRole="header"
+                accessibilityLabel="Cultivest"
+              >
+                Cultivest
+              </Text>
+              <Text 
+                style={styles.subtitle}
+                accessible={true}
+                accessibilityLabel="The first Bitcoin and Algorand investment platform with Portfolio NFTs"
+              >
+                The first Bitcoin + Algorand investment platform with Portfolio NFTs 🏆
+              </Text>
+              
+              {/* Main Illustration */}
+              <View 
+                style={styles.illustrationContainer}
+                accessible={true}
+                accessibilityRole="image"
+                accessibilityLabel="Bitcoin and NFT portfolio illustration showing multi-chain investments"
+              >
+                <View style={styles.cryptoContainer}>
+                  <View style={styles.bitcoinIcon}>
+                    <Bitcoin size={36} color={Colors.bitcoin} />
+                  </View>
+                  <View style={styles.algorandIcon}>
+                    <Coins size={30} color={Colors.accentTeal} />
+                  </View>
+                  <View 
+                    style={styles.nftBadge}
+                    accessible={true}
+                    accessibilityLabel="Portfolio NFT badge"
+                  >
+                    <Award size={14} color={Colors.accentPurple} />
+                    <Text style={styles.nftText}>NFT</Text>
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* CTA Section */}
-          <View 
-            style={styles.ctaSection}
-            accessible={false}
-            accessibilityLabel="Get started section"
-          >
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={() => router.push('/(auth)/signup')}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Start Your Crypto Journey"
-              accessibilityHint="Navigate to sign up screen to create your Cultivest account and start investing in Bitcoin and Algorand"
-              accessibilityState={{ disabled: false }}
+            {/* Features Grid */}
+            <View 
+              style={styles.featuresContainer}
+              accessible={false}
+              accessibilityLabel="App features"
             >
-              <LinearGradient
-                colors={Gradients.buttonSecondary}
-                style={styles.buttonGradient}
-                accessible={false}
-              >
-                <Text style={styles.primaryButtonText}>Start Your Crypto Journey</Text>
-                <ArrowRight size={16} color={Colors.secondaryBlue} />
-              </LinearGradient>
-            </TouchableOpacity>
+              {features.map((feature, index) => (
+                <View 
+                  key={index} 
+                  style={styles.featureCard}
+                  accessible={true}
+                  accessibilityRole="summary"
+                  accessibilityLabel={feature.accessibilityLabel}
+                  accessibilityHint={feature.accessibilityHint}
+                >
+                  <View 
+                    style={[styles.featureIcon, { backgroundColor: feature.color + '20' }]}
+                    accessible={true}
+                    accessibilityRole="image"
+                    accessibilityLabel={`${feature.title} icon`}
+                  >
+                    <feature.icon size={16} color={feature.color} />
+                  </View>
+                  <Text 
+                    style={styles.featureTitle}
+                    accessible={true}
+                    accessibilityRole="header"
+                  >
+                    {feature.title}
+                  </Text>
+                  <Text 
+                    style={styles.featureDescription}
+                    accessible={true}
+                  >
+                    {feature.description}
+                  </Text>
+                </View>
+              ))}
+            </View>
 
-            {/* Login Button */}
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => router.push('/(auth)/login')}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Sign In to Existing Account"
-              accessibilityHint="Navigate to login screen if you already have a Cultivest account"
-              accessibilityState={{ disabled: false }}
-            >
-              <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
-            </TouchableOpacity>
-            
-            <Text 
-              style={styles.disclaimer}
-              accessible={true}
-              accessibilityLabel="Professional custody, Portfolio NFTs, Start with just 1 dollar"
-              accessibilityHint="Important features and investment information"
-            >
-              🏆 Professional Custody • Portfolio NFTs • Start with just $1
-            </Text>
+            {/* Value Propositions */}
+            <View style={styles.valuePropsSection}>
+              <View style={styles.valuePropsList}>
+                <View style={styles.valuePropItem}>
+                  <TrendingUp size={12} color={Colors.success} />
+                  <Text style={styles.valuePropText}>First NFT-based portfolio tracking</Text>
+                </View>
+                <View style={styles.valuePropItem}>
+                  <Zap size={12} color={Colors.warning} />
+                  <Text style={styles.valuePropText}>Multi-chain from day one</Text>
+                </View>
+                <View style={styles.valuePropItem}>
+                  <Shield size={12} color={Colors.secondaryBlue} />
+                  <Text style={styles.valuePropText}>Professional custody + self-custody opt-in</Text>
+                </View>
+                <View style={styles.valuePropItem}>
+                  <Star size={12} color={Colors.accentPurple} />
+                  <Text style={styles.valuePropText}>Tradeable, inheritable portfolios</Text>
+                </View>
+              </View>
+            </View>
 
-            {/* Development Bypass Button */}
-            {__DEV__ && (
+            {/* CTA Section */}
+            <View 
+              style={styles.ctaSection}
+              accessible={false}
+              accessibilityLabel="Get started section"
+            >
               <TouchableOpacity
-                style={styles.devButton}
-                onPress={devBypass}
+                style={styles.primaryButton}
+                onPress={() => router.push('/(auth)/signup')}
                 accessible={true}
                 accessibilityRole="button"
-                accessibilityLabel="Developer bypass button"
-                accessibilityHint="Skip authentication and go directly to dashboard. Development only."
+                accessibilityLabel="Start Your Crypto Journey"
+                accessibilityHint="Navigate to sign up screen to create your Cultivest account and start investing in Bitcoin and Algorand"
+                accessibilityState={{ disabled: false }}
               >
-                <Text style={styles.devButtonText}>🚀 DEV: Skip to Dashboard</Text>
+                <LinearGradient
+                  colors={Gradients.buttonSecondary}
+                  style={styles.buttonGradient}
+                  accessible={false}
+                >
+                  <Text style={styles.primaryButtonText}>Start Your Crypto Journey</Text>
+                  <ArrowRight size={16} color={Colors.secondaryBlue} />
+                </LinearGradient>
               </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      </LinearGradient>
-    </View>
+
+              {/* Login Button */}
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => router.push('/(auth)/login')}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Sign In to Existing Account"
+                accessibilityHint="Navigate to login screen if you already have a Cultivest account"
+                accessibilityState={{ disabled: false }}
+              >
+                <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
+              </TouchableOpacity>
+              
+              <Text 
+                style={styles.disclaimer}
+                accessible={true}
+                accessibilityLabel="Professional custody, Portfolio NFTs, Start with just 1 dollar"
+                accessibilityHint="Important features and investment information"
+              >
+                🏆 Professional Custody • Portfolio NFTs • Start with just $1
+              </Text>
+
+              {/* Development Bypass Button */}
+              {__DEV__ && (
+                <TouchableOpacity
+                  style={styles.devButton}
+                  onPress={devBypass}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Developer bypass button"
+                  accessibilityHint="Skip authentication and go directly to dashboard. Development only."
+                >
+                  <Text style={styles.devButtonText}>🚀 DEV: Skip to Dashboard</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </ScrollView>
+        </LinearGradient>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -311,21 +319,27 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
+    zIndex: 0,
   },
   cryptoDecor: {
     position: 'absolute',
     opacity: 0.6,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    padding: Spacing.md,
+    zIndex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.md,
+    justifyContent: 'space-between',
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
   logoContainer: {
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   logoBackground: {
     width: 60,
@@ -344,11 +358,12 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+    textAlign: 'center',
   },
   subtitle: {
     ...createTextStyle('bodySmall', 'rgba(255,255,255,0.95)'),
     textAlign: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
     fontWeight: '600',
     paddingHorizontal: Spacing.lg,
     textShadowColor: 'rgba(0,0,0,0.1)',
@@ -357,6 +372,7 @@ const styles = StyleSheet.create({
   },
   illustrationContainer: {
     alignItems: 'center',
+    marginBottom: Spacing.md,
   },
   cryptoContainer: {
     position: 'relative',
@@ -403,8 +419,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: Spacing.md,
-    marginBottom: Spacing.tiny,
+    marginBottom: Spacing.md,
   },
   featureCard: {
     width: '48%',
@@ -438,8 +453,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: Spacing.radiusMedium,
     padding: Spacing.md,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
     ...Shadows.cardShadow,
   },
   valuePropsList: {
@@ -456,24 +470,23 @@ const styles = StyleSheet.create({
   },
   ctaSection: {
     alignItems: 'center',
+    paddingBottom: Spacing.lg,
   },
   primaryButton: {
     borderRadius: Spacing.radiusLarge,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
     ...Shadows.buttonShadow,
     width: '100%',
-    maxWidth: 280,
+    maxWidth: 320,
   },
   buttonGradient: {
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: Spacing.lg,
     borderRadius: Spacing.radiusLarge,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    marginBottom: Spacing.md,
-    marginTop: Spacing.md,
+    gap: 8,
   },
   primaryButtonText: {
     ...createTextStyle('buttonMedium', Colors.secondaryBlue),
@@ -486,6 +499,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
     borderRadius: Spacing.radiusMedium,
+    width: '100%',
+    maxWidth: 320,
   },
   secondaryButtonText: {
     ...createTextStyle('labelMedium', 'rgba(255,255,255,0.95)'),
@@ -499,6 +514,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+    marginBottom: Spacing.md,
   },
   devButton: {
     marginTop: Spacing.sm,

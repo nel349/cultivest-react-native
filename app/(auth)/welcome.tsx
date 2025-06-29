@@ -22,14 +22,17 @@ import {
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import VoiceAccessibilityGuide from '@/components/VoiceAccessibilityGuide';
+import ChatGPTDots from '@/components/ChatGPTDots';
 
 const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
-
+  const [isActive, setIsActive] = useState(false);
+  // const [isVoiceGuideActive, setIsVoiceGuideActive] = useState(false);
+  
   // Announce screen load for screen readers
   useEffect(() => {
     AccessibilityInfo.announceForAccessibility(
@@ -310,7 +313,18 @@ export default function WelcomeScreen() {
                   // justifyContent: 'center',
                 }}
               >
-                <VoiceAccessibilityGuide userID={'window.userID'} />
+                <ChatGPTDots isAnimating={isActive} size={16} color="black" speed={400} />
+                <VoiceAccessibilityGuide 
+                  userID={'window.userID'} 
+                  onActivate={(isActive) => {
+                    console.log('Voice guide is now:', isActive ? 'active' : 'inactive');
+                    setIsActive(isActive);
+                  }} 
+                  onDeactivate={() => {
+                    console.log('Voice guide is now inactive');
+                    setIsActive(false);
+                  }}
+                />
               </View>
 
               {/* Login Button */}

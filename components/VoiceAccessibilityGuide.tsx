@@ -8,6 +8,8 @@ import { useConversation } from '@elevenlabs/react';
 
 interface VoiceAccessibilityGuideProps {
   userID: string;
+  onActivate?: (isActive: boolean) => void;
+  onDeactivate?: (isActive: boolean) => void;
 }
 
 // Let ElevenLabs SDK handle microphone permissions internally
@@ -68,6 +70,8 @@ async function requestMicrophonePermission(hasNativePermission: boolean) {
 
 export default function VoiceAccessibilityGuide({
   userID,
+  onActivate,
+  onDeactivate,
 }: VoiceAccessibilityGuideProps) {
   const [hasNativePermission, setHasNativePermission] = useState(false);
   const [permissionChecked, setPermissionChecked] = useState(false);
@@ -80,10 +84,12 @@ export default function VoiceAccessibilityGuide({
   const conversation = useConversation({
     onConnect: () => {
       console.log('🎤 Voice accessibility guide connected');
+      onActivate?.(true);
       setIsConnected(true);
     },
     onDisconnect: () => {
       console.log('🎤 Voice accessibility guide disconnected');
+      onDeactivate?.(false);
       setIsConnected(false);
     },
     onMessage: (message) => {
@@ -169,6 +175,7 @@ export default function VoiceAccessibilityGuide({
         style={[styles.voiceButton, isConnected && styles.voiceButtonActive]}
         onPress={() => {
           console.log('🎯 DOM button pressed, isConnected:', isConnected);
+          onActivate?.(isConnected);
           isConnected ? stopVoiceGuide() : startVoiceGuide();
         }}
       >

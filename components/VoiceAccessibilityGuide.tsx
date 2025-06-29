@@ -1,7 +1,7 @@
 'use dom';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, StyleSheet, Pressable, Text, Animated } from 'react-native';
 import { requestRecordingPermissionsAsync } from 'expo-audio';
 import { getAppInfo } from '@/utils/appInfo';
 import { useConversation } from '@elevenlabs/react';
@@ -18,6 +18,53 @@ async function requestMicrophonePermission(hasNativePermission: boolean) {
   // We have native permissions, so let ElevenLabs SDK handle the web side
   return true;
 }
+
+// // ChatGPT-style animated dots component
+// function AnimatedDots() {
+//   const dot1 = useRef(new Animated.Value(0.3)).current;
+//   const dot2 = useRef(new Animated.Value(0.3)).current;
+//   const dot3 = useRef(new Animated.Value(0.3)).current;
+
+//   useEffect(() => {
+//     const animateDots = () => {
+//       const duration = 600;
+//       const delay = 200;
+
+//       const createAnimation = (dot: Animated.Value, delayTime: number) =>
+//         Animated.sequence([
+//           Animated.delay(delayTime),
+//           Animated.timing(dot, {
+//             toValue: 1,
+//             duration: duration,
+//             useNativeDriver: true,
+//           }),
+//           Animated.timing(dot, {
+//             toValue: 0.3,
+//             duration: duration,
+//             useNativeDriver: true,
+//           }),
+//         ]);
+
+//       Animated.loop(
+//         Animated.parallel([
+//           createAnimation(dot1, 0),
+//           createAnimation(dot2, delay),
+//           createAnimation(dot3, delay * 2),
+//         ])
+//       ).start();
+//     };
+
+//     animateDots();
+//   }, [dot1, dot2, dot3]);
+
+//   return (
+//     <View style={styles.dotsContainer}>
+//       <Animated.View style={[styles.dot, { opacity: dot1 }]} />
+//       <Animated.View style={[styles.dot, { opacity: dot2 }]} />
+//       <Animated.View style={[styles.dot, { opacity: dot3 }]} />
+//     </View>
+//   );
+// }
 
 export default function VoiceAccessibilityGuide({
   userID,
@@ -83,7 +130,7 @@ export default function VoiceAccessibilityGuide({
       console.error('Failed to start voice accessibility guide:', error);
       alert('Unable to start voice guide. Please try again.');
     }
-  }, [conversation, userID]);
+  }, [conversation, userID, hasNativePermission]);
 
   const stopVoiceGuide = useCallback(async () => {
     try {
@@ -125,18 +172,19 @@ export default function VoiceAccessibilityGuide({
           isConnected ? stopVoiceGuide() : startVoiceGuide();
         }}
       >
-        <View style={styles.buttonContent}>
-          <Text style={styles.micIcon}>🎤</Text>
-          <Text style={styles.buttonText}>
-            {isConnected ? 'Stop Voice Guide' : 'Tell me about this app'}
-          </Text>
-        </View>
+        {/* <View style={styles.buttonContent}> */}
+          {/* <Text style={styles.micIcon}>🎤</Text> */}
+          {/* <Text style={styles.buttonText}> */}
+            {/* {isConnected ? 'Stop Voice Guide' : 'Tell me about this app'} */}
+          {/* </Text> */}
+        {/* </View> */}
       </Pressable>
 
       {isConnected && (
-        <Text style={styles.statusText}>
-          Voice guide is active - speak your questions!
-        </Text>
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusText}>Voice guide is listening</Text>
+          {/* <AnimatedDots /> */}
+        </View>
       )}
     </View>
   );
@@ -144,32 +192,43 @@ export default function VoiceAccessibilityGuide({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    backgroundColor: 'red',
-    // paddingVertical: 8,
-  },
-  voiceButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent', // Transparent container
+    width: '100%', // Full width
+    height: 60, // Reasonable height
     borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-    borderWidth: 2,
-    borderColor: 'rgba(88, 204, 2, 0.2)',
-    minWidth: 250,
+  },
+  voiceButton: {
+    backgroundColor: 'transparent',
+    width: 100,
+    height: 100,
+    // height: '100%',
+    // borderRadius: 16,
+    // paddingHorizontal: 20,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 8,
+    // elevation: 4,
+    // borderWidth: 2,
+    // borderColor: 'rgba(88, 204, 2, 0.2)',
+    // width: '100%',
+    // height: '100%',
   },
   voiceButtonActive: {
     borderColor: '#58CC02',
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
+    backgroundColor: 'grey',
   },
   buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    // flex: 1,
+    // height: '100%',
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   micIcon: {
     fontSize: 20,
@@ -181,10 +240,26 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
     textAlign: 'center',
   },
+  statusContainer: {
+    alignItems: 'center',
+    marginTop: 12,
+  },
   statusText: {
-    marginTop: 8,
     fontSize: 14,
     color: '#58CC02',
     fontWeight: '500',
+    marginBottom: 8,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#58CC02',
+    marginHorizontal: 3,
   },
 });

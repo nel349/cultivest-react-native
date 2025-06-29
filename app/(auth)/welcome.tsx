@@ -300,8 +300,14 @@ export default function WelcomeScreen() {
               {/* Voice Accessibility Guide */}
               <View
                 style={{
+                  // flex: 1,
+                  width: 100,
+                  height: 100,
+                  // backgroundColor: 'red',
                   paddingHorizontal: 20,
-                  width: '100%',
+                  marginBottom: 50,
+                  // alignContent: 'center',
+                  // justifyContent: 'center',
                 }}
               >
                 <VoiceAccessibilityGuide userID={'window.userID'} />

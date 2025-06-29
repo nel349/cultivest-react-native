@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Switch, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { signOut } from '@/utils/auth';
 import { 
   User, Settings, Bell, Shield, HelpCircle, LogOut, 
   ChevronRight, TreePine, Trophy, Target, Star,
@@ -20,6 +21,34 @@ export default function ProfileScreen() {
     joinDate: 'March 2024'
   };
 
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out? You\'ll need to verify your phone number again to sign back in.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (error) {
+              Alert.alert(
+                'Error', 
+                'Failed to sign out. Please try again.',
+                [{ text: 'OK' }]
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const achievements = [
     { id: '1', title: 'First Seed', description: 'Made your first investment', icon: Sprout, unlocked: true },
     { id: '2', title: 'Growing Tree', description: 'Reached $100 invested', icon: TreePine, unlocked: true },
@@ -34,7 +63,7 @@ export default function ProfileScreen() {
     { title: 'Notifications', icon: Bell, action: () => {}, toggle: true },
     { title: 'Security & Privacy', icon: Shield, action: () => {} },
     { title: 'Help & Support', icon: HelpCircle, action: () => {} },
-    { title: 'Sign Out', icon: LogOut, action: () => {}, danger: true },
+    { title: 'Sign Out', icon: LogOut, action: handleSignOut, danger: true },
   ];
 
   return (

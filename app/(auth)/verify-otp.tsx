@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, MessageSquare, Leaf, Sprout, Flower, CircleCheck as CheckCircle, Smartphone } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
+import { storeAuthData } from '@/utils/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');

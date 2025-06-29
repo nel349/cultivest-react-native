@@ -1,16 +1,39 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Keyboard, TouchableWithoutFeedback, AccessibilityInfo } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
+  AccessibilityInfo,
+  Image,
+  Linking,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Bitcoin, Coins, Shield, TrendingUp, Star, ArrowRight, Zap, Award } from 'lucide-react-native';
+import {
+  Bitcoin,
+  Coins,
+  Shield,
+  TrendingUp,
+  Star,
+  ArrowRight,
+  Zap,
+  Award,
+} from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import VoiceComboComponent from '@/components/VoiceComboComponent';
 
 const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
-
+  const [isActive, setIsActive] = useState(false);
+  // const [isVoiceGuideActive, setIsVoiceGuideActive] = useState(false);
+  
   // Announce screen load for screen readers
   useEffect(() => {
     AccessibilityInfo.announceForAccessibility(
@@ -21,17 +44,18 @@ export default function WelcomeScreen() {
   // Development bypass function
   const devBypass = async () => {
     // Using the user ID from our earlier backend test
-    const devUserID = "045b5515-f334-436b-93b5-cc03fbcf8071";
-    const devUserName = "Norman E. Lopez";
-    
+    const devUserID = '045b5515-f334-436b-93b5-cc03fbcf8071';
+    const devUserName = 'Norman E. Lopez';
+
     // Real JWT token from our test session
-    const realToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwNDViNTUxNS1mMzM0LTQzNmItOTNiNS1jYzAzZmJjZjgwNzEiLCJwaG9uZU51bWJlciI6IisxOTE1NDA4MjAzNiIsImlhdCI6MTc1MTA5MzgzMCwiZXhwIjoxNzUxMTgwMjMwfQ.fx4-UxaqsIAEHY8p_bxeq9wuf1WdlOdQY3bczK1Wohw";
-    
+    const realToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwNDViNTUxNS1mMzM0LTQzNmItOTNiNS1jYzAzZmJjZjgwNzEiLCJwaG9uZU51bWJlciI6IisxOTE1NDA4MjAzNiIsImlhdCI6MTc1MTA5MzgzMCwiZXhwIjoxNzUxMTgwMjMwfQ.fx4-UxaqsIAEHY8p_bxeq9wuf1WdlOdQY3bczK1Wohw';
+
     try {
       await AsyncStorage.setItem('auth_token', realToken);
       await AsyncStorage.setItem('user_id', devUserID);
       await AsyncStorage.setItem('user_name', devUserName);
-      
+
       console.log('🚀 Dev bypass: Logged in as:', devUserName, devUserID);
       router.replace('/(tabs)');
     } catch (error) {
@@ -46,7 +70,8 @@ export default function WelcomeScreen() {
       description: 'Start with $1 in Bitcoin via MoonPay',
       color: '#F7931A',
       accessibilityLabel: 'Bitcoin Investment feature',
-      accessibilityHint: 'Learn how to start investing in Bitcoin with just one dollar'
+      accessibilityHint:
+        'Learn how to start investing in Bitcoin with just one dollar',
     },
     {
       icon: Coins,
@@ -54,7 +79,8 @@ export default function WelcomeScreen() {
       description: 'Bitcoin + Algorand investments',
       color: '#00D4AA',
       accessibilityLabel: 'Multi-Chain Portfolio feature',
-      accessibilityHint: 'Discover how to invest across Bitcoin and Algorand blockchains'
+      accessibilityHint:
+        'Discover how to invest across Bitcoin and Algorand blockchains',
     },
     {
       icon: Award,
@@ -62,7 +88,8 @@ export default function WelcomeScreen() {
       description: 'Your investments become tradeable NFTs',
       color: '#8B5CF6',
       accessibilityLabel: 'Portfolio NFTs feature',
-      accessibilityHint: 'Revolutionary NFT system that makes your portfolio tradeable and inheritable'
+      accessibilityHint:
+        'Revolutionary NFT system that makes your portfolio tradeable and inheritable',
     },
     {
       icon: Shield,
@@ -70,16 +97,14 @@ export default function WelcomeScreen() {
       description: 'Professional custody with self-custody opt-in',
       color: '#EF4444',
       accessibilityLabel: 'Custodial Security feature',
-      accessibilityHint: 'Secure professional custody with option to graduate to self-custody'
-    }
+      accessibilityHint:
+        'Secure professional custody with option to graduate to self-custody',
+    },
   ];
 
   return (
-    <TouchableWithoutFeedback 
-      onPress={Keyboard.dismiss}
-      accessible={false}
-    >
-      <View 
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View
         style={styles.container}
         accessibilityLabel="Cultivest welcome screen"
       >
@@ -88,213 +113,291 @@ export default function WelcomeScreen() {
           style={[styles.gradient, { paddingTop: insets.top }]}
           accessible={false}
         >
-        {/* Decorative Crypto Icons - Hidden from screen readers */}
-        <View 
-          style={styles.decorationContainer}
-          accessible={false}
-          importantForAccessibility="no-hide-descendants"
-        >
-          <View style={[styles.cryptoDecor, { top: 60 + insets.top, left: 20 }]}>
-            <Bitcoin size={20} color="rgba(255,255,255,0.3)" />
-          </View>
-          <View style={[styles.cryptoDecor, { top: 90 + insets.top, right: 30 }]}>
-            <Coins size={16} color="rgba(255,255,255,0.2)" />
-          </View>
-          <View style={[styles.cryptoDecor, { top: 120 + insets.top, left: width - 60 }]}>
-            <Award size={14} color="rgba(255,255,255,0.25)" />
-          </View>
-        </View>
-
-        <View 
-          style={styles.content}
-          accessible={false}
-          accessibilityLabel="Welcome screen content"
-        >
-          {/* Hero Section */}
-          <View 
-            style={styles.heroSection}
+          {/* Bolt.new Badge - Top Right */}
+          <TouchableOpacity
+            style={[styles.boltBadge, { top: 20 + insets.top, right: 20 }]}
+            onPress={() => Linking.openURL('https://bolt.new/')}
             accessible={true}
-            accessibilityLabel="Cultivest app introduction"
+            accessibilityRole="button"
+            accessibilityLabel="Built with Bolt.new"
+            accessibilityHint="Opens Bolt.new website in browser"
           >
-            <View 
-              style={styles.logoContainer}
-              accessible={true}
-              accessibilityRole="image"
-              accessibilityLabel="Cultivest logo with Bitcoin icon"
+            <Image
+              source={require('@/assets/images/bolt/black_circle_360x360.png')}
+              style={styles.boltBadgeImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+
+          {/* Decorative Crypto Icons - Hidden from screen readers */}
+          <View
+            style={styles.decorationContainer}
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+          >
+            <View
+              style={[styles.cryptoDecor, { top: 60 + insets.top, left: 20 }]}
             >
-              <View style={styles.logoBackground}>
-                <Bitcoin size={28} color="#F7931A" />
-              </View>
+              <Bitcoin size={20} color="rgba(255,255,255,0.3)" />
             </View>
-            
-            <Text 
-              style={styles.title}
-              accessible={true}
-              accessibilityRole="header"
-              accessibilityLabel="Cultivest"
+            <View
+              style={[styles.cryptoDecor, { top: 90 + insets.top, right: 30 }]}
             >
-              Cultivest
-            </Text>
-            <Text 
-              style={styles.subtitle}
-              accessible={true}
-              accessibilityLabel="The first Bitcoin and Algorand investment platform with Portfolio NFTs"
+              <Coins size={16} color="rgba(255,255,255,0.2)" />
+            </View>
+            <View
+              style={[
+                styles.cryptoDecor,
+                { top: 120 + insets.top, left: width - 60 },
+              ]}
             >
-              The first Bitcoin + Algorand investment platform with Portfolio NFTs 🏆
-            </Text>
-            
-            {/* Main Illustration */}
-            <View 
-              style={styles.illustrationContainer}
-              accessible={true}
-              accessibilityRole="image"
-              accessibilityLabel="Bitcoin and NFT portfolio illustration showing multi-chain investments"
-            >
-              <View style={styles.cryptoContainer}>
-                <View style={styles.bitcoinIcon}>
-                  <Bitcoin size={36} color="#F7931A" />
-                </View>
-                <View style={styles.algorandIcon}>
-                  <Coins size={30} color="#00D4AA" />
-                </View>
-                <View 
-                  style={styles.nftBadge}
-                  accessible={true}
-                  accessibilityLabel="Portfolio NFT badge"
-                >
-                  <Award size={14} color="#8B5CF6" />
-                  <Text style={styles.nftText}>NFT</Text>
-                </View>
-              </View>
+              <Award size={14} color="rgba(255,255,255,0.25)" />
             </View>
           </View>
 
-          {/* Features Grid */}
-          <View 
-            style={styles.featuresContainer}
+          <View
+            style={styles.content}
             accessible={false}
-            accessibilityLabel="App features"
+            accessibilityLabel="Welcome screen content"
           >
-            {features.map((feature, index) => (
-              <View 
-                key={index} 
-                style={styles.featureCard}
+            {/* Hero Section */}
+            <View
+              style={styles.heroSection}
+              accessible={true}
+              accessibilityLabel="Cultivest app introduction"
+            >
+              <View
+                style={styles.logoContainer}
                 accessible={true}
-                accessibilityRole="summary"
-                accessibilityLabel={feature.accessibilityLabel}
-                accessibilityHint={feature.accessibilityHint}
+                accessibilityRole="image"
+                accessibilityLabel="Cultivest logo with Bitcoin icon"
               >
-                <View 
-                  style={[styles.featureIcon, { backgroundColor: feature.color + '20' }]}
-                  accessible={true}
-                  accessibilityRole="image"
-                  accessibilityLabel={`${feature.title} icon`}
-                >
-                  <feature.icon size={16} color={feature.color} />
+                <View style={styles.logoBackground}>
+                  <Bitcoin size={28} color="#F7931A" />
                 </View>
-                <Text 
-                  style={styles.featureTitle}
-                  accessible={true}
-                  accessibilityRole="header"
-                >
-                  {feature.title}
-                </Text>
-                <Text 
-                  style={styles.featureDescription}
-                  accessible={true}
-                >
-                  {feature.description}
-                </Text>
               </View>
-            ))}
-          </View>
 
-          {/* Value Propositions */}
-          <View style={styles.valuePropsSection}>
-            <View style={styles.valuePropsList}>
-              <View style={styles.valuePropItem}>
-                <TrendingUp size={12} color="#10B981" />
-                <Text style={styles.valuePropText}>First NFT-based portfolio tracking</Text>
-              </View>
-              <View style={styles.valuePropItem}>
-                <Zap size={12} color="#F59E0B" />
-                <Text style={styles.valuePropText}>Multi-chain from day one</Text>
-              </View>
-              <View style={styles.valuePropItem}>
-                <Shield size={12} color="#3B82F6" />
-                <Text style={styles.valuePropText}>Professional custody + self-custody opt-in</Text>
-              </View>
-              <View style={styles.valuePropItem}>
-                <Star size={12} color="#8B5CF6" />
-                <Text style={styles.valuePropText}>Tradeable, inheritable portfolios</Text>
+              <Text
+                style={styles.title}
+                accessible={true}
+                accessibilityRole="header"
+                accessibilityLabel="Cultivest"
+              >
+                Cultivest
+              </Text>
+              <Text
+                style={styles.subtitle}
+                accessible={true}
+                accessibilityLabel="The first Bitcoin and Algorand investment platform with Portfolio NFTs"
+              >
+                The first Bitcoin + Algorand investment platform with Portfolio
+                NFTs 🏆
+              </Text>
+
+              {/* Main Illustration */}
+              <View
+                style={styles.illustrationContainer}
+                accessible={true}
+                accessibilityRole="image"
+                accessibilityLabel="Bitcoin and NFT portfolio illustration showing multi-chain investments"
+              >
+                <View style={styles.cryptoContainer}>
+                  <View style={styles.bitcoinIcon}>
+                    <Bitcoin size={36} color="#F7931A" />
+                  </View>
+                  <View style={styles.algorandIcon}>
+                    <Coins size={30} color="#00D4AA" />
+                  </View>
+                  <View
+                    style={styles.nftBadge}
+                    accessible={true}
+                    accessibilityLabel="Portfolio NFT badge"
+                  >
+                    <Award size={14} color="#8B5CF6" />
+                    <Text style={styles.nftText}>NFT</Text>
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* CTA Section */}
-          <View 
-            style={styles.ctaSection}
-            accessible={false}
-            accessibilityLabel="Get started section"
-          >
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={() => router.push('/(auth)/signup')}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Start Your Crypto Journey"
-              accessibilityHint="Navigate to sign up screen to create your Cultivest account and start investing in Bitcoin and Algorand"
-              accessibilityState={{ disabled: false }}
+            {/* Features Grid */}
+            <View
+              style={styles.featuresContainer}
+              accessible={false}
+              accessibilityLabel="App features"
             >
-              <LinearGradient
-                colors={['#FFFFFF', '#F0F0F0']}
-                style={styles.buttonGradient}
-                accessible={false}
-              >
-                <Text style={styles.primaryButtonText}>Start Your Crypto Journey</Text>
-                <ArrowRight size={16} color="#3B82F6" />
-              </LinearGradient>
-            </TouchableOpacity>
+              {features.map((feature, index) => (
+                <View
+                  key={index}
+                  style={styles.featureCard}
+                  accessible={true}
+                  accessibilityRole="summary"
+                  accessibilityLabel={feature.accessibilityLabel}
+                  accessibilityHint={feature.accessibilityHint}
+                >
+                  <View
+                    style={[
+                      styles.featureIcon,
+                      { backgroundColor: feature.color + '20' },
+                    ]}
+                    accessible={true}
+                    accessibilityRole="image"
+                    accessibilityLabel={`${feature.title} icon`}
+                  >
+                    <feature.icon size={16} color={feature.color} />
+                  </View>
+                  <Text
+                    style={styles.featureTitle}
+                    accessible={true}
+                    accessibilityRole="header"
+                  >
+                    {feature.title}
+                  </Text>
+                  <Text style={styles.featureDescription} accessible={true}>
+                    {feature.description}
+                  </Text>
+                </View>
+              ))}
+            </View>
 
-            {/* Login Button */}
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => router.push('/(auth)/login')}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Sign In to Existing Account"
-              accessibilityHint="Navigate to login screen if you already have a Cultivest account"
-              accessibilityState={{ disabled: false }}
-            >
-              <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
-            </TouchableOpacity>
-            
-            <Text 
-              style={styles.disclaimer}
-              accessible={true}
-              accessibilityLabel="Professional custody, Portfolio NFTs, Start with just 1 dollar"
-              accessibilityHint="Important features and investment information"
-            >
-              🏆 Professional Custody • Portfolio NFTs • Start with just $1
-            </Text>
+            {/* Value Propositions */}
+            <View style={styles.valuePropsSection}>
+              <View style={styles.valuePropsList}>
+                <View style={styles.valuePropItem}>
+                  <TrendingUp size={12} color="#10B981" />
+                  <Text style={styles.valuePropText}>
+                    First NFT-based portfolio tracking
+                  </Text>
+                </View>
+                <View style={styles.valuePropItem}>
+                  <Zap size={12} color="#F59E0B" />
+                  <Text style={styles.valuePropText}>
+                    Multi-chain from day one
+                  </Text>
+                </View>
+                <View style={styles.valuePropItem}>
+                  <Shield size={12} color="#3B82F6" />
+                  <Text style={styles.valuePropText}>
+                    Professional custody + self-custody opt-in
+                  </Text>
+                </View>
+                <View style={styles.valuePropItem}>
+                  <Star size={12} color="#8B5CF6" />
+                  <Text style={styles.valuePropText}>
+                    Tradeable, inheritable portfolios
+                  </Text>
+                </View>
+              </View>
+            </View>
 
-            {/* Development Bypass Button */}
-            {__DEV__ && (
+            {/* CTA Section */}
+            <View
+              style={styles.ctaSection}
+              accessible={false}
+              accessibilityLabel="Get started section"
+            >
               <TouchableOpacity
-                style={styles.devButton}
-                onPress={devBypass}
+                style={styles.primaryButton}
+                onPress={() => router.push('/(auth)/signup')}
                 accessible={true}
                 accessibilityRole="button"
-                accessibilityLabel="Developer bypass button"
-                accessibilityHint="Skip authentication and go directly to dashboard. Development only."
+                accessibilityLabel="Start Your Crypto Journey"
+                accessibilityHint="Navigate to sign up screen to create your Cultivest account and start investing in Bitcoin and Algorand"
+                accessibilityState={{ disabled: false }}
               >
-                <Text style={styles.devButtonText}>🚀 DEV: Skip to Dashboard</Text>
+                <LinearGradient
+                  colors={['#FFFFFF', '#F0F0F0']}
+                  style={styles.buttonGradient}
+                  accessible={false}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    Start Your Crypto Journey
+                  </Text>
+                  <ArrowRight size={16} color="#3B82F6" />
+                </LinearGradient>
               </TouchableOpacity>
-            )}
+
+                {/* <VoiceButton 
+                  onPress={() => {
+                    console.log('Voice button pressed');
+                    setIsActive(!isActive);
+                  }}
+                  isActive={false}
+                  size={60}
+                /> */}
+
+              {/* Voice Accessibility Guide */}
+              {/* <View
+                style={{
+                  // flex: 1,
+                  width: 100,
+                  height: 100,
+                  // backgroundColor: 'red',
+                  paddingHorizontal: 20,
+                  marginBottom: 50,
+                  // alignContent: 'center',
+                  // justifyContent: 'center',
+                }}
+              >
+                <ChatGPTDots isAnimating={isActive} size={16} color="black" speed={400} />
+                <VoiceAccessibilityGuide 
+                  userID={'window.userID'} 
+                  onActivate={(isActive) => {
+                    console.log('Voice guide is now:', isActive ? 'active' : 'inactive');
+                    setIsActive(isActive);
+                  }} 
+                  onDeactivate={() => {
+                    console.log('Voice guide is now inactive');
+                    setIsActive(false);
+                  }}
+                />
+              </View> */}
+
+              <VoiceComboComponent userID={'window.userID'} />
+
+              {/* Login Button */}
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => router.push('/(auth)/login')}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Sign In to Existing Account"
+                accessibilityHint="Navigate to login screen if you already have a Cultivest account"
+                accessibilityState={{ disabled: false }}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  Already have an account? Sign In
+                </Text>
+              </TouchableOpacity>
+
+              <Text
+                style={styles.disclaimer}
+                accessible={true}
+                accessibilityLabel="Professional custody, Portfolio NFTs, Start with just 1 dollar"
+                accessibilityHint="Important features and investment information"
+              >
+                🏆 Professional Custody • Portfolio NFTs • Start with just $1
+              </Text>
+
+              {/* Development Bypass Button */}
+              {__DEV__ && (
+                <TouchableOpacity
+                  style={styles.devButton}
+                  onPress={devBypass}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Developer bypass button"
+                  accessibilityHint="Skip authentication and go directly to dashboard. Development only."
+                >
+                  <Text style={styles.devButtonText}>
+                    🚀 DEV: Skip to Dashboard
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
-        </View>
-      </LinearGradient>
-    </View>
+        </LinearGradient>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -305,6 +408,22 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
+  },
+  boltBadge: {
+    position: 'absolute',
+    width: Math.min(50, width * 0.12),
+    height: Math.min(50, width * 0.12),
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  boltBadgeImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.9,
   },
   decorationContainer: {
     position: 'absolute',

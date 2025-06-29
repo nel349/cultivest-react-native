@@ -38,3 +38,5 @@ yarn-error.*
 # netlify
 .netlify/
 .cursor/
+android/
+ios/

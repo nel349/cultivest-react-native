@@ -1,10 +1,11 @@
 'use dom';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Pressable, Text, Animated } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { requestRecordingPermissionsAsync } from 'expo-audio';
 import { getAppInfo } from '@/utils/appInfo';
 import { useConversation } from '@elevenlabs/react';
+import tools from '@/utils/tools';
 
 interface VoiceAccessibilityGuideProps {
   userID: string;
@@ -92,6 +93,19 @@ export default function VoiceAccessibilityGuide({
         },
         clientTools: {
           getAppInfo,
+          navigate_to_dashboard: tools.navigate_to_dashboard,
+          navigate_to_invest: tools.navigate_to_invest,
+          navigate_to_portfolio: tools.navigate_to_portfolio,
+          navigate_to_profile: tools.navigate_to_profile,
+          navigate_to_education: tools.navigate_to_education,
+          navigate_to_login: tools.navigate_to_login,
+          navigate_to_signup: tools.navigate_to_signup,
+          go_back: tools.go_back,
+          get_current_screen: tools.get_current_screen,
+          get_auth_status: tools.get_auth_status,
+          logout_user: tools.logout_user,
+          show_alert: tools.show_alert,
+          get_app_capabilities: tools.get_app_capabilities,
         },
       });
     } catch (error) {

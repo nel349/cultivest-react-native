@@ -23,9 +23,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import VoiceAccessibilityGuide from '@/components/VoiceAccessibilityGuide';
-import ChatGPTDots from '@/components/ChatGPTDots';
-import VoiceButton from '@/components/VoiceButton';
 import VoiceComboComponent from '@/components/VoiceComboComponent';
 
 const { width } = Dimensions.get('window');

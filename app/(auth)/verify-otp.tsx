@@ -103,26 +103,45 @@ export default function VerifyOTPScreen() {
         await AsyncStorage.setItem('user_id', userID as string);
         await AsyncStorage.setItem('user_name', name as string || '');
         
-        Alert.alert(
-          'Welcome to Cultivest! 🌱',
-          'Your account is verified! Let\'s create your wallet and start growing.',
-          [
-            {
-              text: 'Continue',
-              onPress: () => {
-                // Check if wallet was auto-created (check both response root and user object)
-                const walletCreated = response.walletCreated || response.user?.walletCreated;
-                if (walletCreated) {
-                  console.log('✅ Wallet auto-created, proceeding to setup');
-                  router.push('/(auth)/setup');
-                } else {
-                  console.log('⏳ Creating wallet...');
-                  router.push('/(auth)/setup'); // Will show setup completion
+        // Different flow for login vs signup
+        if (isLogin === 'true') {
+          // Existing user logging in - go directly to main app
+          Alert.alert(
+            'Welcome back! 🌱',
+            'Successfully logged in to your Cultivest account.',
+            [
+              {
+                text: 'Continue',
+                onPress: () => {
+                  console.log('✅ Login successful, going to main app');
+                  router.replace('/(tabs)');
                 }
               }
-            }
-          ]
-        );
+            ]
+          );
+        } else {
+          // New user signing up - show setup screen
+          Alert.alert(
+            'Welcome to Cultivest! 🌱',
+            'Your account is verified! Let\'s create your wallet and start growing.',
+            [
+              {
+                text: 'Continue',
+                onPress: () => {
+                  // Check if wallet was auto-created (check both response root and user object)
+                  const walletCreated = response.walletCreated || response.user?.walletCreated;
+                  if (walletCreated) {
+                    console.log('✅ Wallet auto-created, proceeding to setup');
+                    router.push('/(auth)/setup');
+                  } else {
+                    console.log('⏳ Creating wallet...');
+                    router.push('/(auth)/setup'); // Will show setup completion
+                  }
+                }
+              }
+            ]
+          );
+        }
       } else {
         console.error('❌ OTP verification failed:', response.error);
         Alert.alert('Error', response.error || 'Invalid verification code. Please try again.');
@@ -221,7 +240,9 @@ export default function VerifyOTPScreen() {
                 ]}
               >
                 <View style={styles.notificationContent}>
-                  <Smartphone size={16} color="#10B981" />
+                  <View style={styles.notificationIcon}>
+                    <Text style={styles.notificationEmoji}>📱</Text>
+                  </View>
                   <Text style={styles.notificationText}>
                     Auto-filling verification code from SMS...
                   </Text>
@@ -498,7 +519,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'none',
   },
   autoFillNotification: {
-    backgroundColor: 'rgba(16, 185, 129, 0.9)',
+    backgroundColor: 'rgba(16, 185, 129, 0.95)',
     borderRadius: 12,
     marginHorizontal: 20,
     marginBottom: 16,
@@ -507,12 +528,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
+    minHeight: 44, 
+    minWidth: 200,
+    alignSelf: 'center',
+    // Ensure minimum height
   },
   notificationContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
     paddingVertical: 12,
     paddingHorizontal: 16,
+    minHeight: 44, // Ensure content doesn't collapse
   },
   notificationText: {
     color: '#FFFFFF',
@@ -520,5 +547,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
     flex: 1,
+    textAlign: 'left',
+  },
+  notificationIcon: {
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationEmoji: {
+    fontSize: 16,
   },
 });

@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
   },
   heroSection: {
     alignItems: 'center',
@@ -460,8 +460,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: 12,
     padding: 12,
-    marginTop: 4,
-    marginBottom: 8,
+    marginTop: 12,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   ctaSection: {
     alignItems: 'center',
-    marginTop: 8,
+    // marginTop: 8,
   },
   primaryButton: {
     borderRadius: 16,
@@ -505,6 +505,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    marginBottom: 12,
+    marginTop: 12,
   },
   primaryButtonText: {
     fontSize: 16,
@@ -519,11 +521,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
     borderRadius: 12,
-    width: '100%',
-    maxWidth: 280,
   },
   secondaryButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: 'rgba(255,255,255,0.95)',
     textAlign: 'center',

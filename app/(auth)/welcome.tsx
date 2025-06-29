@@ -23,7 +23,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
-import VoiceAccessibilityWrapper from '@/components/VoiceAccessibilityWrapper';
+import VoiceAccessibilityGuide from '@/components/VoiceAccessibilityGuide';
 
 const { width } = Dimensions.get('window');
 
@@ -300,13 +300,11 @@ export default function WelcomeScreen() {
               {/* Voice Accessibility Guide */}
               <View
                 style={{
-                  marginVertical: 20,
                   paddingHorizontal: 20,
-                  height: 120,
                   width: '100%',
                 }}
               >
-                <VoiceAccessibilityWrapper userID={'window.userID'} />
+                <VoiceAccessibilityGuide userID={'window.userID'} />
               </View>
 
               {/* Login Button */}

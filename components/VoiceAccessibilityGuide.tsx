@@ -1,30 +1,33 @@
-'use dom';
-
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { requestRecordingPermissionsAsync } from 'expo-audio';
+import { getAppInfo } from '@/utils/appInfo';
 import { useConversation } from '@elevenlabs/react';
-import { useCallback, useState } from 'react';
-import { View, Pressable, StyleSheet, Text } from 'react-native';
+
+interface VoiceAccessibilityGuideProps {
+  userID: string;
+}
 
 // Let ElevenLabs SDK handle microphone permissions internally
 async function requestMicrophonePermission(hasNativePermission: boolean) {
   console.log('🎤 Trusting ElevenLabs SDK to handle microphone permissions');
   console.log('🔐 Native permission status:', hasNativePermission);
-  
+
   // We have native permissions, so let ElevenLabs SDK handle the web side
   return true;
 }
 
 export default function VoiceAccessibilityGuide({
   userID,
-  getAppInfo,
-  hasNativePermission,
-}: {
-  dom?: import('expo/dom').DOMProps;
-  userID: string;
-  getAppInfo: () => Promise<string>;
-  hasNativePermission: boolean;
-}) {
+}: VoiceAccessibilityGuideProps) {
+  const [hasNativePermission, setHasNativePermission] = useState(false);
+  const [permissionChecked, setPermissionChecked] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  
+
+  useEffect(() => {
+    checkNativePermissions();
+  }, []);
+
   const conversation = useConversation({
     onConnect: () => {
       console.log('🎤 Voice accessibility guide connected');
@@ -47,11 +50,18 @@ export default function VoiceAccessibilityGuide({
     console.log('🚀 DOM startVoiceGuide called');
     try {
       // Request microphone permission
-      console.log('🔐 Checking permissions, hasNativePermission:', hasNativePermission);
-      const hasPermission = await requestMicrophonePermission(hasNativePermission);
+      console.log(
+        '🔐 Checking permissions, hasNativePermission:',
+        hasNativePermission
+      );
+      const hasPermission = await requestMicrophonePermission(
+        hasNativePermission
+      );
       console.log('🔐 Permission result:', hasPermission);
       if (!hasPermission) {
-        alert('Microphone permission is needed for voice accessibility features');
+        alert(
+          'Microphone permission is needed for voice accessibility features'
+        );
         return;
       }
 
@@ -71,7 +81,7 @@ export default function VoiceAccessibilityGuide({
       console.error('Failed to start voice accessibility guide:', error);
       alert('Unable to start voice guide. Please try again.');
     }
-  }, [conversation, userID, getAppInfo]);
+  }, [conversation, userID]);
 
   const stopVoiceGuide = useCallback(async () => {
     try {
@@ -81,13 +91,33 @@ export default function VoiceAccessibilityGuide({
     }
   }, [conversation]);
 
+  const checkNativePermissions = async () => {
+    try {
+      // Request native audio recording permissions
+      const { granted } = await requestRecordingPermissionsAsync();
+      setHasNativePermission(granted);
+      setPermissionChecked(true);
+
+      if (granted) {
+        console.log('✅ Native microphone permission granted');
+      } else {
+        console.log('❌ Native microphone permission denied');
+      }
+    } catch (error) {
+      console.error('Error requesting native microphone permission:', error);
+      setPermissionChecked(true);
+    }
+  };
+
+  // Don't render until we've checked permissions
+  if (!permissionChecked) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Pressable
-        style={[
-          styles.voiceButton,
-          isConnected && styles.voiceButtonActive
-        ]}
+        style={[styles.voiceButton, isConnected && styles.voiceButtonActive]}
         onPress={() => {
           console.log('🎯 DOM button pressed, isConnected:', isConnected);
           isConnected ? stopVoiceGuide() : startVoiceGuide();
@@ -100,7 +130,7 @@ export default function VoiceAccessibilityGuide({
           </Text>
         </View>
       </Pressable>
-      
+
       {isConnected && (
         <Text style={styles.statusText}>
           Voice guide is active - speak your questions!
@@ -113,7 +143,8 @@ export default function VoiceAccessibilityGuide({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    paddingVertical: 16,
+    backgroundColor: 'red',
+    // paddingVertical: 8,
   },
   voiceButton: {
     backgroundColor: '#FFFFFF',
@@ -154,4 +185,4 @@ const styles = StyleSheet.create({
     color: '#58CC02',
     fontWeight: '500',
   },
-}); 
+});

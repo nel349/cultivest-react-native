@@ -1,3 +1,5 @@
+'use dom';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { requestRecordingPermissionsAsync } from 'expo-audio';

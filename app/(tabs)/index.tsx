@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
+import { Colors, Gradients, Typography, Spacing, Shadows, createTextStyle } from '@/utils/DesignSystem';
 
 const { width } = Dimensions.get('window');
 
@@ -112,12 +113,8 @@ export default function HomeScreen() {
     try {
       const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
       
-
-
       // Get database balance
       const dbResult = await apiClient.getWalletBalance(userID, false);
-      
-
       
       // Get live balance
       const liveResult = await apiClient.getWalletBalance(userID, true);
@@ -204,7 +201,6 @@ export default function HomeScreen() {
         } : null);
       } else {
         console.error('Failed to fetch wallet balance:', dbResult?.error || 'Database request failed');
-        
         console.error('Failed to fetch wallet balance:', dbResult?.error);
       }
     } catch (error) {
@@ -260,16 +256,16 @@ export default function HomeScreen() {
       title: 'Buy Bitcoin',
       subtitle: 'Digital gold investment',
       icon: TrendingUp,
-      color: '#F7931A',
-      bgColor: '#FFF8E1',
+      color: Colors.bitcoin,
+      bgColor: Colors.backgroundSecondary,
       onPress: () => router.push('/(tabs)/invest')
     },
     {
       title: 'Other Crypto',
       subtitle: 'ETH, SOL, USDC & more',
       icon: Plus,
-      color: '#58CC02',
-      bgColor: '#E8F5E8',
+      color: Colors.primaryGreen,
+      bgColor: Colors.successLight,
       onPress: () => {
         setShowFundingModal(true);
       }
@@ -278,16 +274,16 @@ export default function HomeScreen() {
       title: 'Portfolio View',
       subtitle: 'View positions',
       icon: ArrowUpRight,
-      color: '#00D4AA',
-      bgColor: '#E0F7FA',
+      color: Colors.accentTeal,
+      bgColor: Colors.infoLight,
       onPress: () => router.push('/(tabs)/portfolio')
     },
     {
       title: 'Learn & Grow',
       subtitle: 'Financial tips',
       icon: Star,
-      color: '#FFD900',
-      bgColor: '#FFFDE7',
+      color: Colors.accentGold,
+      bgColor: Colors.warningLight,
       onPress: () => router.push('/education')
     }
   ];
@@ -332,19 +328,19 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <LinearGradient
-        colors={['#89E5AB', '#58CC02', '#46A302']}
+        colors={Gradients.primary}
         style={styles.gradient}
       >
         {/* Floating Plant Decorations */}
         <View style={styles.decorationContainer}>
           <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
-            <Leaf size={20} color="#FFFFFF" />
+            <Leaf size={20} color={Colors.white} />
           </View>
           <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
-            <Flower size={16} color="#FFFFFF" />
+            <Flower size={16} color={Colors.white} />
           </View>
           <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
-            <Sprout size={18} color="#FFFFFF" />
+            <Sprout size={18} color={Colors.white} />
           </View>
         </View>
 
@@ -352,7 +348,7 @@ export default function HomeScreen() {
           style={styles.scrollView}
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.white} />
           }
           showsVerticalScrollIndicator={false}
         >
@@ -366,23 +362,21 @@ export default function HomeScreen() {
             </View>
             <View style={styles.headerRight}>
               <TouchableOpacity style={styles.iconButton}>
-                <Bell size={24} color="#FFFFFF" />
+                <Bell size={24} color={Colors.white} />
                 <View style={styles.notificationBadge}>
                   <Text style={styles.notificationText}>2</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconButton}>
-                <Settings size={24} color="#FFFFFF" />
+                <Settings size={24} color={Colors.white} />
               </TouchableOpacity>
             </View>
           </View>
 
-
-
           {/* Balance Card */}
           <View style={styles.balanceCard}>
             <LinearGradient
-              colors={['#FFFFFF', '#F8F8F8']}
+              colors={Gradients.card}
               style={styles.balanceCardGradient}
             >
               <View style={styles.balanceHeader}>
@@ -392,9 +386,9 @@ export default function HomeScreen() {
                   style={styles.eyeButton}
                 >
                   {balanceVisible ? (
-                    <Eye size={20} color="#58CC02" />
+                    <Eye size={20} color={Colors.primaryGreen} />
                   ) : (
-                    <EyeOff size={20} color="#58CC02" />
+                    <EyeOff size={20} color={Colors.primaryGreen} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -495,7 +489,7 @@ export default function HomeScreen() {
               
               <View style={styles.yieldContainer}>
                 <View style={styles.yieldItem}>
-                  <Target size={16} color="#FF9500" />
+                  <Target size={16} color={Colors.accentOrange} />
                   <Text style={styles.yieldLabel}>Multi-Chain</Text>
                   <Text style={styles.yieldValue}>
                     {dashboardData.addresses.bitcoin && dashboardData.addresses.algorand && dashboardData.addresses.solana ? '✅✅✅' : 
@@ -520,7 +514,7 @@ export default function HomeScreen() {
                 ]}>
                   <achievement.icon 
                     size={24} 
-                    color={achievement.completed ? "#58CC02" : "#C0C0C0"} 
+                    color={achievement.completed ? Colors.primaryGreen : Colors.gray300} 
                   />
                   <Text style={[
                     styles.achievementText,
@@ -544,7 +538,7 @@ export default function HomeScreen() {
                   onPress={action.onPress}
                 >
                   <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
-                    <action.icon size={24} color="#FFFFFF" />
+                    <action.icon size={24} color={Colors.white} />
                   </View>
                   <Text style={styles.quickActionTitle}>{action.title}</Text>
                   <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
@@ -560,9 +554,9 @@ export default function HomeScreen() {
               {recentActivity.map((activity) => (
                 <View key={activity.id} style={styles.activityItem}>
                   <View style={[styles.activityIcon, 
-                    { backgroundColor: activity.type === 'yield_credit' ? '#E8F5E8' : '#E0F7FA' }
+                    { backgroundColor: activity.type === 'yield_credit' ? Colors.successLight : Colors.infoLight }
                   ]}>
-                    <activity.icon size={20} color="#58CC02" />
+                    <activity.icon size={20} color={Colors.primaryGreen} />
                   </View>
                   <View style={styles.activityContent}>
                     <Text style={styles.activityDescription}>{activity.description}</Text>
@@ -571,7 +565,7 @@ export default function HomeScreen() {
                   <View style={styles.activityAmount}>
                     <Text style={[
                       styles.activityAmountText,
-                      { color: activity.type === 'yield_credit' ? '#58CC02' : '#FF9500' }
+                      { color: activity.type === 'yield_credit' ? Colors.primaryGreen : Colors.accentOrange }
                     ]}>
                       {activity.type === 'yield_credit' ? '+' : ''}${activity.amount.toFixed(2)}
                     </Text>
@@ -635,34 +629,30 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: Spacing.screenPadding,
+    paddingTop: Spacing.lg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   headerLeft: {
     flex: 1,
   },
   greeting: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '500',
+    ...createTextStyle('bodyMedium', 'rgba(255,255,255,0.9)'),
   },
   userName: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    ...createTextStyle('heading3', Colors.white),
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   headerRight: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing.md,
   },
   iconButton: {
     width: 44,
@@ -677,144 +667,59 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -2,
     right: -2,
-    backgroundColor: '#FF4444',
+    backgroundColor: Colors.error,
     borderRadius: 10,
     minWidth: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.white,
   },
   notificationText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  treeCard: {
-    marginBottom: 20,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  treeCardGradient: {
-    borderRadius: 20,
-    padding: 20,
-  },
-  treeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  treeIconContainer: {
-    position: 'relative',
-    marginRight: 16,
-  },
-  levelBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#58CC02',
-    borderRadius: 12,
-    minWidth: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  levelText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  treeInfo: {
-    flex: 1,
-  },
-  treeTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 4,
-  },
-  treeSubtitle: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
-  },
-  progressContainer: {
-    marginTop: 8,
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#58CC02',
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
-    textAlign: 'center',
+    ...createTextStyle('captionBold', Colors.white),
   },
   balanceCard: {
-    marginBottom: 20,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginBottom: Spacing.lg,
+    borderRadius: Spacing.radiusXLarge,
+    ...Shadows.cardShadow,
   },
   balanceCardGradient: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: Spacing.radiusXLarge,
+    padding: Spacing.cardPadding,
   },
   balanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   balanceLabel: {
-    fontSize: 16,
-    color: '#5A5A5A',
-    fontWeight: '600',
+    ...createTextStyle('labelMedium', Colors.textSecondary),
   },
   eyeButton: {
-    padding: 4,
+    padding: Spacing.tiny,
   },
   balanceAmount: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#2E7D32',
-    marginBottom: 16,
+    ...createTextStyle('display1', Colors.textPrimary),
+    marginBottom: Spacing.md,
   },
   assetsBreakdown: {
-    marginBottom: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
+    marginBottom: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.backgroundTertiary,
+    borderRadius: Spacing.radiusMedium,
   },
   assetItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
   },
   assetTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: Spacing.tiny,
   },
   assetBottomRow: {
     flexDirection: 'row',
@@ -823,131 +728,103 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingLeft: 44, // Align with text above (icon width + margin)
     minHeight: 20,
-    gap: 8,
+    gap: Spacing.sm,
   },
   assetIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   assetSymbol: {
-    fontSize: 16,
+    ...createTextStyle('labelMedium'),
   },
   assetLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2E7D32',
+    ...createTextStyle('labelMedium', Colors.textPrimary),
     flex: 1,
   },
   assetAmount: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
+    ...createTextStyle('labelMedium', Colors.textPrimary),
   },
   assetAmountContainer: {
     flex: 1,
   },
   assetUsdValue: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#5A5A5A',
+    ...createTextStyle('caption', Colors.textSecondary),
     marginTop: 2,
   },
   assetPercentage: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#5A5A5A',
-    marginLeft: 8,
+    ...createTextStyle('caption', Colors.textSecondary),
+    marginLeft: Spacing.sm,
   },
   // Bitcoin-specific emphasis styles
   bitcoinAsset: {
     flexDirection: 'column',
     backgroundColor: 'rgba(247, 147, 26, 0.1)',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    borderRadius: Spacing.radiusSmall,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.sm,
     borderLeftWidth: 3,
-    borderLeftColor: '#F7931A',
+    borderLeftColor: Colors.bitcoin,
   },
   // Standard asset styles
   standardAsset: {
     flexDirection: 'column',
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
   },
   bitcoinIcon: {
-    backgroundColor: '#F7931A',
+    backgroundColor: Colors.bitcoin,
   },
   bitcoinSymbol: {
-    color: '#FFFFFF',
+    color: Colors.white,
     fontSize: 18,
     fontWeight: 'bold',
   },
   bitcoinLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#F7931A',
+    ...createTextStyle('labelMedium', Colors.bitcoin),
   },
   bitcoinAmount: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#F7931A',
+    ...createTextStyle('labelMedium', Colors.bitcoin),
   },
   bitcoinUsdValue: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#D68910',
+    ...createTextStyle('caption', '#D68910'),
     marginTop: 2,
   },
   bitcoinPercentage: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#F7931A',
+    ...createTextStyle('labelSmall', Colors.bitcoin),
   },
   yieldContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
-    paddingTop: 12,
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    borderTopColor: Colors.borderLight,
   },
   yieldItem: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  yieldDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 16,
+    gap: Spacing.xs,
   },
   yieldLabel: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '600',
+    ...createTextStyle('caption', Colors.textSecondary),
     flex: 1,
   },
   yieldValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#2E7D32',
+    ...createTextStyle('labelMedium', Colors.textPrimary),
     textAlign: 'right',
   },
   achievementsSection: {
-    marginBottom: 24,
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
+    ...createTextStyle('heading4', Colors.white),
+    marginBottom: Spacing.md,
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -961,13 +838,13 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 16,
-    padding: 8,
+    marginRight: Spacing.md,
+    padding: Spacing.sm,
   },
   achievementCompleted: {
     backgroundColor: 'rgba(255,255,255,0.9)',
     borderWidth: 2,
-    borderColor: '#58CC02',
+    borderColor: Colors.primaryGreen,
   },
   achievementLocked: {
     backgroundColor: 'rgba(255,255,255,0.3)',
@@ -975,35 +852,30 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.5)',
   },
   achievementText: {
-    fontSize: 10,
-    fontWeight: '600',
+    ...createTextStyle('caption'),
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: Spacing.tiny,
   },
   achievementTextCompleted: {
-    color: '#2E7D32',
+    color: Colors.textPrimary,
   },
   achievementTextLocked: {
     color: 'rgba(255,255,255,0.7)',
   },
   quickActionsSection: {
-    marginBottom: 24,
+    marginBottom: Spacing.lg,
   },
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: Spacing.md,
   },
   quickActionCard: {
     width: (width - 60) / 2,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.md,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadows.cardShadow,
     minHeight: 120,
   },
   quickActionIcon: {
@@ -1012,40 +884,32 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   quickActionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 4,
+    ...createTextStyle('labelMedium', Colors.textPrimary),
+    marginBottom: Spacing.tiny,
     textAlign: 'center',
   },
   quickActionSubtitle: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    ...createTextStyle('caption', Colors.textSecondary),
     textAlign: 'center',
   },
   activitySection: {
-    marginBottom: 24,
+    marginBottom: Spacing.lg,
   },
   activityContainer: {
     backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderRadius: Spacing.radiusLarge,
+    padding: Spacing.md,
+    ...Shadows.cardShadow,
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.backgroundTertiary,
   },
   activityIcon: {
     width: 40,
@@ -1053,27 +917,22 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   activityContent: {
     flex: 1,
   },
   activityDescription: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2E7D32',
+    ...createTextStyle('labelMedium', Colors.textPrimary),
     marginBottom: 2,
   },
   activityTimestamp: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    ...createTextStyle('caption', Colors.textSecondary),
   },
   activityAmount: {
     alignItems: 'flex-end',
   },
   activityAmountText: {
-    fontSize: 16,
-    fontWeight: '700',
+    ...createTextStyle('labelMedium'),
   },
 });

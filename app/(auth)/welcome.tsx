@@ -5,6 +5,7 @@ import { Bitcoin, Coins, Shield, TrendingUp, Star, ArrowRight, Zap, Award } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
+import { Colors, Gradients, Typography, Spacing, Shadows, createTextStyle, createButtonStyle } from '@/utils/DesignSystem';
 
 const { width } = Dimensions.get('window');
 
@@ -44,7 +45,7 @@ export default function WelcomeScreen() {
       icon: Bitcoin,
       title: 'Bitcoin Investment',
       description: 'Start with $1 in Bitcoin via MoonPay',
-      color: '#F7931A',
+      color: Colors.bitcoin,
       accessibilityLabel: 'Bitcoin Investment feature',
       accessibilityHint: 'Learn how to start investing in Bitcoin with just one dollar'
     },
@@ -52,7 +53,7 @@ export default function WelcomeScreen() {
       icon: Coins,
       title: 'Multi-Chain Portfolio',
       description: 'Bitcoin + Algorand investments',
-      color: '#00D4AA',
+      color: Colors.accentTeal,
       accessibilityLabel: 'Multi-Chain Portfolio feature',
       accessibilityHint: 'Discover how to invest across Bitcoin and Algorand blockchains'
     },
@@ -60,7 +61,7 @@ export default function WelcomeScreen() {
       icon: Award,
       title: 'Portfolio NFTs',
       description: 'Your investments become tradeable NFTs',
-      color: '#8B5CF6',
+      color: Colors.accentPurple,
       accessibilityLabel: 'Portfolio NFTs feature',
       accessibilityHint: 'Revolutionary NFT system that makes your portfolio tradeable and inheritable'
     },
@@ -68,7 +69,7 @@ export default function WelcomeScreen() {
       icon: Shield,
       title: 'Custodial Security',
       description: 'Professional custody with self-custody opt-in',
-      color: '#EF4444',
+      color: Colors.error,
       accessibilityLabel: 'Custodial Security feature',
       accessibilityHint: 'Secure professional custody with option to graduate to self-custody'
     }
@@ -84,7 +85,7 @@ export default function WelcomeScreen() {
         accessibilityLabel="Cultivest welcome screen"
       >
         <LinearGradient
-          colors={['#1E3A8A', '#3B82F6', '#60A5FA']}
+          colors={Gradients.auth}
           style={[styles.gradient, { paddingTop: insets.top }]}
           accessible={false}
         >
@@ -123,7 +124,7 @@ export default function WelcomeScreen() {
               accessibilityLabel="Cultivest logo with Bitcoin icon"
             >
               <View style={styles.logoBackground}>
-                <Bitcoin size={28} color="#F7931A" />
+                <Bitcoin size={28} color={Colors.bitcoin} />
               </View>
             </View>
             
@@ -152,17 +153,17 @@ export default function WelcomeScreen() {
             >
               <View style={styles.cryptoContainer}>
                 <View style={styles.bitcoinIcon}>
-                  <Bitcoin size={36} color="#F7931A" />
+                  <Bitcoin size={36} color={Colors.bitcoin} />
                 </View>
                 <View style={styles.algorandIcon}>
-                  <Coins size={30} color="#00D4AA" />
+                  <Coins size={30} color={Colors.accentTeal} />
                 </View>
                 <View 
                   style={styles.nftBadge}
                   accessible={true}
                   accessibilityLabel="Portfolio NFT badge"
                 >
-                  <Award size={14} color="#8B5CF6" />
+                  <Award size={14} color={Colors.accentPurple} />
                   <Text style={styles.nftText}>NFT</Text>
                 </View>
               </View>
@@ -213,19 +214,19 @@ export default function WelcomeScreen() {
           <View style={styles.valuePropsSection}>
             <View style={styles.valuePropsList}>
               <View style={styles.valuePropItem}>
-                <TrendingUp size={12} color="#10B981" />
+                <TrendingUp size={12} color={Colors.success} />
                 <Text style={styles.valuePropText}>First NFT-based portfolio tracking</Text>
               </View>
               <View style={styles.valuePropItem}>
-                <Zap size={12} color="#F59E0B" />
+                <Zap size={12} color={Colors.warning} />
                 <Text style={styles.valuePropText}>Multi-chain from day one</Text>
               </View>
               <View style={styles.valuePropItem}>
-                <Shield size={12} color="#3B82F6" />
+                <Shield size={12} color={Colors.secondaryBlue} />
                 <Text style={styles.valuePropText}>Professional custody + self-custody opt-in</Text>
               </View>
               <View style={styles.valuePropItem}>
-                <Star size={12} color="#8B5CF6" />
+                <Star size={12} color={Colors.accentPurple} />
                 <Text style={styles.valuePropText}>Tradeable, inheritable portfolios</Text>
               </View>
             </View>
@@ -247,12 +248,12 @@ export default function WelcomeScreen() {
               accessibilityState={{ disabled: false }}
             >
               <LinearGradient
-                colors={['#FFFFFF', '#F0F0F0']}
+                colors={Gradients.buttonSecondary}
                 style={styles.buttonGradient}
                 accessible={false}
               >
                 <Text style={styles.primaryButtonText}>Start Your Crypto Journey</Text>
-                <ArrowRight size={16} color="#3B82F6" />
+                <ArrowRight size={16} color={Colors.secondaryBlue} />
               </LinearGradient>
             </TouchableOpacity>
 
@@ -317,15 +318,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
-    // justifyContent: 'space-between',
+    padding: Spacing.md,
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   logoContainer: {
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   logoBackground: {
     width: 60,
@@ -336,29 +336,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.3)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    ...Shadows.buttonShadow,
   },
   title: {
-    fontSize: Math.min(28, width * 0.07),
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 6,
+    ...createTextStyle('display2', Colors.textInverse),
+    marginBottom: Spacing.xs,
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: Math.min(14, width * 0.035),
-    color: 'rgba(255,255,255,0.95)',
+    ...createTextStyle('bodySmall', 'rgba(255,255,255,0.95)'),
     textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 12,
+    marginBottom: Spacing.md,
     fontWeight: '600',
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -393,45 +385,35 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: '50%',
     transform: [{ translateX: -20 }],
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Colors.accentPurple,
     borderRadius: 15,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.tiny,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: Colors.white,
+    ...Shadows.subtleShadow,
   },
   nftText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...createTextStyle('captionBold', Colors.textInverse),
     marginLeft: 2,
   },
   featuresContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 12,
-    marginBottom: 4,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.tiny,
   },
   featureCard: {
     width: '48%',
     backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 8,
+    borderRadius: Spacing.radiusMedium,
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    ...Shadows.cardShadow,
     minHeight: 85,
   },
   featureIcon: {
@@ -440,118 +422,95 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: Spacing.xs,
   },
   featureTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#1E3A8A',
+    ...createTextStyle('labelSmall', Colors.textPrimary),
     marginBottom: 3,
     textAlign: 'center',
   },
   featureDescription: {
-    fontSize: 9,
-    color: '#64748B',
-    lineHeight: 12,
+    ...createTextStyle('caption', Colors.textSecondary),
     textAlign: 'center',
     fontWeight: '500',
   },
   valuePropsSection: {
     backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: Spacing.radiusMedium,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.cardShadow,
   },
   valuePropsList: {
-    gap: 6,
+    gap: Spacing.xs,
   },
   valuePropItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   valuePropText: {
-    fontSize: 11,
-    color: '#374151',
-    marginLeft: 8,
-    fontWeight: '500',
+    ...createTextStyle('labelSmall', Colors.textSecondary),
+    marginLeft: Spacing.sm,
     flex: 1,
   },
   ctaSection: {
     alignItems: 'center',
-    // marginTop: 8,
   },
   primaryButton: {
-    borderRadius: 16,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    borderRadius: Spacing.radiusLarge,
+    marginBottom: Spacing.sm,
+    ...Shadows.buttonShadow,
     width: '100%',
     maxWidth: 280,
   },
   buttonGradient: {
     paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 16,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Spacing.radiusLarge,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginBottom: 12,
-    marginTop: 12,
+    marginBottom: Spacing.md,
+    marginTop: Spacing.md,
   },
   primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#3B82F6',
+    ...createTextStyle('buttonMedium', Colors.secondaryBlue),
   },
   secondaryButton: {
-    marginBottom: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    marginBottom: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 12,
+    borderRadius: Spacing.radiusMedium,
   },
   secondaryButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.95)',
+    ...createTextStyle('labelMedium', 'rgba(255,255,255,0.95)'),
     textAlign: 'center',
   },
   disclaimer: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.9)',
+    ...createTextStyle('caption', 'rgba(255,255,255,0.9)'),
     textAlign: 'center',
-    lineHeight: 14,
     fontWeight: '600',
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.md,
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
   devButton: {
-    marginTop: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    marginTop: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 8,
+    borderRadius: Spacing.radiusSmall,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
   },
   devButtonText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    ...createTextStyle('labelMedium', Colors.textInverse),
     textAlign: 'center',
   },
 });

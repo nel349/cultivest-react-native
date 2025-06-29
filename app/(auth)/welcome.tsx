@@ -25,6 +25,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import VoiceAccessibilityGuide from '@/components/VoiceAccessibilityGuide';
 import ChatGPTDots from '@/components/ChatGPTDots';
+import VoiceButton from '@/components/VoiceButton';
+import VoiceComboComponent from '@/components/VoiceComboComponent';
 
 const { width } = Dimensions.get('window');
 
@@ -300,8 +302,17 @@ export default function WelcomeScreen() {
                 </LinearGradient>
               </TouchableOpacity>
 
+                {/* <VoiceButton 
+                  onPress={() => {
+                    console.log('Voice button pressed');
+                    setIsActive(!isActive);
+                  }}
+                  isActive={false}
+                  size={60}
+                /> */}
+
               {/* Voice Accessibility Guide */}
-              <View
+              {/* <View
                 style={{
                   // flex: 1,
                   width: 100,
@@ -325,7 +336,9 @@ export default function WelcomeScreen() {
                     setIsActive(false);
                   }}
                 />
-              </View>
+              </View> */}
+
+              <VoiceComboComponent userID={'window.userID'} />
 
               {/* Login Button */}
               <TouchableOpacity

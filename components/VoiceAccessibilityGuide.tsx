@@ -10,6 +10,7 @@ interface VoiceAccessibilityGuideProps {
   userID: string;
   onActivate?: (isActive: boolean) => void;
   onDeactivate?: (isActive: boolean) => void;
+  activate?: boolean;
 }
 
 // Let ElevenLabs SDK handle microphone permissions internally
@@ -21,57 +22,11 @@ async function requestMicrophonePermission(hasNativePermission: boolean) {
   return true;
 }
 
-// // ChatGPT-style animated dots component
-// function AnimatedDots() {
-//   const dot1 = useRef(new Animated.Value(0.3)).current;
-//   const dot2 = useRef(new Animated.Value(0.3)).current;
-//   const dot3 = useRef(new Animated.Value(0.3)).current;
-
-//   useEffect(() => {
-//     const animateDots = () => {
-//       const duration = 600;
-//       const delay = 200;
-
-//       const createAnimation = (dot: Animated.Value, delayTime: number) =>
-//         Animated.sequence([
-//           Animated.delay(delayTime),
-//           Animated.timing(dot, {
-//             toValue: 1,
-//             duration: duration,
-//             useNativeDriver: true,
-//           }),
-//           Animated.timing(dot, {
-//             toValue: 0.3,
-//             duration: duration,
-//             useNativeDriver: true,
-//           }),
-//         ]);
-
-//       Animated.loop(
-//         Animated.parallel([
-//           createAnimation(dot1, 0),
-//           createAnimation(dot2, delay),
-//           createAnimation(dot3, delay * 2),
-//         ])
-//       ).start();
-//     };
-
-//     animateDots();
-//   }, [dot1, dot2, dot3]);
-
-//   return (
-//     <View style={styles.dotsContainer}>
-//       <Animated.View style={[styles.dot, { opacity: dot1 }]} />
-//       <Animated.View style={[styles.dot, { opacity: dot2 }]} />
-//       <Animated.View style={[styles.dot, { opacity: dot3 }]} />
-//     </View>
-//   );
-// }
-
 export default function VoiceAccessibilityGuide({
   userID,
   onActivate,
   onDeactivate,
+  activate,
 }: VoiceAccessibilityGuideProps) {
   const [hasNativePermission, setHasNativePermission] = useState(false);
   const [permissionChecked, setPermissionChecked] = useState(false);
@@ -79,7 +34,14 @@ export default function VoiceAccessibilityGuide({
 
   useEffect(() => {
     checkNativePermissions();
-  }, []);
+
+    if (activate) { // if the voice guide is activated, start the voice guide. other components can set this to true to activate the voice guide.
+      startVoiceGuide();
+    }
+    else  if (!activate) { // if the voice guide is deactivated, stop the voice guide. other components can set this to false to deactivate the voice guide.
+      stopVoiceGuide();
+    }
+  }, [activate]);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -200,8 +162,9 @@ export default function VoiceAccessibilityGuide({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent', // Transparent container
-    width: '100%', // Full width
-    height: 60, // Reasonable height
+    // width: '100%', // Full width
+    // height: 60, // Reasonable heigh
+    height: 10,
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -211,8 +174,8 @@ const styles = StyleSheet.create({
   },
   voiceButton: {
     backgroundColor: 'transparent',
-    width: 100,
-    height: 100,
+    // width: 100,
+    // height: 100,
     // height: '100%',
     // borderRadius: 16,
     // paddingHorizontal: 20,

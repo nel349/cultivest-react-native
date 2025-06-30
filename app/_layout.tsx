@@ -21,33 +21,24 @@ export default function RootLayout() {
   useEffect(() => {
     loadUserID();
     
-    // Check for userID changes more frequently in development
+    // Check for userID changes periodically
     const interval = setInterval(() => {
       loadUserID();
-    }, __DEV__ ? 500 : 2000); // 500ms in dev, 2s in production
+    }, __DEV__ ? 2000 : 5000); // 2s in dev, 5s in production
 
     return () => clearInterval(interval);
   }, []);
 
-  // Debug effect to track userID and auth page changes
+  // Debug effect to track userID and auth page changes (reduced logging)
   useEffect(() => {
-    if (__DEV__) {
-      console.log('🎤 Root Layout: Auth status check:', {
+    if (__DEV__ && userID) {
+      console.log('🎤 Root Layout: Voice component status changed:', {
         userID: !!userID,
         isAuthPage,
-        pathname,
         willShowVoice: !!(userID && !isAuthPage)
       });
-      
-      if (userID && !isAuthPage) {
-        console.log('🎤 Root Layout: ✅ Voice component will be rendered');
-      } else if (isAuthPage) {
-        console.log('🎤 Root Layout: ❌ On auth page, voice component hidden');
-      } else {
-        console.log('🎤 Root Layout: ❌ No userID, voice component hidden');
-      }
     }
-  }, [userID, isAuthPage, pathname]);
+  }, [userID, isAuthPage]);
 
   const loadUserID = async () => {
     try {
@@ -55,15 +46,19 @@ export default function RootLayout() {
       const userName = await AsyncStorage.getItem('user_name');
       const authToken = await AsyncStorage.getItem('auth_token');
       
-      if (__DEV__) {
-        console.log('🔐 Root Layout: Checking auth data:', {
+      // Only log occasionally to prevent spam
+      const shouldLog = Date.now() % 10000 < 1000; // Log every ~10 seconds
+      if (__DEV__ && shouldLog) {
+        console.log('🔐 Root Layout: Auth data check:', {
           hasUserId: !!userId,
           hasUserName: !!userName,
           hasAuthToken: !!authToken,
-          currentUserID: userID
+          currentUserID: userID,
+          storedUserId: userId
         });
       }
       
+      // Prevent unnecessary state updates
       if (userId && userId !== userID) {
         setUserID(userId);
         console.log('🔐 Root Layout: ✅ Voice component activated for user:', userName || userId);
@@ -72,6 +67,7 @@ export default function RootLayout() {
         setUserID('');
         console.log('🔐 Root Layout: ❌ User logged out, clearing voice component');
       }
+      // If userId === userID, no change needed - don't log anything
     } catch (error) {
       console.error('🔐 Root Layout: Error loading user ID:', error);
     }

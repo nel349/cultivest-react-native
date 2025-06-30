@@ -38,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Garden',
+          title: 'Dashboard',
           tabBarIcon: ({ size, color }) => (
             <Home size={size} color={color} />
           ),
@@ -47,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="invest"
         options={{
-          title: 'Grow',
+          title: 'Invest',
           tabBarIcon: ({ size, color }) => (
             <TrendingUp size={size} color={color} />
           ),
@@ -56,7 +56,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="portfolio"
         options={{
-          title: 'Harvest',
+          title: 'Portfolio',
           tabBarIcon: ({ size, color }) => (
             <Wallet size={size} color={color} />
           ),
@@ -65,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'Account',
           tabBarIcon: ({ size, color }) => (
             <User size={size} color={color} />
           ),

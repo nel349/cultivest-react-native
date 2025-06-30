@@ -47,7 +47,7 @@ export default function FundingModal({
   onFundingInitiated,
   userID,
   prefilledAmount,
-  purchaseType = 'crypto'
+  purchaseType = 'crypto' as 'bitcoin' | 'crypto'
 }: FundingModalProps) {
   const insets = useSafeAreaInsets();
   const [selectedAmount, setSelectedAmount] = useState(prefilledAmount ? parseFloat(prefilledAmount) : 10);
@@ -58,10 +58,21 @@ export default function FundingModal({
   const [walletLoading, setWalletLoading] = useState(false);
   const [showTestnetFunding, setShowTestnetFunding] = useState(false);
   
-  // New state for crypto selection
+  // New state for crypto selection - update when purchaseType changes
   const [selectedCrypto, setSelectedCrypto] = useState<'btc' | 'algo' | 'sol'>(
     purchaseType === 'bitcoin' ? 'btc' : 'algo'
   );
+
+  // Update selected crypto when purchaseType changes
+  useEffect(() => {
+    const isBitcoinMode = purchaseType.includes('bitcoin');
+    if (isBitcoinMode) {
+      setSelectedCrypto('btc');
+    } else if (selectedCrypto === 'btc') {
+      // If we're switching to crypto mode and Bitcoin was selected, switch to Algorand
+      setSelectedCrypto('algo');
+    }
+  }, [purchaseType, selectedCrypto]);
   const [availableWallets, setAvailableWallets] = useState<{
     bitcoin?: string;
     algorand?: string;
@@ -523,30 +534,39 @@ export default function FundingModal({
               {purchaseType === 'crypto' && (
                 <View style={styles.cryptoSection}>
                   <Text style={styles.sectionTitle}>Choose Cryptocurrency</Text>
-                  <View style={styles.cryptoGrid}>
-                    {[
-                      { 
-                        key: 'btc', 
-                        name: 'Bitcoin', 
-                        symbol: '₿', 
-                        address: availableWallets.bitcoin,
-                        color: '#F7931A' 
-                      },
-                      { 
-                        key: 'algo', 
-                        name: 'Algorand', 
-                        symbol: '⚡', 
-                        address: availableWallets.algorand,
-                        color: '#00D4AA' 
-                      },
-                      { 
-                        key: 'sol', 
-                        name: 'Solana', 
-                        symbol: '🌟', 
-                        address: availableWallets.solana,
-                        color: '#9945FF' 
-                      }
-                    ].map((crypto) => (
+                                  <View style={styles.cryptoGrid}>
+                  {[
+                    { 
+                      key: 'btc', 
+                      name: 'Bitcoin', 
+                      symbol: '₿', 
+                      address: availableWallets.bitcoin,
+                      color: '#F7931A' 
+                    },
+                    { 
+                      key: 'algo', 
+                      name: 'Algorand', 
+                      symbol: '⚡', 
+                      address: availableWallets.algorand,
+                      color: '#00D4AA' 
+                    },
+                    { 
+                      key: 'sol', 
+                      name: 'Solana', 
+                      symbol: '🌟', 
+                      address: availableWallets.solana,
+                      color: '#9945FF' 
+                    }
+                  ].filter(crypto => {
+                    // If purchaseType is 'crypto' (Buy Crypto button), exclude Bitcoin
+                    // If purchaseType is 'bitcoin' (Buy Bitcoin button), only show Bitcoin
+                    const isBitcoinMode = purchaseType.includes('bitcoin');
+                    if (isBitcoinMode) {
+                      return crypto.key === 'btc';
+                    } else {
+                      return crypto.key !== 'btc'; // Exclude Bitcoin for "Buy Crypto"
+                    }
+                  }).map((crypto) => (
                       <TouchableOpacity
                         key={crypto.key}
                         style={[
@@ -723,13 +743,11 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
   },
   modalContent: {
-    height: '90%',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'hidden',
+    height: '100%',
+    width: '100%',
+    overflow: 'scroll',
   },
   modalGradient: {
     flex: 1,
@@ -740,6 +758,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingBottom: 20,
+    paddingTop: 20,
   },
   modalTitle: {
     fontSize: 24,

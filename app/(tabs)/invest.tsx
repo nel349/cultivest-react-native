@@ -1,38 +1,38 @@
-import { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
-  Dimensions, 
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
   Alert,
-  StatusBar 
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { 
-  ArrowLeft, 
-  TrendingUp, 
-  Zap, 
+import {
+  ArrowLeft,
+  TrendingUp,
+  Zap,
   Coins,
   Target,
   Leaf,
   Sprout,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
 
-
-const { width } = Dimensions.get('window');
-
 export default function InvestScreen() {
   const insets = useSafeAreaInsets();
   const [userInfo, setUserInfo] = useState<any>(null);
   const [showFundingModal, setShowFundingModal] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<'bitcoin' | 'algorand' | 'other-crypto'>('bitcoin');
+  const [selectedAsset, setSelectedAsset] = useState<
+    'bitcoin' | 'algorand' | 'other-crypto'
+  >('bitcoin');
+  const [fundingPurchaseType, setFundingPurchaseType] = useState<'bitcoin' | 'crypto'>('bitcoin');
 
   // Load user info
   useEffect(() => {
@@ -40,13 +40,16 @@ export default function InvestScreen() {
       try {
         const userID = await AsyncStorage.getItem('user_id');
         const userName = await AsyncStorage.getItem('user_name');
-        
+
         if (userID && userName) {
           setUserInfo({
             userID,
-            name: userName
+            name: userName,
           });
-          console.log('🔍 Invest screen loaded user info:', { userID, userName });
+          console.log('🔍 Invest screen loaded user info:', {
+            userID,
+            userName,
+          });
         }
       } catch (error) {
         console.error('Failed to load user info:', error);
@@ -63,9 +66,14 @@ export default function InvestScreen() {
       icon: TrendingUp,
       color: '#F7931A',
       bgColor: '#FFF8E1',
-      description: 'Start with Bitcoin, the world\'s most trusted cryptocurrency',
-      features: ['✓ Direct Bitcoin ownership', '✓ Portfolio NFT tracking', '✓ Start from $1'],
-      isPrimary: true
+      description:
+        "Start with Bitcoin, the world's most trusted cryptocurrency",
+      features: [
+        '✓ Direct Bitcoin ownership',
+        '✓ Portfolio NFT tracking',
+        '✓ Start from $1',
+      ],
+      isPrimary: true,
     },
     {
       id: 'algorand',
@@ -74,9 +82,13 @@ export default function InvestScreen() {
       icon: Zap,
       color: '#00D4AA',
       bgColor: '#E0F7FA',
-      description: 'Invest in Algorand\'s sustainable and scalable blockchain',
-      features: ['✓ Carbon-negative blockchain', '✓ Portfolio NFT host', '✓ USDC support'],
-      isPrimary: true
+      description: "Invest in Algorand's sustainable and scalable blockchain",
+      features: [
+        '✓ Carbon-negative blockchain',
+        '✓ Portfolio NFT host',
+        '✓ USDC support',
+      ],
+      isPrimary: true,
     },
     {
       id: 'other-crypto',
@@ -86,45 +98,65 @@ export default function InvestScreen() {
       color: '#9945FF',
       bgColor: '#F3E8FF',
       description: 'Access 50+ cryptocurrencies through MoonPay integration',
-      features: ['✓ Ethereum, Solana, USDC', '✓ Instant purchase', '✓ Secure custody'],
-      isPrimary: false
-    }
+      features: [
+        '✓ Ethereum, Solana, USDC',
+        '✓ Instant purchase',
+        '✓ Secure custody',
+      ],
+      isPrimary: false,
+    },
   ];
 
   const handleInvestment = () => {
+    // Set purchase type based on selected asset
+    if (selectedAsset === 'bitcoin') {
+      setFundingPurchaseType('bitcoin');
+    } else {
+      setFundingPurchaseType('crypto');
+    }
     setShowFundingModal(true);
   };
 
-  const selectedOption = investmentOptions.find(option => option.id === selectedAsset);
+  const selectedOption = investmentOptions.find(
+    (option) => option.id === selectedAsset
+  );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <LinearGradient
         colors={['#89E5AB', '#58CC02', '#46A302']}
         style={[styles.gradient, { paddingTop: insets.top }]}
       >
         {/* Floating Plant Decorations */}
         <View style={styles.decorationContainer}>
-          <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+          <View
+            style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}
+          >
             <Leaf size={20} color="#FFFFFF" />
           </View>
-          <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+          <View
+            style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}
+          >
             <Sprout size={16} color="#FFFFFF" />
           </View>
         </View>
 
-        <ScrollView 
-          style={styles.scrollView} 
+        <ScrollView
+          style={styles.scrollView}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + 120 }
+            { paddingBottom: insets.bottom + 120 },
           ]}
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => router.back()}
             >
@@ -141,48 +173,86 @@ export default function InvestScreen() {
             </Text>
           </View>
 
-          {/* Buy Button - Moved to top for immediate access */}
-          <TouchableOpacity
-            style={styles.investButton}
-            onPress={handleInvestment}
-          >
-            <LinearGradient
-              colors={['#FFFFFF', '#F0F0F0']}
-              style={styles.investButtonGradient}
+          {/* Quick Action Buttons */}
+          <View style={styles.quickButtonsContainer}>
+            <TouchableOpacity
+              style={[styles.investButton, styles.primaryButton]}
+              onPress={handleInvestment}
             >
-              <Text style={styles.investButtonText}>
-                {selectedOption?.title === 'Bitcoin Investment ₿' 
-                  ? 'Buy Bitcoin ₿'
-                  : selectedOption?.title === 'Algorand Ecosystem ⚡'
-                  ? 'Buy Algorand ⚡'
-                  : 'Buy Cryptocurrencies 🚀'
-                }
-              </Text>
-              <ArrowRight size={20} color="#58CC02" />
-            </LinearGradient>
-          </TouchableOpacity>
+              <LinearGradient
+                colors={['#FFFFFF', '#F0F0F0']}
+                style={styles.investButtonGradient}
+              >
+                <Text style={styles.investButtonText}>
+                  <Text>Buy </Text>
+                  <Text style={styles.bitcoinBText}>₿</Text>
+                  <Text>itcoin</Text>
+                </Text>
+                <ArrowRight size={20} color="#58CC02" />
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.investButton, styles.secondaryButton]}
+              onPress={() => {
+                setSelectedAsset('other-crypto');
+                setFundingPurchaseType('crypto'); // Always crypto for "Buy Crypto" button
+                setShowFundingModal(true);
+              }}
+            >
+              <LinearGradient
+                colors={['#9945FF', '#7C3AED']}
+                style={styles.investButtonGradient}
+              >
+                <Text
+                  style={[styles.investButtonText, styles.secondaryButtonText]}
+                >
+                  Buy Crypto
+                </Text>
+                <Coins size={20} color="#FFFFFF" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
 
           {/* Investment Options */}
           <View style={styles.optionsSection}>
-            <Text style={styles.sectionTitle}>Choose Your Investment Path 🚀</Text>
-            
+            <Text style={styles.sectionTitle}>
+              Choose Your Investment Path 🚀
+            </Text>
+
             {investmentOptions.map((option) => (
               <TouchableOpacity
                 key={option.id}
                 style={[
                   styles.optionCard,
-                  selectedAsset === option.id && styles.optionCardSelected
+                  selectedAsset === option.id && styles.optionCardSelected,
                 ]}
-                onPress={() => setSelectedAsset(option.id as 'bitcoin' | 'algorand' | 'other-crypto')}
+                onPress={() =>
+                  setSelectedAsset(
+                    option.id as 'bitcoin' | 'algorand' | 'other-crypto'
+                  )
+                }
               >
-                <View style={[styles.optionCardContent, { backgroundColor: option.bgColor }]}>
+                <View
+                  style={[
+                    styles.optionCardContent,
+                    { backgroundColor: option.bgColor },
+                  ]}
+                >
                   <View style={styles.optionHeader}>
-                    <View style={[styles.optionIcon, { backgroundColor: option.color }]}>
+                    <View
+                      style={[
+                        styles.optionIcon,
+                        { backgroundColor: option.color },
+                      ]}
+                    >
                       <option.icon size={24} color="#FFFFFF" />
                     </View>
                     <View style={styles.optionInfo}>
                       <Text style={styles.optionTitle}>{option.title}</Text>
-                      <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+                      <Text style={styles.optionSubtitle}>
+                        {option.subtitle}
+                      </Text>
                     </View>
                     {selectedAsset === option.id && (
                       <View style={styles.selectedBadge}>
@@ -190,12 +260,16 @@ export default function InvestScreen() {
                       </View>
                     )}
                   </View>
-                  
-                  <Text style={styles.optionDescription}>{option.description}</Text>
-                  
+
+                  <Text style={styles.optionDescription}>
+                    {option.description}
+                  </Text>
+
                   <View style={styles.featuresContainer}>
                     {option.features.map((feature, index) => (
-                      <Text key={index} style={styles.featureText}>{feature}</Text>
+                      <Text key={index} style={styles.featureText}>
+                        {feature}
+                      </Text>
                     ))}
                   </View>
                 </View>
@@ -213,7 +287,7 @@ export default function InvestScreen() {
                 <Coins size={20} color="#58CC02" />
                 <Text style={styles.statsTitle}>Why Cultivest?</Text>
               </View>
-              
+
               <View style={styles.statsGrid}>
                 <View style={styles.statItem}>
                   <Text style={styles.statValue}>$1</Text>
@@ -237,6 +311,7 @@ export default function InvestScreen() {
           visible={showFundingModal}
           onClose={() => setShowFundingModal(false)}
           userID={userInfo?.userID || ''}
+          purchaseType={fundingPurchaseType}
           onFundingInitiated={() => {
             console.log('Funding initiated');
             Alert.alert(
@@ -249,8 +324,8 @@ export default function InvestScreen() {
                     setShowFundingModal(false);
                     // Could navigate back to dashboard
                     router.push('/(tabs)');
-                  }
-                }
+                  },
+                },
               ]
             );
           }}
@@ -477,5 +552,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#58CC02',
+  },
+  quickButtonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+    marginTop: 4,
+  },
+  primaryButton: {
+    flex: 1,
+  },
+  secondaryButton: {
+    flex: 1,
+  },
+  secondaryButtonText: {
+    color: '#FFFFFF',
+  },
+  bitcoinBText: {
+    color: '#F7931A',
   },
 });

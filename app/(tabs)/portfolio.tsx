@@ -4,8 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
   TrendingUp, ArrowUpRight, ArrowDownLeft, 
-  Leaf, TreePine, Sprout, Flower, RefreshCw 
+  Leaf, TreePine, Sprout, Flower, RefreshCw, Coins 
 } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { apiClient } from '@/utils/api';
 import { UserInvestmentData } from '@/types/api';
 import { NFTPortfolioCard } from '@/components/NFTPortfolioCard';
@@ -78,9 +79,9 @@ export default function PortfolioScreen() {
   const holdings = userInvestments?.positions?.map((position) => {
     const value = parseFloat(position.purchaseValue) / 100;
     const assetTypeMap = {
-      '1': { name: 'Bitcoin Garden ₿', color: '#FF9500', icon: Sprout },
-      '2': { name: 'Algorand Forest 🌲', color: '#58CC02', icon: TreePine },
-      '3': { name: 'USDC Flowers 💐', color: '#00D4AA', icon: Flower }
+      '1': { name: 'Bitcoin Position ₿', color: '#FF9500', icon: Coins },
+      '2': { name: 'Algorand Position ⚡', color: '#58CC02', icon: TreePine },
+      '3': { name: 'USDC Position 💰', color: '#00D4AA', icon: Flower }
     };
     
     const theme = assetTypeMap[position.assetType as keyof typeof assetTypeMap] || assetTypeMap['2'];
@@ -97,59 +98,35 @@ export default function PortfolioScreen() {
       icon: theme.icon,
       nftData: position
     };
-  }) || [
-    // Fallback data when no NFT positions
-    {
-      id: 'stable-garden',
-      name: 'Stable Garden 🌿',
-      amount: 85.20,
-      shares: 85.20,
-      apy: '2.5%',
-      gain: 7.40,
-      gainPercent: 9.5,
-      color: '#58CC02',
-      icon: Leaf
-    },
-    {
-      id: 'growth-sprouts',
-      name: 'Growth Sprouts 🌱',
-      amount: 42.25,
-      shares: 40.12,
-      apy: '4.2%',
-      gain: 5.47,
-      gainPercent: 14.9,
-      color: '#00D4AA',
-      icon: Sprout
-    }
-  ];
+  }) || [];
 
-  const recentHarvests = [
+  const recentActivity = [
     {
       id: '1',
       type: 'yield',
       amount: 0.31,
-      description: 'Daily yield from Stable Garden',
+      description: 'Daily staking rewards earned',
       date: '2 hours ago',
-      icon: Leaf,
+      icon: TrendingUp,
       color: '#58CC02'
     },
     {
       id: '2',
       type: 'yield',
       amount: 0.18,
-      description: 'Daily yield from Growth Sprouts',
+      description: 'Portfolio growth from positions',
       date: '2 hours ago',
-      icon: Sprout,
+      icon: ArrowUpRight,
       color: '#00D4AA'
     },
     {
       id: '3',
-      type: 'plant',
+      type: 'investment',
       amount: 25.00,
-      description: 'New seeds planted in Stable Garden',
+      description: 'New investment in Bitcoin',
       date: 'Yesterday',
-      icon: Leaf,
-      color: '#58CC02'
+      icon: Coins,
+      color: '#FF9500'
     }
   ];
 
@@ -186,7 +163,7 @@ export default function PortfolioScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Your Garden Portfolio 🌻</Text>
+            <Text style={styles.title}>Portfolio Overview 💼</Text>
             <TouchableOpacity 
               style={styles.refreshButton} 
               onPress={handleRefresh}
@@ -201,8 +178,8 @@ export default function PortfolioScreen() {
           </View>
           <Text style={styles.subtitle}>
             {userInvestments?.hasInvestments 
-              ? 'Your digital garden is growing with NFT certificates!' 
-              : 'Watch your investments bloom'
+              ? 'Your crypto positions tracked with Portfolio NFTs!' 
+              : 'Track your crypto investments'
             }
           </Text>
         </View>
@@ -269,9 +246,11 @@ export default function PortfolioScreen() {
           />
         )}
 
-        {/* Time Period Selector */}
-        <View style={styles.periodSelector}>
+        {/* Performance Section */}
+        <View style={styles.performanceSection}>
           <Text style={styles.sectionTitle}>Performance 📈</Text>
+          
+          {/* Period Selector */}
           <View style={styles.periodButtons}>
             {timePeriods.map((period) => (
               <TouchableOpacity
@@ -291,65 +270,75 @@ export default function PortfolioScreen() {
               </TouchableOpacity>
             ))}
           </View>
+
+          {/* Performance Placeholder */}
+          <View style={styles.performancePlaceholder}>
+            <View style={styles.placeholderIcon}>
+              <TrendingUp size={32} color="#58CC02" />
+            </View>
+            <Text style={styles.placeholderTitle}>Performance Chart Coming Soon</Text>
+            <Text style={styles.placeholderDescription}>
+              Portfolio performance tracking and analytics will be available in a future update
+            </Text>
+          </View>
         </View>
 
         {/* Holdings Section */}
         <View style={styles.holdingsSection}>
-          <Text style={styles.sectionTitle}>Your Gardens 🌱</Text>
+          <Text style={styles.sectionTitle}>Your Holdings 💰</Text>
           
-          {holdings.map((holding) => (
-            <View key={holding.id} style={styles.holdingCard}>
-              <View style={[styles.holdingIcon, { backgroundColor: holding.color }]}>
-                <holding.icon size={24} color="#FFFFFF" />
+          {holdings.length > 0 ? (
+            holdings.map((holding) => (
+              <View key={holding.id} style={styles.holdingCard}>
+                <View style={[styles.holdingIcon, { backgroundColor: holding.color }]}>
+                  <holding.icon size={24} color="#FFFFFF" />
+                </View>
+                
+                <View style={styles.holdingInfo}>
+                  <Text style={styles.holdingName}>{holding.name}</Text>
+                  <Text style={styles.holdingShares}>
+                    {holding.shares.toFixed(2)} {holding.nftData ? 'NFT' : 'shares'} • {holding.apy} {holding.nftData ? 'Token' : 'APY'}
+                  </Text>
+                </View>
+                
+                <View style={styles.holdingValues}>
+                  <Text style={styles.holdingAmount}>
+                    ${holding.amount.toFixed(2)}
+                  </Text>
+                  <Text style={[
+                    styles.holdingGain,
+                    { color: holding.gain >= 0 ? '#58CC02' : '#FF4444' }
+                  ]}>
+                    {holding.gain >= 0 ? '+' : ''}${holding.gain.toFixed(2)} ({holding.gainPercent}%)
+                  </Text>
+                </View>
               </View>
-              
-              <View style={styles.holdingInfo}>
-                <Text style={styles.holdingName}>{holding.name}</Text>
-                <Text style={styles.holdingShares}>
-                  {holding.shares.toFixed(2)} shares • {holding.apy} APY
-                </Text>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyStateIcon}>
+                <Coins size={48} color="#58CC02" />
               </View>
-              
-              <View style={styles.holdingValues}>
-                <Text style={styles.holdingAmount}>
-                  ${holding.amount.toFixed(2)}
-                </Text>
-                <Text style={[
-                  styles.holdingGain,
-                  { color: holding.gain >= 0 ? '#58CC02' : '#FF4444' }
-                ]}>
-                  {holding.gain >= 0 ? '+' : ''}${holding.gain.toFixed(2)} ({holding.gainPercent}%)
-                </Text>
-              </View>
+              <Text style={styles.emptyStateTitle}>No Holdings Yet</Text>
+              <Text style={styles.emptyStateDescription}>
+                Start investing in Bitcoin or Algorand to see your crypto portfolio here
+              </Text>
+              <TouchableOpacity
+                style={styles.emptyStateButton}
+                onPress={() => router.push('/(tabs)/invest')}
+              >
+                <Text style={styles.emptyStateButtonText}>Start Investing</Text>
+              </TouchableOpacity>
             </View>
-          ))}
+          )}
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.quickActionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions 🚀</Text>
-          <View style={styles.quickActionsGrid}>
-            <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#E8F5E8' }]}>
-              <View style={[styles.quickActionIcon, { backgroundColor: '#58CC02' }]}>
-                <ArrowUpRight size={20} color="#FFFFFF" />
-              </View>
-              <Text style={styles.quickActionText}>Plant More</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#FFF3E0' }]}>
-              <View style={[styles.quickActionIcon, { backgroundColor: '#FF9500' }]}>
-                <ArrowDownLeft size={20} color="#FFFFFF" />
-              </View>
-              <Text style={styles.quickActionText}>Harvest</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
         {/* Recent Activity */}
         <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Recent Harvests 🌾</Text>
-          <View style={styles.activityContainer}>
-            {recentHarvests.map((activity) => (
+          <Text style={styles.sectionTitle}>Recent Activity 📊</Text>
+                      <View style={styles.activityContainer}>
+              {recentActivity.map((activity) => (
               <View key={activity.id} style={styles.activityItem}>
                 <View style={[styles.activityIcon, { backgroundColor: `${activity.color}20` }]}>
                   <activity.icon size={20} color={activity.color} />
@@ -493,7 +482,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  periodSelector: {
+  performanceSection: {
     marginBottom: 24,
   },
   sectionTitle: {
@@ -510,6 +499,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 24,
     gap: 8,
+    marginBottom: 16,
   },
   periodButton: {
     paddingVertical: 8,
@@ -664,5 +654,90 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
+  },
+  emptyState: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    marginHorizontal: 24,
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  emptyStateIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#E8F5E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateDescription: {
+    fontSize: 16,
+    color: '#5A5A5A',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  emptyStateButton: {
+    backgroundColor: '#58CC02',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  emptyStateButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  performancePlaceholder: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    marginHorizontal: 24,
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  placeholderIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E8F5E8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  placeholderTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  placeholderDescription: {
+    fontSize: 14,
+    color: '#5A5A5A',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

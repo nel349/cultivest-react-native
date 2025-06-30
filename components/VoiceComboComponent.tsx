@@ -94,10 +94,10 @@ export default function VoiceComboComponent({
       {/* Voice Button */}
       <View style={styles.buttonContainer}>
         <VoiceButton 
-          onPress={() => {}} // Empty function since container handles press
+          onPress={handlePress} // Button calls same function as container
           isActive={isActive}
           size={40}
-          disabled={false} // Keep animations but container handles interaction
+          disabled={false}
         />
       </View>
 
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: 'rgba(255,255,255,0.2)',
   },
   containerPressed: {
     transform: [{ scale: 0.98 }],

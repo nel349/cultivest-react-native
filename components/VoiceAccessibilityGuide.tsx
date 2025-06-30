@@ -139,6 +139,11 @@ export default function VoiceAccessibilityGuide({
           get_algorand_balance: contextTools.get_algorand_balance,
           get_portfolio_nft_info: contextTools.get_portfolio_nft_info,
           get_investment_gains: contextTools.get_investment_gains,
+          // Voice Investment Workflow Tools
+          initiate_bitcoin_purchase: contextTools.initiate_bitcoin_purchase,
+          initiate_algorand_investment: contextTools.initiate_algorand_investment,
+          initiate_solana_investment: contextTools.initiate_solana_investment,
+          initiate_usdc_investment: contextTools.initiate_usdc_investment,
         },
       });
     } catch (error) {

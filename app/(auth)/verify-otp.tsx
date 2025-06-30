@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import { storeAuthData } from '@/utils/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -184,130 +185,117 @@ export default function VerifyOTPScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <LinearGradient
-          colors={['#89E5AB', '#58CC02']}
+          colors={Colors.gradients.backgroundPrimary}
           style={[styles.gradient, { paddingTop: insets.top }]}
         >
-          {/* Decorative Plants */}
-          <View style={styles.decorationContainer}>
-            <View style={[styles.plantDecor, { top: 80 + insets.top, left: 25 }]}>
-              <Leaf size={18} color="rgba(255,255,255,0.3)" />
-            </View>
-            <View style={[styles.plantDecor, { top: 160 + insets.top, right: 30 }]}>
-              <Sprout size={16} color="rgba(255,255,255,0.2)" />
-            </View>
-            <View style={[styles.plantDecor, { bottom: 120, left: 40 }]}>
-              <Flower size={20} color="rgba(255,255,255,0.25)" />
-            </View>
-          </View>
-
           <View style={styles.content}>
-          <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <ArrowLeft size={24} color="#2E7D32" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Verify Your Seed 🌱</Text>
-          </View>
-
-          <View style={styles.mainContent}>
-            <View style={styles.iconContainer}>
-              <View style={styles.iconBackground}>
-                <MessageSquare size={32} color="#58CC02" />
-                <View style={styles.checkBadge}>
-                  <CheckCircle size={16} color="#FFFFFF" />
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.titleSection}>
-              <Text style={styles.title}>Check your messages 📱</Text>
-              <Text style={styles.subtitle}>
-                We sent a 6-digit code to{'\n'}
-                <Text style={styles.phoneNumber}>{phoneNumber}</Text>
-              </Text>
-            </View>
-
-            {/* Auto-fill Notification Banner */}
-            {showAutoFillNotification && (
-              <Animated.View 
-                style={[
-                  styles.autoFillNotification,
-                  { opacity: notificationOpacity }
-                ]}
+            <View style={styles.header}>
+              <TouchableOpacity 
+                style={styles.backButton}
+                onPress={() => router.back()}
               >
-                <View style={styles.notificationContent}>
-                  <View style={styles.notificationIcon}>
-                    <Text style={styles.notificationEmoji}>📱</Text>
-                  </View>
-                  <Text style={styles.notificationText}>
-                    Auto-filling verification code from SMS...
-                  </Text>
-                </View>
-              </Animated.View>
-            )}
-
-            <View style={styles.otpContainer}>
-              {otp.map((digit, index) => (
-                <View key={index} style={styles.otpInputContainer}>
-                  <TextInput
-                    ref={(ref) => {
-                      if (ref) inputRefs.current[index] = ref;
-                    }}
-                    style={[
-                      styles.otpInput,
-                      digit ? styles.otpInputFilled : null
-                    ]}
-                    value={digit}
-                    onChangeText={(value) => handleOtpChange(value, index)}
-                    onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
-                    keyboardType="numeric"
-                    maxLength={1}
-                    selectTextOnFocus
-                  />
-                  {digit && (
-                    <View style={styles.inputCheckmark}>
-                      <CheckCircle size={16} color="#58CC02" />
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-
-            <TouchableOpacity
-              style={[styles.verifyButton, isLoading && styles.buttonDisabled]}
-              onPress={handleVerifyOtp}
-              disabled={isLoading}
-            >
-              <LinearGradient
-                colors={isLoading ? ['#A0A0A0', '#808080'] : ['#FFFFFF', '#F0F0F0']}
-                style={styles.buttonGradient}
-              >
-                <Text style={styles.verifyButtonText}>
-                  {isLoading ? 'Growing...' : 'Continue Growing 🌿'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <View style={styles.resendSection}>
-              <Text style={styles.resendText}>Didn't get the code?</Text>
-              <TouchableOpacity
-                onPress={handleResendOtp}
-                disabled={countdown > 0}
-              >
-                <Text style={[
-                  styles.resendButton,
-                  countdown > 0 && styles.resendButtonDisabled
-                ]}>
-                  {countdown > 0 ? `Try again in ${countdown}s` : 'Send again'}
-                </Text>
+                <ArrowLeft size={20} color={Colors.text.primary} />
               </TouchableOpacity>
             </View>
+
+            <View style={styles.mainContent}>
+              <View style={styles.iconContainer}>
+                <View style={styles.iconBackground}>
+                  <MessageSquare size={32} color={Colors.brand.green} />
+                  <View style={styles.checkBadge}>
+                    <CheckCircle size={16} color={Colors.brand.white} />
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.titleSection}>
+                <Text style={styles.title}>Verify Your Code</Text>
+                <Text style={styles.subtitle}>
+                  We sent a 6-digit code to{'\n'}
+                  <Text style={styles.phoneNumber}>{phoneNumber}</Text>
+                </Text>
+              </View>
+
+              {/* Auto-fill Notification Banner */}
+              {showAutoFillNotification && (
+                <Animated.View 
+                  style={[
+                    styles.autoFillNotification,
+                    { opacity: notificationOpacity }
+                  ]}
+                >
+                  <View style={styles.notificationContent}>
+                    <View style={styles.notificationIcon}>
+                      <Text style={styles.notificationEmoji}>📱</Text>
+                    </View>
+                    <Text style={styles.notificationText}>
+                      Auto-filling verification code from SMS...
+                    </Text>
+                  </View>
+                </Animated.View>
+              )}
+
+              <View style={styles.otpContainer}>
+                {otp.map((digit, index) => (
+                  <View key={index} style={styles.otpInputContainer}>
+                    <TextInput
+                      ref={(ref) => {
+                        if (ref) inputRefs.current[index] = ref;
+                      }}
+                      style={[
+                        styles.otpInput,
+                        digit ? styles.otpInputFilled : null
+                      ]}
+                      value={digit}
+                      onChangeText={(value) => handleOtpChange(value, index)}
+                      onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                      keyboardType="numeric"
+                      maxLength={1}
+                      selectTextOnFocus
+                      placeholderTextColor={Colors.text.tertiary}
+                    />
+                    {digit && (
+                      <View style={styles.inputCheckmark}>
+                        <CheckCircle size={16} color={Colors.brand.green} />
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+
+              <TouchableOpacity
+                style={[styles.verifyButton, isLoading && styles.buttonDisabled]}
+                onPress={handleVerifyOtp}
+                disabled={isLoading}
+              >
+                <LinearGradient
+                  colors={isLoading ? [Colors.button.disabled, Colors.button.disabled] : Colors.gradients.primary}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.verifyButtonText}>
+                    {isLoading ? 'Verifying...' : 'Verify Code 🚀'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <View style={styles.resendSection}>
+                <Text style={styles.resendText}>Didn't get the code?</Text>
+                <TouchableOpacity
+                  onPress={handleResendOtp}
+                  disabled={countdown > 0}
+                >
+                  <Text style={[
+                    styles.resendButton,
+                    countdown > 0 && styles.resendButtonDisabled
+                  ]}>
+                    {countdown > 0 ? `Try again in ${countdown}s` : 'Send again'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-        </View>
-      </LinearGradient>
-    </View>
+        </LinearGradient>
+      </View>
     </TouchableWithoutFeedback>
   );
 }
@@ -315,74 +303,48 @@ export default function VerifyOTPScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
   },
-  decorationContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  plantDecor: {
-    position: 'absolute',
-    opacity: 0.6,
-  },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 20,
-    paddingBottom: 15,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.base,
   },
   backButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    ...Shadow.sm,
   },
   mainContent: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 20,
+    justifyContent: 'center',
+    paddingBottom: Spacing.lg,
   },
   iconContainer: {
-    marginTop: 10,
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
     position: 'relative',
   },
   iconBackground: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadow.lg,
   },
   checkBadge: {
     position: 'absolute',
@@ -391,159 +353,134 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#58CC02',
+    backgroundColor: Colors.brand.green,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.background.secondary,
   },
   titleSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 12,
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    lineHeight: 22,
-    fontWeight: '500',
-    paddingHorizontal: 20,
+    lineHeight: Typography.lineHeight.relaxed * Typography.size.base,
   },
   phoneNumber: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.bold,
   },
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
-    paddingHorizontal: 20,
+    marginBottom: Spacing['2xl'],
+    paddingHorizontal: Spacing.base,
     width: '100%',
-    alignSelf: 'center',
-    // backgroundColor: 'red',
-    gap: 12,
+    gap: Spacing.sm,
   },
   otpInputContainer: {
     position: 'relative',
-    // backgroundColor: 'blue',
+    borderRadius: 16,
+    ...Shadow.sm,
   },
   otpInput: {
     width: 50,
     height: 60,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: Colors.border.primary,
     textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#2E7D32',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    fontSize: Typography.size['2xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    // Shadow applied to container instead
   },
   otpInputFilled: {
-    borderColor: '#58CC02',
-    backgroundColor: '#FFFFFF',
+    borderColor: Colors.brand.green,
+    backgroundColor: Colors.background.tertiary,
   },
   inputCheckmark: {
     position: 'absolute',
     top: -6,
     right: -2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 10,
     padding: 1,
   },
   verifyButton: {
     width: '100%',
     borderRadius: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    marginBottom: Spacing.lg,
+    ...Shadow.lg,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.7,
   },
   buttonGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 32,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing['2xl'],
     borderRadius: 20,
     alignItems: 'center',
   },
   verifyButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#58CC02',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.white,
   },
   resendSection: {
     alignItems: 'center',
   },
   resendText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 8,
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    marginBottom: Spacing.sm,
+    fontWeight: Typography.weight.medium,
   },
   resendButton: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '700',
+    fontSize: Typography.size.base,
+    color: Colors.brand.green,
+    fontWeight: Typography.weight.semibold,
     textDecorationLine: 'underline',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   resendButtonDisabled: {
-    color: 'rgba(255,255,255,0.5)',
+    color: Colors.text.tertiary,
     textDecorationLine: 'none',
   },
   autoFillNotification: {
-    backgroundColor: 'rgba(16, 185, 129, 0.95)',
+    backgroundColor: Colors.brand.green,
     borderRadius: 12,
-    marginHorizontal: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-    minHeight: 44, 
+    marginHorizontal: Spacing.base,
+    marginBottom: Spacing.base,
+    ...Shadow.md,
+    minHeight: 44,
     minWidth: 200,
     alignSelf: 'center',
-    // Ensure minimum height
   },
   notificationContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    minHeight: 44, // Ensure content doesn't collapse
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.base,
+    minHeight: 44,
   },
   notificationText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 8,
+    color: Colors.brand.white,
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
+    marginLeft: Spacing.sm,
     flex: 1,
     textAlign: 'left',
   },

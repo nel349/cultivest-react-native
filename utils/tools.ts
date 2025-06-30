@@ -416,6 +416,120 @@ export const createTools = (authDataProvider: () => Promise<AuthData | null>) =>
       return 'Failed to fetch investment gains data. Please try again.';
     }
   },
+
+  // Voice Investment Workflow Tools
+  initiate_bitcoin_purchase: async ({ amount }: { amount?: number } = {}) => {
+    console.log('₿ Voice investment: Initiating Bitcoin purchase workflow');
+    try {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
+        return 'Please log in first to start investing in Bitcoin';
+      }
+
+      // Navigate to invest screen
+      console.log('₿ Voice investment: Navigating to invest tab');
+      router.push('/(tabs)/invest');
+      
+      // Small delay to ensure navigation completes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Provide guided instructions
+      const amountText = amount ? ` $${amount} of` : '';
+      return `Great! I've taken you to the investment screen to buy${amountText} Bitcoin and other crypto. Please tap the "Buy Bitcoin ₿" or "Buy Crypto" button to open the investment form, then choose your amount and complete the purchase.`;
+
+    } catch (error) {
+      console.error('₿ Voice investment: Error initiating Bitcoin purchase:', error);
+      return 'Failed to navigate to Bitcoin investment. Please try again.';
+    }
+  },
+
+  initiate_algorand_investment: async ({ amount }: { amount?: number } = {}) => {
+    console.log('🔷 Voice investment: Initiating Algorand investment workflow');
+    try {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
+        return 'Please log in first to start investing in Algorand';
+      }
+
+      // Navigate to invest screen with scroll target
+      console.log('🔷 Voice investment: Navigating to invest tab with auto-scroll');
+      router.push({
+        pathname: '/(tabs)/invest',
+        params: { scrollTo: 'other-crypto', selectPool: 'altcoin-pool' }
+      });
+      
+      // Small delay to ensure navigation completes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Provide guided instructions
+      const amountText = amount ? ` $${amount} in` : '';
+      return `Perfect! I've opened the investment screen and automatically scrolled to the "Other Crypto" section for you to invest${amountText} Algorand. I've also pre-selected the "Top Altcoins 🚀" pool which includes Algorand. Now simply tap the investment button to open the form and complete your purchase.`;
+
+    } catch (error) {
+      console.error('🔷 Voice investment: Error initiating Algorand investment:', error);
+      return 'Failed to navigate to Algorand investment. Please try again.';
+    }
+  },
+
+  initiate_solana_investment: async ({ amount }: { amount?: number } = {}) => {
+    console.log('☀️ Voice investment: Initiating Solana investment workflow');
+    try {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
+        return 'Please log in first to start investing in Solana';
+      }
+
+      // Navigate to invest screen with scroll target
+      console.log('☀️ Voice investment: Navigating to invest tab with auto-scroll');
+      router.push({
+        pathname: '/(tabs)/invest',
+        params: { scrollTo: 'other-crypto', selectPool: 'altcoin-pool' }
+      });
+      
+      // Small delay to ensure navigation completes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Provide guided instructions
+      const amountText = amount ? ` $${amount} in` : '';
+      return `Excellent! I've opened the investment screen and automatically scrolled to the "Other Crypto" section for you to invest${amountText} Solana. I've also pre-selected the "Top Altcoins 🚀" pool which includes Solana. Now simply tap the investment button to open the form and complete your purchase.`;
+
+    } catch (error) {
+      console.error('☀️ Voice investment: Error initiating Solana investment:', error);
+      return 'Failed to navigate to Solana investment. Please try again.';
+    }
+  },
+
+  initiate_usdc_investment: async ({ amount }: { amount?: number } = {}) => {
+    console.log('🪙 Voice investment: Initiating USDC investment workflow');
+    try {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
+        return 'Please log in first to start investing in USDC';
+      }
+
+      // Navigate to invest screen with scroll target
+      console.log('🪙 Voice investment: Navigating to invest tab with auto-scroll');
+      router.push({
+        pathname: '/(tabs)/invest',
+        params: { scrollTo: 'other-crypto', selectPool: 'stablecoin-pool' }
+      });
+      
+      // Small delay to ensure navigation completes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Provide guided instructions
+      const amountText = amount ? ` $${amount} in` : '';
+      return `Great choice! I've opened the investment screen and automatically scrolled to the "Other Crypto" section for you to invest${amountText} USDC stablecoins. I've also pre-selected the "Stablecoins 🪙" pool for you. Now simply tap the investment button to open the form and complete your stable yield investment.`;
+
+    } catch (error) {
+      console.error('🪙 Voice investment: Error initiating USDC investment:', error);
+      return 'Failed to navigate to USDC investment. Please try again.';
+    }
+  },
 });
 
 // AsyncStorage-based auth data provider

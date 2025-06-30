@@ -11,15 +11,13 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { 
   Trophy, 
-  TreePine, 
-  Sparkles, 
+  TrendingUp, 
   ArrowRight, 
-  Award,
-  Heart,
-  Star 
+  Award
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { MultiConfettiEffect } from './ConfettiEffect';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 interface FirstInvestmentCelebrationProps {
   investmentData: {
@@ -150,18 +148,18 @@ export function FirstInvestmentCelebration({
 
   const getAssetColor = (asset: string) => {
     switch (asset.toUpperCase()) {
-      case 'BTC': return '#F7931A';
-      case 'ALGO': return '#000000';
-      case 'USDC': return '#2775CA';
-      case 'SOL': return '#9945FF';
-      default: return '#58CC02';
+      case 'BTC': return Colors.crypto.bitcoin;
+      case 'ALGO': return Colors.crypto.algorand;
+      case 'USDC': return Colors.crypto.usdc;
+      case 'SOL': return Colors.crypto.solana;
+      default: return Colors.brand.green;
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#E8F5E8', '#F0F8F0', '#FFFFFF']}
+        colors={Colors.gradients.backgroundPrimary}
         style={styles.gradient}
       >
         {/* Confetti Effect */}
@@ -188,10 +186,10 @@ export function FirstInvestmentCelebration({
               ]}
             >
               <LinearGradient
-                colors={['#FFD700', '#FFA500']}
+                colors={Colors.gradients.primary}
                 style={styles.trophyGradient}
               >
-                <Trophy size={64} color="#FFFFFF" />
+                <Trophy size={64} color={Colors.text.primary} />
               </LinearGradient>
             </Animated.View>
 
@@ -202,7 +200,7 @@ export function FirstInvestmentCelebration({
                 { transform: [{ translateY: slideAnim }] }
               ]}
             >
-              <Text style={styles.congratsText}>🎉 Congratulations! 🎉</Text>
+              <Text style={styles.congratsText}>Congratulations!</Text>
               <Text style={styles.achievementText}>You've planted your first seed!</Text>
               <Text style={styles.descriptionText}>
                 Your digital garden has begun growing with your first{' '}
@@ -220,12 +218,9 @@ export function FirstInvestmentCelebration({
                 { transform: [{ translateY: slideAnim }] }
               ]}
             >
-              <LinearGradient
-                colors={['#FFFFFF', '#F8F8F8']}
-                style={styles.cardGradient}
-              >
+              <View style={styles.cardContent}>
                 <View style={styles.cardHeader}>
-                  <View style={[styles.assetIcon, { backgroundColor: `${getAssetColor(investmentData.targetAsset)}20` }]}>
+                  <View style={[styles.assetIcon, { backgroundColor: Colors.background.tertiary }]}>
                     <Text style={[styles.assetEmoji, { color: getAssetColor(investmentData.targetAsset) }]}>
                       {getAssetEmoji(investmentData.targetAsset)}
                     </Text>
@@ -234,7 +229,7 @@ export function FirstInvestmentCelebration({
                     <Text style={styles.assetName}>{investmentData.assetTypeName}</Text>
                     <Text style={styles.cardSubtitle}>Your First Digital Asset</Text>
                   </View>
-                  <Award size={24} color="#58CC02" />
+                  <Award size={24} color={Colors.brand.green} />
                 </View>
 
                 <View style={styles.statsContainer}>
@@ -253,12 +248,12 @@ export function FirstInvestmentCelebration({
                 </View>
 
                 <View style={styles.milestoneContainer}>
-                  <Sparkles size={20} color="#58CC02" />
+                  <TrendingUp size={20} color={Colors.brand.green} />
                   <Text style={styles.milestoneText}>
-                    First Investment Milestone Unlocked! 🏆
+                    First Investment Milestone Unlocked!
                   </Text>
                 </View>
-              </LinearGradient>
+              </View>
             </Animated.View>
 
             {/* Action Buttons */}
@@ -274,12 +269,12 @@ export function FirstInvestmentCelebration({
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={['#58CC02', '#45A002']}
+                  colors={Colors.gradients.primary}
                   style={styles.buttonGradient}
                 >
-                  <TreePine size={20} color="#FFFFFF" />
+                  <TrendingUp size={20} color={Colors.text.primary} />
                   <Text style={styles.primaryButtonText}>View My Garden</Text>
-                  <ArrowRight size={20} color="#FFFFFF" />
+                  <ArrowRight size={20} color={Colors.text.primary} />
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -288,31 +283,9 @@ export function FirstInvestmentCelebration({
                 onPress={handleContinue}
                 activeOpacity={0.8}
               >
-                <Text style={styles.secondaryButtonText}>Continue Growing 🌱</Text>
+                <Text style={styles.secondaryButtonText}>Continue Growing</Text>
               </TouchableOpacity>
             </Animated.View>
-
-            {/* Decorative Elements */}
-            <View style={styles.decorativeContainer}>
-              {[...Array(5)].map((_, index) => (
-                <Animated.View
-                  key={index}
-                  style={[
-                    styles.decorativeElement,
-                    {
-                      left: (width / 6) * (index + 1),
-                      transform: [{ scale: pulseAnim }]
-                    }
-                  ]}
-                >
-                  {index % 2 === 0 ? (
-                    <Star size={16} color="#FFD700" />
-                  ) : (
-                    <Heart size={16} color="#FF6B6B" />
-                  )}
-                </Animated.View>
-              ))}
-            </View>
           </Animated.View>
         )}
       </LinearGradient>
@@ -323,6 +296,7 @@ export function FirstInvestmentCelebration({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
@@ -331,10 +305,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   trophyContainer: {
-    marginBottom: 32,
+    marginBottom: Spacing['2xl'],
   },
   trophyGradient: {
     width: 120,
@@ -342,181 +316,153 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    ...Shadow.lg,
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: Spacing['2xl'],
   },
   congratsText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#2E7D32',
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   achievementText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#58CC02',
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.green,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   descriptionText: {
-    fontSize: 16,
-    color: '#5A5A5A',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: 12,
+    paddingHorizontal: Spacing.md,
   },
   assetText: {
-    fontWeight: '700',
+    fontWeight: Typography.weight.bold,
   },
   detailsCard: {
     width: '100%',
-    marginBottom: 32,
+    marginBottom: Spacing['2xl'],
   },
-  cardGradient: {
-    borderRadius: 20,
-    padding: 20,
+  cardContent: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
     borderWidth: 2,
-    borderColor: '#E8F5E8',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: Colors.background.tertiary,
+    ...Shadow.md,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   assetIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   assetEmoji: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: Typography.size['2xl'],
+    fontWeight: Typography.weight.bold,
   },
   cardHeaderText: {
     flex: 1,
   },
   assetName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 2,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
   },
   cardSubtitle: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    fontWeight: Typography.weight.medium,
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 16,
-    paddingVertical: 16,
-    backgroundColor: 'rgba(88, 204, 2, 0.05)',
-    borderRadius: 12,
+    justifyContent: 'space-between',
+    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.base,
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.md,
   },
   statItem: {
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
-    marginBottom: 4,
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    fontWeight: Typography.weight.medium,
+    marginBottom: Spacing.xs,
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   milestoneContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 8,
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.md,
   },
   milestoneText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#58CC02',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.green,
   },
   buttonContainer: {
     width: '100%',
-    gap: 12,
+    gap: Spacing.base,
   },
   primaryButton: {
-    borderRadius: 16,
-    shadowColor: '#58CC02',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    borderRadius: Spacing.lg,
+    ...Shadow.md,
   },
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    gap: 8,
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Spacing.lg,
+    gap: Spacing.sm,
   },
   primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    flex: 1,
+    textAlign: 'center',
   },
   secondaryButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
-    borderWidth: 2,
-    borderColor: '#E8F5E8',
+    backgroundColor: Colors.background.secondary,
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.background.tertiary,
+    alignItems: 'center',
+    ...Shadow.sm,
   },
   secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#58CC02',
-    textAlign: 'center',
-  },
-  decorativeContainer: {
-    position: 'absolute',
-    top: 100,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  decorativeElement: {
-    position: 'absolute',
-    opacity: 0.6,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  loadingText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#2E7D32',
-    textAlign: 'center',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
 }); 

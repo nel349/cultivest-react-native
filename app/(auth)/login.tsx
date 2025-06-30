@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { ArrowLeft, Phone, LogIn, Leaf, Sprout, Flower, ChevronDown, Check } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
@@ -186,149 +187,152 @@ export default function LoginScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <LinearGradient
-          colors={['#89E5AB', '#58CC02', '#46A302']}
+          colors={Colors.gradients.backgroundPrimary}
           style={[styles.gradient, { paddingTop: insets.top }]}
         >
-          {/* Decorative Elements */}
-          <View style={styles.decorationContainer}>
-            <View style={[styles.cryptoDecor, { top: 80 + insets.top, left: 25 }]}>
-              <Leaf size={18} color="rgba(255,255,255,0.3)" />
-            </View>
-            <View style={[styles.cryptoDecor, { top: 160 + insets.top, right: 30 }]}>
-              <Sprout size={16} color="rgba(255,255,255,0.2)" />
-            </View>
-            <View style={[styles.cryptoDecor, { bottom: 120, left: 40 }]}>
-              <Flower size={20} color="rgba(255,255,255,0.25)" />
-            </View>
-          </View>
-
-          <View style={styles.content}>
-            <View style={styles.header}>
-              <TouchableOpacity 
-                style={styles.backButton}
-                onPress={() => router.back()}
-              >
-                <ArrowLeft size={24} color="#FFFFFF" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Welcome Back! 🌱</Text>
-            </View>
-
-            <KeyboardAvoidingView 
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              style={styles.keyboardView}
+          {/* Decorative Elements - Hidden for cleaner dark theme */}
+          
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardView}
+          >
+            <ScrollView 
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <ScrollView 
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-              >
-                <View style={styles.formContainer}>
+              {/* Header with Back Button */}
+              <View style={styles.header}>
+                <TouchableOpacity 
+                  style={styles.backButton}
+                  onPress={() => router.back()}
+                >
+                  <ArrowLeft size={20} color={Colors.text.primary} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Content Container */}
+              <View style={styles.content}>
+                
+                {/* Hero Section */}
+                <View style={styles.heroSection}>
                   <View style={styles.iconContainer}>
-                    <View style={styles.iconBackground}>
-                      <LogIn size={32} color="#3B82F6" />
-                    </View>
+                    <LogIn size={40} color={Colors.brand.green} />
                   </View>
-
-                  <Text style={styles.title}>Sign In to Your Account</Text>
+                  
+                  <Text style={styles.title}>Welcome Back</Text>
                   <Text style={styles.subtitle}>
-                    Enter your phone number and we'll send you a verification code
+                    Enter your phone number to continue to your investment garden 🌱
                   </Text>
+                </View>
 
+                {/* Form Section */}
+                <View style={styles.formSection}>
+                  
                   {/* Country Selector */}
-                  <TouchableOpacity
-                    style={styles.countrySelector}
-                    onPress={() => setShowCountryModal(true)}
-                  >
-                    <Text style={styles.flag}>{selectedCountry.flag}</Text>
-                    <Text style={styles.countryText}>
-                      {selectedCountry.name} ({selectedCountry.dialCode})
-                    </Text>
-                    <ChevronDown size={20} color="#64748B" />
-                  </TouchableOpacity>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Country</Text>
+                    <TouchableOpacity 
+                      style={styles.countrySelector}
+                      onPress={() => setShowCountryModal(true)}
+                    >
+                      <Text style={styles.countrySelectorText}>
+                        {selectedCountry.flag} {selectedCountry.name} ({selectedCountry.dialCode})
+                      </Text>
+                      <ChevronDown size={20} color={Colors.text.secondary} />
+                    </TouchableOpacity>
+                  </View>
 
                   {/* Phone Number Input */}
-                  <View style={styles.inputContainer}>
-                    <View style={styles.inputIcon}>
-                      <Phone size={20} color="#64748B" />
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Phone Number</Text>
+                    <View style={styles.phoneInputContainer}>
+                      <View style={styles.dialCodeContainer}>
+                        <Text style={styles.dialCodeText}>{selectedCountry.dialCode}</Text>
+                      </View>
+                      <TextInput
+                        style={styles.phoneInput}
+                        value={phoneNumber}
+                        onChangeText={setPhoneNumber}
+                        placeholder="Enter phone number"
+                        placeholderTextColor={Colors.text.tertiary}
+                        keyboardType="phone-pad"
+                        returnKeyType="done"
+                        onSubmitEditing={handleLogin}
+                      />
                     </View>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Phone number"
-                      placeholderTextColor="#9CA3AF"
-                      value={phoneNumber}
-                      onChangeText={setPhoneNumber}
-                      keyboardType="phone-pad"
-                      autoComplete="tel"
-                      textContentType="telephoneNumber"
-                    />
                   </View>
 
+                  {/* Login Button */}
                   <TouchableOpacity
-                    style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
+                    style={[styles.loginButton, isLoading && styles.buttonDisabled]}
                     onPress={handleLogin}
                     disabled={isLoading}
                   >
                     <LinearGradient
-                      colors={isLoading ? ['#9CA3AF', '#6B7280'] : ['#3B82F6', '#1D4ED8']}
-                      style={styles.submitButtonGradient}
+                      colors={isLoading ? [Colors.button.disabled, Colors.button.disabled] : Colors.gradients.primary}
+                      style={styles.buttonGradient}
                     >
-                      <Text style={styles.submitButtonText}>
+                      <Phone size={18} color={Colors.brand.white} />
+                      <Text style={styles.loginButtonText}>
                         {isLoading ? 'Sending Code...' : 'Send Verification Code'}
                       </Text>
                     </LinearGradient>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.switchAuthButton}
-                    onPress={() => router.push('/(auth)/signup')}
-                  >
-                    <Text style={styles.switchAuthText}>
-                      Don't have an account? <Text style={styles.switchAuthLink}>Sign Up</Text>
-                    </Text>
-                  </TouchableOpacity>
+                  {/* Sign Up Link */}
+                  <View style={styles.signupSection}>
+                    <Text style={styles.signupPrompt}>Don't have an account? </Text>
+                    <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+                      <Text style={styles.signupLink}>Sign Up</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </ScrollView>
-            </KeyboardAvoidingView>
-          </View>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
 
           {/* Country Selection Modal */}
           <Modal
             visible={showCountryModal}
             animationType="slide"
-            presentationStyle="pageSheet"
+            transparent={true}
             onRequestClose={() => setShowCountryModal(false)}
           >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Country</Text>
-                <TouchableOpacity
-                  onPress={() => setShowCountryModal(false)}
-                  style={styles.modalCloseButton}
-                >
-                  <Text style={styles.modalCloseText}>Done</Text>
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.countryList}>
-                {countries.map((countryItem) => (
-                  <TouchableOpacity
-                    key={countryItem.code}
-                    style={[
-                      styles.countryItem,
-                      country === countryItem.code && styles.countryItemSelected
-                    ]}
-                    onPress={() => {
-                      setCountry(countryItem.code);
-                      setShowCountryModal(false);
-                    }}
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Country</Text>
+                  <TouchableOpacity 
+                    style={styles.modalCloseButton}
+                    onPress={() => setShowCountryModal(false)}
                   >
-                    <Text style={styles.countryFlag}>{countryItem.flag}</Text>
-                    <Text style={styles.countryName}>{countryItem.name}</Text>
-                    <Text style={styles.dialCode}>{countryItem.dialCode}</Text>
-                    {country === countryItem.code && (
-                      <Check size={20} color="#10B981" />
-                    )}
+                    <Text style={styles.modalCloseText}>Done</Text>
                   </TouchableOpacity>
-                ))}
-              </ScrollView>
+                </View>
+                
+                <ScrollView style={styles.countriesList}>
+                  {countries.map((country) => (
+                    <TouchableOpacity
+                      key={country.code}
+                      style={styles.countryItem}
+                      onPress={() => {
+                        setCountry(country.code);
+                        setShowCountryModal(false);
+                      }}
+                    >
+                      <Text style={styles.countryFlag}>{country.flag}</Text>
+                      <View style={styles.countryInfo}>
+                        <Text style={styles.countryName}>{country.name}</Text>
+                        <Text style={styles.countryDialCode}>{country.dialCode}</Text>
+                      </View>
+                                             {country.code === selectedCountry.code && (
+                         <Check size={16} color={Colors.brand.green} />
+                       )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
             </View>
           </Modal>
         </LinearGradient>
@@ -340,204 +344,219 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
-  },
-  decorationContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  cryptoDecor: {
-    position: 'absolute',
-    opacity: 0.6,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
+    padding: Spacing.base,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.background.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadow.sm,
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
   },
-  formContainer: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
   },
   iconContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  iconBackground: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: Spacing.lg,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
+    lineHeight: Typography.lineHeight.relaxed * Typography.size.base,
+  },
+  formSection: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: 20,
+    padding: Spacing.lg,
+    ...Shadow.lg,
+    borderWidth: 1,
+    borderColor: Colors.border.secondary,
+  },
+  inputGroup: {
+    marginBottom: Spacing.lg,
+  },
+  inputLabel: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
   },
   countrySelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.background.tertiary,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.border.primary,
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
   },
-  flag: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  countryText: {
+  countrySelectorText: {
     flex: 1,
-    fontSize: 16,
-    color: '#374151',
-    fontWeight: '500',
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.medium,
   },
-  inputContainer: {
+  phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.background.tertiary,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.border.primary,
     borderRadius: 12,
-    marginBottom: 20,
   },
-  inputIcon: {
-    paddingHorizontal: 16,
+  dialCodeContainer: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+    borderRightWidth: 1,
+    borderRightColor: Colors.border.primary,
   },
-  input: {
+  dialCodeText: {
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
+  },
+  phoneInput: {
     flex: 1,
-    paddingVertical: 16,
-    paddingRight: 16,
-    fontSize: 16,
-    color: '#374151',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.base,
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
   },
-  submitButton: {
+  loginButton: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 16,
+    marginBottom: Spacing.base,
+    ...Shadow.md,
   },
-  submitButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.7,
   },
-  submitButtonGradient: {
-    paddingVertical: 16,
+  buttonGradient: {
+    paddingVertical: Spacing.base,
+    paddingHorizontal: Spacing.lg,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
   },
-  submitButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+  loginButtonText: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.white,
   },
-  switchAuthButton: {
+  signupSection: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    justifyContent: 'center',
+    paddingVertical: Spacing.base,
   },
-  switchAuthText: {
-    fontSize: 14,
-    color: '#6B7280',
+  signupPrompt: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
   },
-  switchAuthLink: {
-    color: '#58CC02',
-    fontWeight: '600',
+  signupLink: {
+    fontSize: Typography.size.sm,
+    color: Colors.brand.green,
+    fontWeight: Typography.weight.semibold,
   },
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: 20,
+    padding: Spacing.lg,
+    width: '85%',
+    maxHeight: '70%',
+    ...Shadow.xl,
+    borderWidth: 1,
+    borderColor: Colors.border.secondary,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    marginBottom: Spacing.base,
+    paddingBottom: Spacing.base,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.border.primary,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
   modalCloseButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
   },
   modalCloseText: {
-    fontSize: 16,
-    color: '#58CC02',
-    fontWeight: '600',
+    fontSize: Typography.size.base,
+    color: Colors.brand.green,
+    fontWeight: Typography.weight.semibold,
   },
-  countryList: {
+  countriesList: {
     flex: 1,
   },
   countryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  countryItemSelected: {
-    backgroundColor: '#F0F9FF',
+    borderBottomColor: Colors.border.secondary,
   },
   countryFlag: {
     fontSize: 20,
-    marginRight: 12,
+    marginRight: Spacing.base,
+  },
+  countryInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   countryName: {
-    flex: 1,
-    fontSize: 16,
-    color: '#374151',
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.medium,
   },
-  dialCode: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginRight: 8,
+  countryDialCode: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
   },
 }); 

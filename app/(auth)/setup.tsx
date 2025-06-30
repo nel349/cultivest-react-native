@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Shield, CircleCheck as CheckCircle, ArrowRight, Wallet, Award, ChevronDown, ChevronUp, Leaf, Sprout, Flower } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,43 +28,32 @@ export default function SetupScreen() {
   };
 
   const setupStatus = [
-    { key: 'wallets', icon: CheckCircle, title: 'Multi-Chain Wallets ✅', color: '#58CC02' },
-    { key: 'nft', icon: Award, title: 'Portfolio NFT ✅', color: '#58CC02' },
-    { key: 'funding', icon: Wallet, title: 'Funding Ready ⚡', color: '#F7931A' },
-    { key: 'security', icon: Shield, title: 'Security Active 🛡️', color: '#58CC02' }
+    { key: 'wallets', icon: CheckCircle, title: 'Multi-Chain Wallets ✅', color: Colors.brand.green },
+    { key: 'nft', icon: Award, title: 'Portfolio NFT ✅', color: Colors.brand.green },
+    { key: 'funding', icon: Wallet, title: 'Funding Ready ⚡', color: Colors.crypto.bitcoin },
+    { key: 'security', icon: Shield, title: 'Security Active 🛡️', color: Colors.brand.green }
   ];
 
   const availableAssets = [
-    { name: 'Bitcoin', symbol: 'BTC', color: '#F7931A' },
-    { name: 'Algorand', symbol: 'ALGO', color: '#00D4AA' },
-    { name: 'Solana', symbol: 'SOL', color: '#9945FF' }
+    { name: 'Bitcoin', symbol: 'BTC', color: Colors.crypto.bitcoin },
+    { name: 'Algorand', symbol: 'ALGO', color: Colors.crypto.algorand },
+    { name: 'Solana', symbol: 'SOL', color: Colors.crypto.solana }
   ];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+    <View style={styles.container}>
       <LinearGradient
-        colors={['#89E5AB', '#58CC02', '#46A302']}
-        style={styles.gradient}
+        colors={Colors.gradients.backgroundPrimary}
+        style={[styles.gradient, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
       >
-        {/* Decorative Plants */}
-        <View style={styles.decorationContainer}>
-          <View style={[styles.plantDecor, { top: 80 + insets.top, left: 25 }]}>
-            <Leaf size={18} color="rgba(255,255,255,0.3)" />
-          </View>
-          <View style={[styles.plantDecor, { top: 160 + insets.top, right: 30 }]}>
-            <Sprout size={16} color="rgba(255,255,255,0.2)" />
-          </View>
-          <View style={[styles.plantDecor, { bottom: 120, left: 40 }]}>
-            <Flower size={20} color="rgba(255,255,255,0.25)" />
-          </View>
-        </View>
+        {/* Decorative elements removed for clean dark theme */}
 
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
             {/* Header */}
             <View style={styles.headerSection}>
               <View style={styles.iconContainer}>
-                <Award size={32} color="#58CC02" />
+                <Award size={40} color={Colors.brand.green} />
               </View>
               <Text style={styles.title}>Investment Garden Ready! 🌱</Text>
               <Text style={styles.subtitle}>
@@ -71,13 +61,13 @@ export default function SetupScreen() {
               </Text>
             </View>
 
-            {/* Status Grid - White Cards */}
+            {/* Status Grid - Dark Cards */}
             <View style={styles.statusCardContainer}>
               <Text style={styles.sectionTitle}>Setup Complete</Text>
               <View style={styles.statusGrid}>
                 {setupStatus.map((item, index) => (
                   <View key={index} style={styles.statusCard}>
-                    <View style={styles.statusIconContainer}>
+                    <View style={[styles.statusIconContainer, { backgroundColor: `${item.color}20` }]}>
                       <item.icon size={20} color={item.color} />
                     </View>
                     <Text style={styles.statusCardText}>{item.title}</Text>
@@ -95,12 +85,12 @@ export default function SetupScreen() {
               activeOpacity={0.8}
             >
               <View style={styles.accordionTitleContainer}>
-                <Award size={18} color="#58CC02" />
+                <Award size={18} color={Colors.brand.green} />
                 <Text style={styles.accordionTitle}>Your Portfolio NFT</Text>
               </View>
               {expandedSection === 'nft' ? 
-                <ChevronUp size={18} color="#58CC02" /> : 
-                <ChevronDown size={18} color="#58CC02" />
+                <ChevronUp size={18} color={Colors.brand.green} /> : 
+                <ChevronDown size={18} color={Colors.brand.green} />
               }
             </TouchableOpacity>
             {expandedSection === 'nft' && (
@@ -118,12 +108,12 @@ export default function SetupScreen() {
               activeOpacity={0.8}
             >
               <View style={styles.accordionTitleContainer}>
-                <Wallet size={18} color="#58CC02" />
+                <Wallet size={18} color={Colors.brand.green} />
                 <Text style={styles.accordionTitle}>Supported Assets</Text>
               </View>
               {expandedSection === 'assets' ? 
-                <ChevronUp size={18} color="#58CC02" /> : 
-                <ChevronDown size={18} color="#58CC02" />
+                <ChevronUp size={18} color={Colors.brand.green} /> : 
+                <ChevronDown size={18} color={Colors.brand.green} />
               }
             </TouchableOpacity>
             {expandedSection === 'assets' && (
@@ -146,12 +136,12 @@ export default function SetupScreen() {
               activeOpacity={0.8}
             >
               <View style={styles.accordionTitleContainer}>
-                <Shield size={18} color="#58CC02" />
+                <Shield size={18} color={Colors.brand.green} />
                 <Text style={styles.accordionTitle}>Security Features</Text>
               </View>
               {expandedSection === 'security' ? 
-                <ChevronUp size={18} color="#58CC02" /> : 
-                <ChevronDown size={18} color="#58CC02" />
+                <ChevronUp size={18} color={Colors.brand.green} /> : 
+                <ChevronDown size={18} color={Colors.brand.green} />
               }
             </TouchableOpacity>
             {expandedSection === 'security' && (
@@ -172,13 +162,13 @@ export default function SetupScreen() {
               disabled={isLoading}
             >
               <LinearGradient
-                colors={isLoading ? ['#C0C0C0', '#C0C0C0'] : ['#FFFFFF', '#F0F0F0']}
+                colors={isLoading ? [Colors.button.disabled, Colors.button.disabled] : Colors.gradients.primary}
                 style={styles.buttonGradient}
               >
                 <Text style={styles.continueButtonText}>
                   {isLoading ? 'Opening your garden...' : 'Start Investing 🚀'}
                 </Text>
-                {!isLoading && <ArrowRight size={20} color="#58CC02" />}
+                {!isLoading && <ArrowRight size={20} color={Colors.brand.white} />}
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -191,225 +181,193 @@ export default function SetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
   },
-  decorationContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  plantDecor: {
-    position: 'absolute',
-    opacity: 0.6,
-  },
+  // Decorative elements removed for clean dark theme
   scrollContainer: {
     flex: 1,
+    paddingHorizontal: Spacing.lg,
   },
   content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+    paddingBottom: Spacing['4xl'],
   },
   headerSection: {
     alignItems: 'center',
-    paddingTop: 20,
+    marginBottom: Spacing['2xl'],
+    marginTop: Spacing['2xl'],
   },
   iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginBottom: Spacing.base,
+    ...Shadow.lg,
   },
   title: {
-    fontSize: Math.min(24, width * 0.06),
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 8,
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
   subtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    lineHeight: 18,
-    fontWeight: '500',
-    paddingHorizontal: 10,
+    lineHeight: Typography.lineHeight.relaxed * Typography.size.base,
+    paddingHorizontal: Spacing.base,
   },
   statusGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: Spacing.sm,
   },
   statusItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: Colors.background.tertiary,
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    marginBottom: Spacing.xs,
     width: '48%',
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
   },
   statusText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontWeight: '600',
-    marginLeft: 6,
+    fontSize: Typography.size.xs,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.semibold,
+    marginLeft: Spacing.xs,
     flex: 1,
   },
   accordionContainer: {
-    flex: 1,
-    paddingHorizontal: 4,
-    marginTop: 8,
+    marginBottom: Spacing['2xl'],
   },
   accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.base,
     marginBottom: 4,
     borderWidth: 1,
-    borderColor: 'rgba(88, 204, 2, 0.15)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: Colors.border.secondary,
+    ...Shadow.sm,
   },
   accordionTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   accordionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginLeft: 10,
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginLeft: Spacing.sm,
   },
   accordionContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.tertiary,
     borderRadius: 16,
-    padding: 20,
+    padding: Spacing.lg,
     marginTop: -2,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 6,
+    marginBottom: Spacing.base,
+    ...Shadow.sm,
     borderWidth: 1,
-    borderColor: 'rgba(88, 204, 2, 0.1)',
+    borderColor: Colors.border.primary,
     borderTopWidth: 0,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
   },
   accordionText: {
-    fontSize: 14,
-    color: '#5A5A5A',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
     lineHeight: 20,
-    fontWeight: '500',
+    fontWeight: Typography.weight.medium,
   },
   assetsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 8,
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
   },
   assetItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(88, 204, 2, 0.05)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: Colors.background.surface,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(88, 204, 2, 0.1)',
+    borderColor: Colors.border.primary,
   },
   assetDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 6,
+    marginRight: Spacing.xs,
   },
   assetText: {
-    fontSize: 13,
-    color: '#2E7D32',
-    fontWeight: '700',
+    fontSize: Typography.size.xs,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.bold,
   },
   continueButton: {
     borderRadius: 20,
-    marginTop: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadow.lg,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.7,
   },
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing['2xl'],
     borderRadius: 20,
-    gap: 8,
+    gap: Spacing.sm,
   },
   continueButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#58CC02',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.white,
   },
   statusCardContainer: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 20,
-    padding: 20,
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
+    padding: Spacing.lg,
+    marginVertical: Spacing.lg,
+    ...Shadow.lg,
+    borderWidth: 1,
+    borderColor: Colors.border.secondary,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#2E7D32',
-    marginBottom: 16,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.base,
     textAlign: 'center',
   },
   statusCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.tertiary,
     borderRadius: 16,
-    padding: 16,
+    padding: Spacing.base,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadow.sm,
     borderWidth: 1,
-    borderColor: 'rgba(88, 204, 2, 0.1)',
+    borderColor: Colors.border.primary,
     width: '48%',
     minHeight: 100,
     maxHeight: 120,
@@ -418,15 +376,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   statusCardText: {
-    fontSize: 12,
-    color: '#2E7D32',
-    fontWeight: '600',
+    fontSize: Typography.size.xs,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.semibold,
     textAlign: 'center',
     lineHeight: 16,
   },

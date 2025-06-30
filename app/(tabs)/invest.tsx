@@ -17,13 +17,12 @@ import {
   Zap,
   Coins,
   Target,
-  Leaf,
-  Sprout,
   ArrowRight,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 export default function InvestScreen() {
   const insets = useSafeAreaInsets();
@@ -64,8 +63,8 @@ export default function InvestScreen() {
       title: 'Bitcoin Investment ₿',
       subtitle: 'Digital gold - Store of value',
       icon: TrendingUp,
-      color: '#F7931A',
-      bgColor: '#FFF8E1',
+      color: Colors.crypto.bitcoin,
+      bgColor: Colors.background.tertiary,
       description:
         "Start with Bitcoin, the world's most trusted cryptocurrency",
       features: [
@@ -80,8 +79,8 @@ export default function InvestScreen() {
       title: 'Algorand Ecosystem ⚡',
       subtitle: 'Fast, green blockchain',
       icon: Zap,
-      color: '#00D4AA',
-      bgColor: '#E0F7FA',
+      color: Colors.crypto.algorand,
+      bgColor: Colors.background.tertiary,
       description: "Invest in Algorand's sustainable and scalable blockchain",
       features: [
         '✓ Carbon-negative blockchain',
@@ -95,8 +94,8 @@ export default function InvestScreen() {
       title: 'Other Cryptocurrencies 🚀',
       subtitle: 'Ethereum, Solana & More',
       icon: Coins,
-      color: '#9945FF',
-      bgColor: '#F3E8FF',
+      color: Colors.crypto.solana,
+      bgColor: Colors.background.tertiary,
       description: 'Access 50+ cryptocurrencies through MoonPay integration',
       features: [
         '✓ Ethereum, Solana, USDC',
@@ -129,23 +128,9 @@ export default function InvestScreen() {
         translucent
       />
       <LinearGradient
-        colors={['#89E5AB', '#58CC02', '#46A302']}
+        colors={Colors.gradients.backgroundPrimary}
         style={[styles.gradient, { paddingTop: insets.top }]}
       >
-        {/* Floating Plant Decorations */}
-        <View style={styles.decorationContainer}>
-          <View
-            style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}
-          >
-            <Leaf size={20} color="#FFFFFF" />
-          </View>
-          <View
-            style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}
-          >
-            <Sprout size={16} color="#FFFFFF" />
-          </View>
-        </View>
-
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
@@ -160,7 +145,7 @@ export default function InvestScreen() {
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <ArrowLeft size={24} color="#2E7D32" />
+              <ArrowLeft size={20} color={Colors.text.primary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Start Investing</Text>
           </View>
@@ -180,7 +165,7 @@ export default function InvestScreen() {
               onPress={handleInvestment}
             >
               <LinearGradient
-                colors={['#FFFFFF', '#F0F0F0']}
+                colors={Colors.gradients.primary}
                 style={styles.investButtonGradient}
               >
                 <Text style={styles.investButtonText}>
@@ -188,7 +173,7 @@ export default function InvestScreen() {
                   <Text style={styles.bitcoinBText}>₿</Text>
                   <Text>itcoin</Text>
                 </Text>
-                <ArrowRight size={20} color="#58CC02" />
+                <ArrowRight size={20} color={Colors.brand.white} />
               </LinearGradient>
             </TouchableOpacity>
 
@@ -201,7 +186,7 @@ export default function InvestScreen() {
               }}
             >
               <LinearGradient
-                colors={['#9945FF', '#7C3AED']}
+                colors={[Colors.crypto.solana, Colors.crypto.ethereum]}
                 style={styles.investButtonGradient}
               >
                 <Text
@@ -209,7 +194,7 @@ export default function InvestScreen() {
                 >
                   Buy Crypto
                 </Text>
-                <Coins size={20} color="#FFFFFF" />
+                <Coins size={20} color={Colors.brand.white} />
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -246,7 +231,7 @@ export default function InvestScreen() {
                         { backgroundColor: option.color },
                       ]}
                     >
-                      <option.icon size={24} color="#FFFFFF" />
+                      <option.icon size={24} color={Colors.brand.white} />
                     </View>
                     <View style={styles.optionInfo}>
                       <Text style={styles.optionTitle}>{option.title}</Text>
@@ -256,7 +241,7 @@ export default function InvestScreen() {
                     </View>
                     {selectedAsset === option.id && (
                       <View style={styles.selectedBadge}>
-                        <Target size={16} color="#58CC02" />
+                        <Target size={16} color={Colors.brand.green} />
                       </View>
                     )}
                   </View>
@@ -280,11 +265,11 @@ export default function InvestScreen() {
           {/* Quick Stats */}
           <View style={styles.statsCard}>
             <LinearGradient
-              colors={['#FFFFFF', '#F8F8F8']}
+              colors={[Colors.background.secondary, Colors.background.tertiary]}
               style={styles.statsCardGradient}
             >
               <View style={styles.statsHeader}>
-                <Coins size={20} color="#58CC02" />
+                <Coins size={20} color={Colors.brand.green} />
                 <Text style={styles.statsTitle}>Why Cultivest?</Text>
               </View>
 
@@ -338,110 +323,86 @@ export default function InvestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
   },
-  decorationContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
-  },
-  plantDecor: {
-    position: 'absolute',
-  },
   scrollView: {
     flex: 1,
-    zIndex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   backButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    marginRight: Spacing.base,
+    ...Shadow.sm,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   titleSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 8,
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    fontWeight: '500',
-    paddingHorizontal: 20,
+    fontWeight: Typography.weight.medium,
+    paddingHorizontal: Spacing.lg,
   },
   optionsSection: {
-    marginBottom: 24,
-    marginTop: 8,
+    marginBottom: Spacing.xl,
+    marginTop: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.base,
   },
   optionCard: {
-    marginBottom: 16,
+    marginBottom: Spacing.base,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadow.md,
   },
   optionCardSelected: {
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
+    ...Shadow.lg,
+    borderWidth: 2,
+    borderColor: Colors.brand.green,
   },
   optionCardContent: {
     borderRadius: 20,
-    padding: 20,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
   },
   optionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.sm,
   },
   optionIcon: {
     width: 48,
@@ -449,67 +410,67 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: Spacing.base,
   },
   optionInfo: {
     flex: 1,
   },
   optionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 4,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
   },
   optionSubtitle: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
   },
   selectedBadge: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E8F5E8',
+    backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.brand.green,
   },
   optionDescription: {
-    fontSize: 16,
-    color: '#2E7D32',
-    fontWeight: '500',
-    marginBottom: 12,
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.medium,
+    marginBottom: Spacing.sm,
   },
   featuresContainer: {
-    gap: 4,
+    gap: Spacing.xs,
   },
   featureText: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
   },
   statsCard: {
-    marginBottom: 24,
+    marginBottom: Spacing.xl,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadow.md,
   },
   statsCardGradient: {
     borderRadius: 20,
-    padding: 20,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
   },
   statsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 8,
+    marginBottom: Spacing.base,
+    gap: Spacing.sm,
   },
   statsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -519,45 +480,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#58CC02',
-    marginBottom: 4,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.green,
+    marginBottom: Spacing.xs,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '600',
+    fontSize: Typography.size.xs,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.semibold,
   },
   investButton: {
     borderRadius: 20,
-    marginBottom: 16,
-    marginTop: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    marginBottom: Spacing.base,
+    marginTop: Spacing.xs,
+    ...Shadow.lg,
   },
   investButtonGradient: {
     borderRadius: 20,
-    paddingVertical: 18,
-    paddingHorizontal: 24,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: Spacing.sm,
   },
   investButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#58CC02',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.white,
   },
   quickButtonsContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-    marginTop: 4,
+    gap: Spacing.sm,
+    marginBottom: Spacing.base,
+    marginTop: Spacing.xs,
   },
   primaryButton: {
     flex: 1,
@@ -566,9 +523,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   secondaryButtonText: {
-    color: '#FFFFFF',
+    color: Colors.brand.white,
   },
   bitcoinBText: {
-    color: '#F7931A',
+    color: Colors.crypto.bitcoin,
   },
 });

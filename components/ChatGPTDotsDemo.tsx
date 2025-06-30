@@ -1,127 +1,307 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import ChatGPTDots from './ChatGPTDots';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 export default function ChatGPTDotsDemo() {
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating1, setIsAnimating1] = useState(false);
+  const [isAnimating2, setIsAnimating2] = useState(false);
+  const [isAnimating3, setIsAnimating3] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>ChatGPT Dots Demo</Text>
-      
-      <View style={styles.dotsContainer}>
-        <ChatGPTDots isAnimating={isAnimating} />
-      </View>
-
-      <Pressable
-        style={[styles.button, isAnimating && styles.buttonActive]}
-        onPress={() => setIsAnimating(!isAnimating)}
-      >
-        <Text style={styles.buttonText}>
-          {isAnimating ? 'Stop Animation' : 'Start Animation'}
-        </Text>
-      </Pressable>
-
-      <Text style={styles.description}>
-        Tap the button to {isAnimating ? 'stop' : 'start'} the ChatGPT-style dots animation
-      </Text>
-
-      {/* Different variations */}
-      <View style={styles.variationsContainer}>
-        <Text style={styles.variationTitle}>Different Sizes & Colors:</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>ChatGPT Dots Demo</Text>
         
-        <View style={styles.variationRow}>
-          <ChatGPTDots isAnimating={isAnimating} size={6} color="#3B82F6" />
-          <Text style={styles.variationLabel}>Small Blue</Text>
+        {/* Basic Usage */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Basic Usage</Text>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => setIsAnimating1(!isAnimating1)}
+          >
+            <Text style={styles.buttonText}>
+              {isAnimating1 ? 'Stop Animation' : 'Start Animation'}
+            </Text>
+          </TouchableOpacity>
+          <View style={styles.dotsContainer}>
+            <ChatGPTDots isAnimating={isAnimating1} />
+          </View>
+          <Text style={styles.status}>
+            Status: {isAnimating1 ? 'Animating' : 'Stopped'}
+          </Text>
         </View>
 
-        <View style={styles.variationRow}>
-          <ChatGPTDots isAnimating={isAnimating} size={12} color="#EF4444" />
-          <Text style={styles.variationLabel}>Large Red</Text>
+        {/* Different Sizes */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Different Sizes</Text>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => setIsAnimating2(!isAnimating2)}
+          >
+            <Text style={styles.buttonText}>
+              {isAnimating2 ? 'Stop All' : 'Animate All'}
+            </Text>
+          </TouchableOpacity>
+          
+          <View style={styles.sizesContainer}>
+            <View style={styles.sizeItem}>
+              <Text style={styles.sizeLabel}>Small (4px)</Text>
+              <ChatGPTDots isAnimating={isAnimating2} size={4} />
+            </View>
+            <View style={styles.sizeItem}>
+              <Text style={styles.sizeLabel}>Medium (8px)</Text>
+              <ChatGPTDots isAnimating={isAnimating2} size={8} />
+            </View>
+            <View style={styles.sizeItem}>
+              <Text style={styles.sizeLabel}>Large (12px)</Text>
+              <ChatGPTDots isAnimating={isAnimating2} size={12} />
+            </View>
+            <View style={styles.sizeItem}>
+              <Text style={styles.sizeLabel}>Extra Large (16px)</Text>
+              <ChatGPTDots isAnimating={isAnimating2} size={16} />
+            </View>
+          </View>
         </View>
 
-        <View style={styles.variationRow}>
-          <ChatGPTDots isAnimating={isAnimating} size={10} color="#A855F7" speed={400} />
-          <Text style={styles.variationLabel}>Fast Purple</Text>
+        {/* Different Colors */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Different Colors</Text>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => setIsAnimating3(!isAnimating3)}
+          >
+            <Text style={styles.buttonText}>
+              {isAnimating3 ? 'Stop Colors' : 'Animate Colors'}
+            </Text>
+          </TouchableOpacity>
+          
+          <View style={styles.colorsContainer}>
+            <View style={styles.colorItem}>
+              <Text style={styles.colorLabel}>Green (Brand)</Text>
+              <ChatGPTDots isAnimating={isAnimating3} color={Colors.brand.green} />
+            </View>
+            <View style={styles.colorItem}>
+              <Text style={styles.colorLabel}>Bitcoin Orange</Text>
+              <ChatGPTDots isAnimating={isAnimating3} color={Colors.crypto.bitcoin} />
+            </View>
+            <View style={styles.colorItem}>
+              <Text style={styles.colorLabel}>White</Text>
+              <ChatGPTDots isAnimating={isAnimating3} color={Colors.text.primary} />
+            </View>
+            <View style={styles.colorItem}>
+              <Text style={styles.colorLabel}>Gray</Text>
+              <ChatGPTDots isAnimating={isAnimating3} color={Colors.text.tertiary} />
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
+
+        {/* Speed Variations */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Speed Variations</Text>
+          <Text style={styles.description}>All animations running at different speeds</Text>
+          
+          <View style={styles.speedContainer}>
+            <View style={styles.speedItem}>
+              <Text style={styles.speedLabel}>Slow (1000ms)</Text>
+              <ChatGPTDots isAnimating={true} speed={1000} />
+            </View>
+            <View style={styles.speedItem}>
+              <Text style={styles.speedLabel}>Normal (600ms)</Text>
+              <ChatGPTDots isAnimating={true} speed={600} />
+            </View>
+            <View style={styles.speedItem}>
+              <Text style={styles.speedLabel}>Fast (300ms)</Text>
+              <ChatGPTDots isAnimating={true} speed={300} />
+            </View>
+          </View>
+        </View>
+
+        {/* Usage Instructions */}
+        <View style={styles.instructionsSection}>
+          <Text style={styles.sectionTitle}>How to Use</Text>
+          <Text style={styles.instruction}>
+            • <Text style={styles.bold}>isAnimating:</Text> Controls whether dots animate
+          </Text>
+          <Text style={styles.instruction}>
+            • <Text style={styles.bold}>size:</Text> Dot diameter in pixels (default: 8)
+          </Text>
+          <Text style={styles.instruction}>
+            • <Text style={styles.bold}>color:</Text> Dot color (default: brand green)
+          </Text>
+          <Text style={styles.instruction}>
+            • <Text style={styles.bold}>speed:</Text> Animation speed in ms (default: 600)
+          </Text>
+          
+          <View style={styles.codeContainer}>
+            <Text style={styles.codeTitle}>Example Usage:</Text>
+            <Text style={styles.code}>
+{`<ChatGPTDots 
+  isAnimating={isLoading}
+  size={12}
+  color="#00D26A"
+  speed={600}
+/>`}
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.background.primary,
+  },
+  scrollContent: {
+    padding: Spacing.lg,
+    paddingBottom: Spacing['2xl'],
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 30,
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
+    textAlign: 'center',
+    marginBottom: Spacing['2xl'],
   },
-  dotsContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 30,
-    borderRadius: 12,
-    marginBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  section: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    alignItems: 'center',
+    ...Shadow.md,
+    borderWidth: 1,
+    borderColor: Colors.background.tertiary,
   },
-  button: {
-    backgroundColor: '#58CC02',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  buttonActive: {
-    backgroundColor: '#EF4444',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+  sectionTitle: {
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.md,
+    textAlign: 'center',
   },
   description: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: Spacing.lg,
   },
-  variationsContainer: {
+  button: {
+    backgroundColor: Colors.brand.green,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Spacing.md,
+    marginBottom: Spacing.lg,
+    ...Shadow.sm,
+  },
+  buttonText: {
+    color: Colors.text.primary,
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+  },
+  dotsContainer: {
+    backgroundColor: Colors.background.tertiary,
+    padding: Spacing.lg,
+    borderRadius: Spacing.md,
+    marginBottom: Spacing.md,
+    minHeight: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
   },
-  variationTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 16,
-    textAlign: 'center',
+  status: {
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
   },
-  variationRow: {
-    flexDirection: 'row',
+  sizesContainer: {
+    width: '100%',
+    gap: Spacing.lg,
+  },
+  sizeItem: {
+    backgroundColor: Colors.background.tertiary,
+    padding: Spacing.base,
+    borderRadius: Spacing.md,
     alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
   },
-  variationLabel: {
-    fontSize: 14,
-    color: '#4B5563',
-    fontWeight: '500',
+  sizeLabel: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.primary,
+  },
+  colorsContainer: {
+    width: '100%',
+    gap: Spacing.lg,
+  },
+  colorItem: {
+    backgroundColor: Colors.background.tertiary,
+    padding: Spacing.base,
+    borderRadius: Spacing.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  colorLabel: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.primary,
+  },
+  speedContainer: {
+    width: '100%',
+    gap: Spacing.lg,
+  },
+  speedItem: {
+    backgroundColor: Colors.background.tertiary,
+    padding: Spacing.base,
+    borderRadius: Spacing.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  speedLabel: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.primary,
+  },
+  instructionsSection: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
+    ...Shadow.md,
+    borderWidth: 1,
+    borderColor: Colors.background.tertiary,
+  },
+  instruction: {
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    marginBottom: Spacing.sm,
+    lineHeight: 22,
+  },
+  bold: {
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.green,
+  },
+  codeContainer: {
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.md,
+    padding: Spacing.base,
+    marginTop: Spacing.base,
+  },
+  codeTitle: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
+  },
+  code: {
+    fontSize: Typography.size.sm,
+    fontFamily: 'monospace',
+    color: Colors.text.secondary,
+    lineHeight: 20,
   },
 }); 

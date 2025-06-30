@@ -20,7 +20,7 @@
         "NSMicrophoneUsageDescription": "Cultivest uses the microphone for voice accessibility features and investment guidance.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.cultivest.app"
+      "bundleIdentifier": "com.nel349.app"
     },
     "android": {
       "permissions": [

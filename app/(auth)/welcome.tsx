@@ -25,16 +25,19 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
-// Import crypto icons
+// Import crypto icons and logo
 const cryptoIcons = {
   bitcoin: require('@/assets/images/crypto/bitcoin.png'),
   algorand: require('@/assets/images/crypto/algorand.png'),
   solana: require('@/assets/images/crypto/solana.png'),
   usdc: require('@/assets/images/crypto/usdc.png'),
 };
+
+const cultivestLogo = require('@/assets/images/cultivest-logo.png');
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
@@ -75,7 +78,7 @@ export default function WelcomeScreen() {
       icon: Bitcoin,
       title: 'Bitcoin Investment',
       description: 'Start with $1 in Bitcoin via MoonPay',
-      color: '#F7931A',
+      color: Colors.crypto.bitcoin,
       accessibilityLabel: 'Bitcoin Investment feature',
       accessibilityHint:
         'Learn how to start investing in Bitcoin with just one dollar',
@@ -84,7 +87,7 @@ export default function WelcomeScreen() {
       icon: Coins,
       title: 'Multi-Chain Portfolio',
       description: 'Bitcoin + Algorand investments',
-      color: '#00D4AA',
+      color: Colors.crypto.algorand,
       accessibilityLabel: 'Multi-Chain Portfolio feature',
       accessibilityHint:
         'Discover how to invest across Bitcoin and Algorand blockchains',
@@ -93,7 +96,7 @@ export default function WelcomeScreen() {
       icon: Award,
       title: 'Portfolio NFTs',
       description: 'Your investments become tradeable NFTs',
-      color: '#8B5CF6',
+      color: Colors.brand.green,
       accessibilityLabel: 'Portfolio NFTs feature',
       accessibilityHint:
         'Revolutionary NFT system that makes your portfolio tradeable and inheritable',
@@ -102,7 +105,7 @@ export default function WelcomeScreen() {
       icon: Shield,
       title: 'Custodial Security',
       description: 'Professional custody with self-custody opt-in',
-      color: '#EF4444',
+      color: Colors.status.error,
       accessibilityLabel: 'Custodial Security feature',
       accessibilityHint:
         'Secure professional custody with option to graduate to self-custody',
@@ -116,7 +119,7 @@ export default function WelcomeScreen() {
         accessibilityLabel="Cultivest welcome screen"
       >
         <LinearGradient
-          colors={['#89E5AB', '#58CC02', '#46A302']}
+          colors={Colors.gradients.backgroundPrimary}
           style={[styles.gradient, { paddingTop: insets.top }]}
           accessible={false}
         >
@@ -130,37 +133,12 @@ export default function WelcomeScreen() {
             accessibilityHint="Opens Bolt.new website in browser"
           >
             <Image
-              source={require('@/assets/images/bolt/black_circle_360x360.png')}
+              source={require('@/assets/images/bolt/white_circle_360x360.png')}
               style={styles.boltBadgeImage}
               resizeMode="contain"
             />
           </TouchableOpacity>
 
-          {/* Decorative Crypto Icons - Hidden from screen readers */}
-          <View
-            style={styles.decorationContainer}
-            accessible={false}
-            importantForAccessibility="no-hide-descendants"
-          >
-            <View
-              style={[styles.cryptoDecor, { top: 60 + insets.top, left: 20 }]}
-            >
-              <Bitcoin size={20} color="rgba(255,255,255,0.3)" />
-            </View>
-            <View
-              style={[styles.cryptoDecor, { top: 90 + insets.top, right: 30 }]}
-            >
-              <Coins size={16} color="rgba(255,255,255,0.2)" />
-            </View>
-            <View
-              style={[
-                styles.cryptoDecor,
-                { top: 120 + insets.top, left: width - 60 },
-              ]}
-            >
-              <Award size={14} color="rgba(255,255,255,0.25)" />
-            </View>
-          </View>
 
           <View
             style={styles.content}
@@ -177,21 +155,25 @@ export default function WelcomeScreen() {
                 style={styles.logoContainer}
                 accessible={true}
                 accessibilityRole="image"
-                accessibilityLabel="Cultivest logo with Bitcoin icon"
+                accessibilityLabel="Cultivest logo"
               >
                 <View style={styles.logoBackground}>
-                  <Bitcoin size={28} color="#F7931A" />
+                  <Image 
+                    source={cultivestLogo} 
+                    style={styles.logoImage}
+                    resizeMode="contain"
+                  />
                 </View>
               </View>
 
-              <Text
+              {/* <Text
                 style={styles.title}
                 accessible={true}
                 accessibilityRole="header"
                 accessibilityLabel="Cultivest"
               >
                 Cultivest
-              </Text>
+              </Text> */}
               <Text
                 style={styles.subtitle}
                 accessible={true}
@@ -201,30 +183,7 @@ export default function WelcomeScreen() {
                 NFTs 🏆
               </Text>
 
-              {/* Main Illustration */}
-              <View
-                style={styles.illustrationContainer}
-                accessible={true}
-                accessibilityRole="image"
-                accessibilityLabel="Bitcoin and NFT portfolio illustration showing multi-chain investments"
-              >
-                <View style={styles.cryptoContainer}>
-                  <View style={styles.bitcoinIcon}>
-                    <Image source={cryptoIcons.bitcoin} style={styles.cryptoIconImage} />
-                  </View>
-                  <View style={styles.algorandIcon}>
-                    <Image source={cryptoIcons.algorand} style={styles.cryptoIconImage} />
-                  </View>
-                  <View
-                    style={styles.nftBadge}
-                    accessible={true}
-                    accessibilityLabel="Portfolio NFT badge"
-                  >
-                    <Award size={14} color="#8B5CF6" />
-                    <Text style={styles.nftText}>NFT</Text>
-                  </View>
-                </View>
-              </View>
+
             </View>
 
             {/* Features Grid */}
@@ -271,25 +230,25 @@ export default function WelcomeScreen() {
             <View style={styles.valuePropsSection}>
               <View style={styles.valuePropsList}>
                 <View style={styles.valuePropItem}>
-                  <TrendingUp size={12} color="#10B981" />
+                  <TrendingUp size={12} color={Colors.brand.green} />
                   <Text style={styles.valuePropText}>
                     First NFT-based portfolio tracking
                   </Text>
                 </View>
                 <View style={styles.valuePropItem}>
-                  <Zap size={12} color="#F59E0B" />
+                  <Zap size={12} color={Colors.status.warning} />
                   <Text style={styles.valuePropText}>
                     Multi-chain from day one
                   </Text>
                 </View>
                 <View style={styles.valuePropItem}>
-                  <Shield size={12} color="#3B82F6" />
+                  <Shield size={12} color={Colors.status.info} />
                   <Text style={styles.valuePropText}>
                     Professional custody + self-custody opt-in
                   </Text>
                 </View>
                 <View style={styles.valuePropItem}>
-                  <Star size={12} color="#8B5CF6" />
+                  <Star size={12} color={Colors.brand.green} />
                   <Text style={styles.valuePropText}>
                     Tradeable, inheritable portfolios
                   </Text>
@@ -313,14 +272,14 @@ export default function WelcomeScreen() {
                 accessibilityState={{ disabled: false }}
               >
                 <LinearGradient
-                  colors={['#FFFFFF', '#F0F0F0']}
+                  colors={Colors.gradients.primary}
                   style={styles.buttonGradient}
                   accessible={false}
                 >
                   <Text style={styles.primaryButtonText}>
                     Start Your Crypto Journey
                   </Text>
-                  <ArrowRight size={16} color="#3B82F6" />
+                  <ArrowRight size={16} color={Colors.brand.white} />
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -374,6 +333,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
@@ -383,16 +343,12 @@ const styles = StyleSheet.create({
     width: Math.min(50, width * 0.12),
     height: Math.min(50, width * 0.12),
     zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    ...Shadow.md,
   },
   boltBadgeImage: {
     width: '100%',
     height: '100%',
-    opacity: 0.9,
+    opacity: 0.8,
   },
   decorationContainer: {
     position: 'absolute',
@@ -405,51 +361,49 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
-    // justifyContent: 'space-between',
+    padding: Spacing.base,
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.md,
   },
   logoContainer: {
-    marginBottom: 8,
+    // marginBottom: Spacing.md,
   },
   logoBackground: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    width: 150,
+    height: 150,
+    // borderRadius: 40,
+    // backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    // borderWidth: 2,
+    // borderColor: Colors.border.accent,
+    // shadowColor: '#000000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.4,
+    // shadowRadius: 4,
+    // elevation: 4,
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
-    fontSize: Math.min(28, width * 0.07),
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 6,
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    fontSize: Math.min(32, width * 0.08),
+    fontWeight: Typography.weight.black,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: Math.min(14, width * 0.035),
-    color: 'rgba(255,255,255,0.95)',
+    fontSize: Math.min(16, width * 0.04),
+    color: Colors.text.secondary,
     textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 12,
-    fontWeight: '600',
-    paddingHorizontal: 20,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    lineHeight: Typography.lineHeight.relaxed * 16,
+    // marginBottom: Spacing.base,
+    fontWeight: Typography.weight.medium,
+    paddingHorizontal: Spacing.lg,
   },
   illustrationContainer: {
     alignItems: 'center',
@@ -465,55 +419,55 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     left: 5,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 28,
     padding: 14,
     borderWidth: 3,
-    borderColor: '#F7931A',
-    shadowColor: '#F7931A',
+    borderColor: Colors.crypto.bitcoin,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.5,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: 8,
   },
   algorandIcon: {
     position: 'absolute',
     top: 5,
     right: 5,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 28,
     padding: 14,
     borderWidth: 3,
-    borderColor: '#00D4AA',
-    shadowColor: '#00D4AA',
+    borderColor: Colors.crypto.algorand,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.5,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: 8,
   },
   nftBadge: {
     position: 'absolute',
     bottom: 0,
     left: '50%',
     transform: [{ translateX: -35 }],
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Colors.brand.green,
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#FFFFFF',
-    shadowColor: '#8B5CF6',
+    borderColor: Colors.background.secondary,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.5,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: 8,
   },
   nftText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.heavy,
+    color: Colors.brand.white,
     marginLeft: 4,
     letterSpacing: 0.5,
   },
@@ -526,141 +480,127 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginTop: 12,
-    marginBottom: 4,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
   featureCard: {
     width: '48%',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 8,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: 16,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-    minHeight: 85,
+    ...Shadow.md,
+    minHeight: 100,
+    borderWidth: 1,
+    borderColor: Colors.border.secondary,
   },
   featureIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: Spacing.sm,
   },
   featureTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 3,
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
     textAlign: 'center',
   },
   featureDescription: {
-    fontSize: 9,
-    color: '#64748B',
-    lineHeight: 12,
+    fontSize: Typography.size.xs,
+    color: Colors.text.tertiary,
+    lineHeight: Typography.lineHeight.normal * 10,
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: Typography.weight.medium,
   },
   valuePropsSection: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: 16,
+    padding: Spacing.base,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadow.md,
+    borderWidth: 1,
+    borderColor: Colors.border.secondary,
   },
   valuePropsList: {
-    gap: 6,
+    gap: Spacing.sm,
   },
   valuePropItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   valuePropText: {
-    fontSize: 11,
-    color: '#374151',
-    marginLeft: 8,
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    marginLeft: Spacing.sm,
+    fontWeight: Typography.weight.medium,
     flex: 1,
   },
   ctaSection: {
     alignItems: 'center',
-    // marginTop: 8,
   },
   primaryButton: {
-    borderRadius: 16,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    borderRadius: 20,
+    marginBottom: Spacing.base,
     width: '100%',
-    maxWidth: 280,
+    maxWidth: 320,
+    ...Shadow.lg,
   },
   buttonGradient: {
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 16,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    marginBottom: 12,
-    marginTop: 12,
+    gap: Spacing.sm,
   },
   primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#58CC02',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.white,
   },
   secondaryButton: {
-    marginBottom: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    marginBottom: Spacing.base,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 12,
+    borderColor: Colors.border.primary,
+    borderRadius: 16,
   },
   secondaryButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.95)',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.secondary,
     textAlign: 'center',
   },
   disclaimer: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.xs,
+    color: Colors.text.tertiary,
     textAlign: 'center',
-    lineHeight: 14,
-    fontWeight: '600',
-    paddingHorizontal: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    lineHeight: Typography.lineHeight.normal * 12,
+    fontWeight: Typography.weight.medium,
+    paddingHorizontal: Spacing.base,
   },
   devButton: {
-    marginTop: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 8,
+    marginTop: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.base,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: Colors.border.accent,
   },
   devButtonText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    fontSize: Typography.size.sm,
+    color: Colors.brand.green,
+    fontWeight: Typography.weight.semibold,
     textAlign: 'center',
   },
 });

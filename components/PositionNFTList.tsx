@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { 
-  Bitcoin, Coins, DollarSign, Sprout, Leaf, Flower, Hash
+  Bitcoin, Coins, DollarSign, TrendingUp, ArrowUpRight, Hash
 } from 'lucide-react-native';
 import { PositionNFT } from '@/types/api';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const assetIcons: { [key: string]: any } = {
   '1': Bitcoin,     // Bitcoin
@@ -14,10 +14,10 @@ const assetIcons: { [key: string]: any } = {
 };
 
 const assetPlantThemes: { [key: string]: any } = {
-  '1': { plant: Sprout, color: '#FF9500', bgColor: '#FFF3E0', name: 'Bitcoin Sprout' },
-  '2': { plant: Leaf, color: '#58CC02', bgColor: '#E8F5E8', name: 'Algorand Leaf' },
-  '3': { plant: Flower, color: '#00D4AA', bgColor: '#E0F7F4', name: 'USDC Flower' },
-  '4': { plant: Sprout, color: '#9945FF', bgColor: '#F3E8FF', name: 'Solana Sprout' },
+  '1': { plant: TrendingUp, color: Colors.crypto.bitcoin, bgColor: Colors.background.tertiary, name: 'Bitcoin Position' },
+  '2': { plant: ArrowUpRight, color: Colors.crypto.algorand, bgColor: Colors.background.tertiary, name: 'Algorand Position' },
+  '3': { plant: Coins, color: Colors.crypto.usdc, bgColor: Colors.background.tertiary, name: 'USDC Position' },
+  '4': { plant: TrendingUp, color: Colors.crypto.solana, bgColor: Colors.background.tertiary, name: 'Solana Position' },
 };
 
 interface PositionNFTListProps {
@@ -36,18 +36,15 @@ export function PositionNFTList({ positions, onPositionPress }: PositionNFTListP
     
     return (
       <TouchableOpacity
-        style={[styles.positionCard, { marginBottom: index === positions.length - 1 ? 0 : 12 }]}
+        style={[styles.positionCard, { marginBottom: index === positions.length - 1 ? 0 : Spacing.md }]}
         onPress={() => onPositionPress?.(item)}
         activeOpacity={0.8}
       >
-        <LinearGradient
-          colors={['#FFFFFF', '#FAFAFA']}
-          style={styles.cardGradient}
-        >
+        <View style={styles.cardContent}>
           {/* Asset Icon with Plant Theme */}
           <View style={styles.iconContainer}>
             <View style={[styles.assetIcon, { backgroundColor: theme.color }]}>
-              <IconComponent size={20} color="#FFFFFF" />
+              <IconComponent size={20} color={Colors.text.primary} />
             </View>
             <View style={[styles.plantIcon, { backgroundColor: theme.bgColor }]}>
               <PlantComponent size={16} color={theme.color} />
@@ -56,10 +53,10 @@ export function PositionNFTList({ positions, onPositionPress }: PositionNFTListP
 
           {/* Position Info */}
           <View style={styles.positionInfo}>
-            <Text style={styles.assetName}>{item.assetTypeName} Plant 🌱</Text>
+            <Text style={styles.assetName}>{item.assetTypeName} Plant</Text>
             <Text style={styles.plantTheme}>{theme.name}</Text>
             <View style={styles.nftInfo}>
-              <Hash size={12} color="#8B9DC3" />
+              <Hash size={12} color={Colors.text.tertiary} />
               <Text style={styles.tokenId}>Plant Certificate #{item.tokenId}</Text>
             </View>
           </View>
@@ -83,7 +80,7 @@ export function PositionNFTList({ positions, onPositionPress }: PositionNFTListP
               <Text style={[styles.certifiedText, { color: theme.color }]}>Certified NFT</Text>
             </View>
           </View>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -91,16 +88,16 @@ export function PositionNFTList({ positions, onPositionPress }: PositionNFTListP
   if (!positions || positions.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Sprout size={48} color="#C4C4C4" />
+        <TrendingUp size={48} color={Colors.text.tertiary} />
         <Text style={styles.emptyTitle}>No Plant Certificates Yet</Text>
-        <Text style={styles.emptySubtitle}>Start investing to grow your digital garden! 🌱</Text>
+        <Text style={styles.emptySubtitle}>Start investing to grow your digital garden!</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Your Plant Certificates 💎</Text>
+      <Text style={styles.sectionTitle}>Your Plant Certificates</Text>
       <FlatList
         data={positions}
         renderItem={renderPosition}
@@ -114,38 +111,32 @@ export function PositionNFTList({ positions, onPositionPress }: PositionNFTListP
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.base,
   },
   positionCard: {
-    marginHorizontal: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    marginHorizontal: Spacing.lg,
+    borderRadius: Spacing.lg,
+    ...Shadow.sm,
   },
-  cardGradient: {
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.base,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: Colors.background.tertiary,
   },
   iconContainer: {
     position: 'relative',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   assetIcon: {
     width: 44,
@@ -164,77 +155,75 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.background.secondary,
   },
   positionInfo: {
     flex: 1,
   },
   assetName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
     marginBottom: 2,
   },
   plantTheme: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
-    marginBottom: 4,
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    fontWeight: Typography.weight.medium,
+    marginBottom: Spacing.xs,
   },
   nftInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: Spacing.xs,
   },
   tokenId: {
-    fontSize: 10,
-    color: '#8B9DC3',
-    fontWeight: '500',
+    fontSize: Typography.size.xs,
+    color: Colors.text.tertiary,
+    fontWeight: Typography.weight.medium,
   },
   positionValue: {
     alignItems: 'flex-end',
   },
   valueAmount: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
     marginBottom: 2,
   },
   holdingsText: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
-    marginBottom: 4,
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
+    marginBottom: Spacing.xs,
   },
   certifiedBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Spacing.sm,
   },
   certifiedText: {
-    fontSize: 9,
-    fontWeight: '600',
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.semibold,
   },
   emptyContainer: {
+    backgroundColor: Colors.background.secondary,
+    marginHorizontal: Spacing.lg,
+    borderRadius: Spacing.lg,
+    padding: Spacing['2xl'],
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    marginHorizontal: 24,
-    borderRadius: 16,
-    padding: 32,
-    marginBottom: 24,
+    ...Shadow.sm,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginTop: 16,
-    marginBottom: 8,
-    textAlign: 'center',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginTop: Spacing.base,
+    marginBottom: Spacing.sm,
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
     lineHeight: 20,
   },

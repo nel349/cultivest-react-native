@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
   TrendingUp, ArrowUpRight, ArrowDownLeft, 
-  Leaf, TreePine, Sprout, Flower, RefreshCw, Coins 
+  RefreshCw, Coins 
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { apiClient } from '@/utils/api';
@@ -12,6 +12,7 @@ import { UserInvestmentData } from '@/types/api';
 import { NFTPortfolioCard } from '@/components/NFTPortfolioCard';
 import { PositionNFTList } from '@/components/PositionNFTList';
 import { useCelebrationCheck } from '@/hooks/useCelebrationCheck';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -80,8 +81,8 @@ export default function PortfolioScreen() {
     const value = parseFloat(position.purchaseValue) / 100;
     const assetTypeMap = {
       '1': { name: 'Bitcoin Position ₿', color: '#FF9500', icon: Coins },
-      '2': { name: 'Algorand Position ⚡', color: '#58CC02', icon: TreePine },
-      '3': { name: 'USDC Position 💰', color: '#00D4AA', icon: Flower }
+      '2': { name: 'Algorand Position ⚡', color: '#58CC02', icon: TrendingUp },
+      '3': { name: 'USDC Position 💰', color: '#00D4AA', icon: ArrowUpRight }
     };
     
     const theme = assetTypeMap[position.assetType as keyof typeof assetTypeMap] || assetTypeMap['2'];
@@ -108,7 +109,7 @@ export default function PortfolioScreen() {
       description: 'Daily staking rewards earned',
       date: '2 hours ago',
       icon: TrendingUp,
-      color: '#58CC02'
+      color: Colors.brand.green
     },
     {
       id: '2',
@@ -132,22 +133,9 @@ export default function PortfolioScreen() {
 
   return (
     <LinearGradient
-      colors={['#89E5AB', '#58CC02', '#46A302']}
+      colors={Colors.gradients.backgroundPrimary}
       style={styles.container}
     >
-      {/* Floating Plant Decorations */}
-      <View style={styles.decorationContainer}>
-        <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
-          <TreePine size={22} color="#FFFFFF" />
-        </View>
-        <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
-          <Flower size={18} color="#FFFFFF" />
-        </View>
-        <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
-          <Sprout size={20} color="#FFFFFF" />
-        </View>
-      </View>
-
       <ScrollView 
         style={styles.scrollView} 
         showsVerticalScrollIndicator={false}
@@ -155,15 +143,15 @@ export default function PortfolioScreen() {
           <RefreshControl 
             refreshing={refreshing} 
             onRefresh={handleRefresh} 
-            tintColor="#FFFFFF"
-            colors={['#58CC02']}
+            tintColor={Colors.text.primary}
+            colors={[Colors.brand.green]}
           />
         }
       >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Portfolio Overview 💼</Text>
+            <Text style={styles.title}>Portfolio Overview</Text>
             <TouchableOpacity 
               style={styles.refreshButton} 
               onPress={handleRefresh}
@@ -171,7 +159,7 @@ export default function PortfolioScreen() {
             >
               <RefreshCw 
                 size={20} 
-                color="#FFFFFF" 
+                color={Colors.text.primary} 
                 style={refreshing ? styles.spinning : {}} 
               />
             </TouchableOpacity>
@@ -186,13 +174,10 @@ export default function PortfolioScreen() {
 
         {/* Portfolio Value Card */}
         <View style={styles.portfolioCard}>
-          <LinearGradient
-            colors={['#FFFFFF', '#F8F8F8']}
-            style={styles.portfolioCardGradient}
-          >
+          <View style={styles.portfolioCardContent}>
             <View style={styles.portfolioHeader}>
               <View style={styles.portfolioIcon}>
-                <TreePine size={24} color="#58CC02" />
+                <TrendingUp size={24} color={Colors.brand.green} />
               </View>
               <Text style={styles.portfolioLabel}>Total Garden Value</Text>
             </View>
@@ -203,7 +188,7 @@ export default function PortfolioScreen() {
             
             <View style={styles.portfolioGains}>
               <View style={styles.gainItem}>
-                <TrendingUp size={16} color="#58CC02" />
+                <TrendingUp size={16} color={Colors.brand.green} />
                 <Text style={styles.gainText}>
                   +${portfolioData.totalGain.toFixed(2)} ({portfolioData.totalGainPercent}%)
                 </Text>
@@ -212,13 +197,13 @@ export default function PortfolioScreen() {
                 <Text style={styles.dailyChangeLabel}>Today:</Text>
                 <Text style={[
                   styles.dailyChangeValue,
-                  { color: portfolioData.dailyChange >= 0 ? '#58CC02' : '#FF4444' }
+                  { color: portfolioData.dailyChange >= 0 ? Colors.brand.green : Colors.status.error }
                 ]}>
                   {portfolioData.dailyChange >= 0 ? '+' : ''}${portfolioData.dailyChange.toFixed(2)}
                 </Text>
               </View>
             </View>
-          </LinearGradient>
+          </View>
         </View>
 
         {/* NFT Portfolio Section */}
@@ -248,7 +233,7 @@ export default function PortfolioScreen() {
 
         {/* Performance Section */}
         <View style={styles.performanceSection}>
-          <Text style={styles.sectionTitle}>Performance 📈</Text>
+          <Text style={styles.sectionTitle}>Performance</Text>
           
           {/* Period Selector */}
           <View style={styles.periodButtons}>
@@ -274,7 +259,7 @@ export default function PortfolioScreen() {
           {/* Performance Placeholder */}
           <View style={styles.performancePlaceholder}>
             <View style={styles.placeholderIcon}>
-              <TrendingUp size={32} color="#58CC02" />
+              <TrendingUp size={32} color={Colors.brand.green} />
             </View>
             <Text style={styles.placeholderTitle}>Performance Chart Coming Soon</Text>
             <Text style={styles.placeholderDescription}>
@@ -285,13 +270,13 @@ export default function PortfolioScreen() {
 
         {/* Holdings Section */}
         <View style={styles.holdingsSection}>
-          <Text style={styles.sectionTitle}>Your Holdings 💰</Text>
+          <Text style={styles.sectionTitle}>Your Holdings</Text>
           
           {holdings.length > 0 ? (
             holdings.map((holding) => (
               <View key={holding.id} style={styles.holdingCard}>
                 <View style={[styles.holdingIcon, { backgroundColor: holding.color }]}>
-                  <holding.icon size={24} color="#FFFFFF" />
+                  <holding.icon size={24} color={Colors.text.primary} />
                 </View>
                 
                 <View style={styles.holdingInfo}>
@@ -307,7 +292,7 @@ export default function PortfolioScreen() {
                   </Text>
                   <Text style={[
                     styles.holdingGain,
-                    { color: holding.gain >= 0 ? '#58CC02' : '#FF4444' }
+                    { color: holding.gain >= 0 ? Colors.brand.green : Colors.status.error }
                   ]}>
                     {holding.gain >= 0 ? '+' : ''}${holding.gain.toFixed(2)} ({holding.gainPercent}%)
                   </Text>
@@ -317,7 +302,7 @@ export default function PortfolioScreen() {
           ) : (
             <View style={styles.emptyState}>
               <View style={styles.emptyStateIcon}>
-                <Coins size={48} color="#58CC02" />
+                <Coins size={48} color={Colors.brand.green} />
               </View>
               <Text style={styles.emptyStateTitle}>No Holdings Yet</Text>
               <Text style={styles.emptyStateDescription}>
@@ -333,12 +318,11 @@ export default function PortfolioScreen() {
           )}
         </View>
 
-
         {/* Recent Activity */}
         <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Recent Activity 📊</Text>
-                      <View style={styles.activityContainer}>
-              {recentActivity.map((activity) => (
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <View style={styles.activityContainer}>
+            {recentActivity.map((activity) => (
               <View key={activity.id} style={styles.activityItem}>
                 <View style={[styles.activityIcon, { backgroundColor: `${activity.color}20` }]}>
                   <activity.icon size={20} color={activity.color} />
@@ -352,7 +336,7 @@ export default function PortfolioScreen() {
                 <View style={styles.activityAmount}>
                   <Text style={[
                     styles.activityAmountText,
-                    { color: activity.type === 'yield' ? '#58CC02' : '#FF9500' }
+                    { color: activity.type === 'yield' ? Colors.brand.green : '#FF9500' }
                   ]}>
                     {activity.type === 'yield' ? '+' : ''}${activity.amount.toFixed(2)}
                   </Text>
@@ -372,91 +356,75 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  decorationContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
-  },
-  plantDecor: {
-    position: 'absolute',
-  },
   scrollView: {
     flex: 1,
-    zIndex: 1,
   },
   header: {
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
     alignItems: 'center',
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
     flex: 1,
   },
   refreshButton: {
-    padding: 8,
-    marginLeft: 12,
+    padding: Spacing.sm,
+    marginLeft: Spacing.md,
   },
   spinning: {
     transform: [{ rotate: '180deg' }],
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: Typography.weight.medium,
   },
   portfolioCard: {
-    marginHorizontal: 24,
-    marginBottom: 24,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    borderRadius: Spacing.lg,
+    ...Shadow.md,
   },
-  portfolioCardGradient: {
-    borderRadius: 20,
-    padding: 20,
+  portfolioCardContent: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
   },
   portfolioHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.base,
   },
   portfolioIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E8F5E8',
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   portfolioLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2E7D32',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.secondary,
   },
   portfolioValue: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#2E7D32',
-    marginBottom: 16,
+    fontSize: Typography.size.title,
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
+    marginBottom: Spacing.base,
   },
   portfolioGains: {
     flexDirection: 'row',
@@ -466,162 +434,188 @@ const styles = StyleSheet.create({
   gainItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
   },
   gainText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#58CC02',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.green,
+    marginLeft: Spacing.xs,
   },
   dailyChangeLabel: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    marginRight: Spacing.xs,
   },
   dailyChangeValue: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
   },
   performanceSection: {
-    marginBottom: 24,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.base,
   },
   periodButtons: {
     flexDirection: 'row',
-    paddingHorizontal: 24,
-    gap: 8,
-    marginBottom: 16,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.md,
+    padding: Spacing.xs,
+    marginBottom: Spacing.lg,
   },
   periodButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderRadius: Spacing.sm,
   },
   periodButtonActive: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Colors.brand.green,
   },
   periodButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.tertiary,
   },
   periodButtonTextActive: {
-    color: '#58CC02',
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.semibold,
+  },
+  performancePlaceholder: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing['2xl'],
+    alignItems: 'center',
+    ...Shadow.sm,
+  },
+  placeholderIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.background.tertiary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.base,
+  },
+  placeholderTitle: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
+  },
+  placeholderDescription: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   holdingsSection: {
-    marginBottom: 24,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   holdingCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 24,
-    marginBottom: 12,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.md,
+    ...Shadow.sm,
   },
   holdingIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  holdingInfo: {
-    flex: 1,
-  },
-  holdingName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 4,
-  },
-  holdingShares: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
-  },
-  holdingValues: {
-    alignItems: 'flex-end',
-  },
-  holdingAmount: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 2,
-  },
-  holdingGain: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  quickActionsSection: {
-    marginBottom: 24,
-  },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    gap: 12,
-  },
-  quickActionCard: {
-    flex: 1,
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  quickActionIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginRight: Spacing.md,
   },
-  quickActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2E7D32',
+  holdingInfo: {
+    flex: 1,
+  },
+  holdingName: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
+  },
+  holdingShares: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+  },
+  holdingValues: {
+    alignItems: 'flex-end',
+  },
+  holdingAmount: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
+  },
+  holdingGain: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.medium,
+  },
+  emptyState: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing['2xl'],
+    alignItems: 'center',
+    ...Shadow.sm,
+  },
+  emptyStateIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.background.tertiary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.base,
+  },
+  emptyStateTitle: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
+  },
+  emptyStateDescription: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: Spacing.lg,
+  },
+  emptyStateButton: {
+    backgroundColor: Colors.brand.green,
+    borderRadius: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  emptyStateButtonText: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
   activitySection: {
-    marginBottom: 24,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   activityContainer: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    marginHorizontal: 24,
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.base,
+    ...Shadow.sm,
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.background.tertiary,
   },
   activityIcon: {
     width: 40,
@@ -629,115 +623,29 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   activityContent: {
     flex: 1,
   },
   activityDescription: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2E7D32',
-    marginBottom: 2,
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
   },
   activityDate: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
   },
   activityAmount: {
     alignItems: 'flex-end',
   },
   activityAmountText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
   },
   bottomSpacing: {
-    height: 100,
-  },
-  emptyState: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    marginHorizontal: 24,
-    borderRadius: 20,
-    padding: 32,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  emptyStateIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#E8F5E8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyStateDescription: {
-    fontSize: 16,
-    color: '#5A5A5A',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  emptyStateButton: {
-    backgroundColor: '#58CC02',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  emptyStateButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  performancePlaceholder: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    marginHorizontal: 24,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  placeholderIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#E8F5E8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  placeholderTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  placeholderDescription: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    textAlign: 'center',
-    lineHeight: 20,
+    height: Spacing['4xl'],
   },
 });

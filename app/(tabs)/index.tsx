@@ -9,6 +9,7 @@ import {
   Dimensions,
   Alert,
   StatusBar,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -26,6 +27,8 @@ import {
   Trophy,
   Zap,
   Target,
+  DollarSign,
+  Flame,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
@@ -34,27 +37,71 @@ import FundingModal from '@/components/FundingModal';
 
 const { width } = Dimensions.get('window');
 
+// Import crypto icons
+const cryptoIcons = {
+  bitcoin: require('@/assets/images/crypto/bitcoin.png'),
+  solana: require('@/assets/images/crypto/solana.png'),
+  algorand: require('@/assets/images/crypto/algorand.png'),
+  usdc: require('@/assets/images/crypto/usdc.png'),
+  ethereum: require('@/assets/images/crypto/ethereum.png'),
+};
+
 interface DashboardData {
-  balanceBTC: number;
-  balanceUSDCa: number;
-  balanceALGO: number;
-  balanceSOL: number;
-  totalBalanceUSD: number;
-  // USD values for each asset
-  btcValueUSD: number;
-  usdcaValueUSD: number;
-  algoValueUSD: number;
-  solValueUSD: number;
-  addresses: {
-    bitcoin: string;
-    algorand: string;
-    solana: string;
+  userID: string;
+  balance: number; // Total portfolio value in USD
+  dailyYield: number;
+  portfolio?: {
+    tokenId: string;
+    customName: string;
+    positionCount: number;
+    positions: any[];
   };
-  portfolioAllocation: {
-    bitcoinPercentage: number;
-    algorandPercentage: number;
-    usdcPercentage: number;
-    solanaPercentage: number;
+  investments: {
+    bitcoin: {
+      count: number;
+      totalInvested: number;
+      estimatedBTC: number;
+      currentBalance: number;
+    };
+    solana: {
+      count: number;
+      totalInvested: number;
+      estimatedSOL: number;
+      currentBalance: number;
+    };
+    algorand: {
+      count: number;
+      totalInvested: number;
+      currentBalance: {
+        algo: number;
+        usdca: number;
+      };
+    };
+    summary: {
+      totalInvested: number;
+      positionCount: number;
+      hasPortfolio: boolean;
+      totalInvestedUSD: number;
+      assetCount: number;
+    };
+  };
+  balances: {
+    btc: number;
+    algo: number;
+    usdca: number;
+    sol: number;
+  };
+  moneyTree: {
+    leaves: number;
+    growthStage: string;
+    nextMilestone: number;
+    level: number;
+  };
+  analytics: {
+    diversificationScore: number;
+    isMultiChain: boolean;
+    supportedChains: string[];
+    activeChains: string[];
   };
 }
 
@@ -72,25 +119,55 @@ export default function HomeScreen() {
   const [showFundingModal, setShowFundingModal] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData>({
-    balanceBTC: 0,
-    balanceUSDCa: 0,
-    balanceALGO: 0,
-    balanceSOL: 0,
-    totalBalanceUSD: 0,
-    btcValueUSD: 0,
-    usdcaValueUSD: 0,
-    algoValueUSD: 0,
-    solValueUSD: 0,
-    addresses: {
-      bitcoin: '',
-      algorand: '',
-      solana: '',
+    userID: '',
+    balance: 0,
+    dailyYield: 0,
+    investments: {
+      bitcoin: {
+        count: 0,
+        totalInvested: 0,
+        estimatedBTC: 0,
+        currentBalance: 0,
+      },
+      solana: {
+        count: 0,
+        totalInvested: 0,
+        estimatedSOL: 0,
+        currentBalance: 0,
+      },
+      algorand: {
+        count: 0,
+        totalInvested: 0,
+        currentBalance: {
+          algo: 0,
+          usdca: 0,
+        },
+      },
+      summary: {
+        totalInvested: 0,
+        positionCount: 0,
+        hasPortfolio: false,
+        totalInvestedUSD: 0,
+        assetCount: 0,
+      },
     },
-    portfolioAllocation: {
-      bitcoinPercentage: 0,
-      algorandPercentage: 0,
-      usdcPercentage: 0,
-      solanaPercentage: 0,
+    balances: {
+      btc: 0,
+      algo: 0,
+      usdca: 0,
+      sol: 0,
+    },
+    moneyTree: {
+      leaves: 0,
+      growthStage: 'seedling',
+      nextMilestone: 10,
+      level: 1,
+    },
+    analytics: {
+      diversificationScore: 0,
+      isMultiChain: false,
+      supportedChains: ['Bitcoin', 'Solana', 'Algorand'],
+      activeChains: [],
     },
   });
 
@@ -140,142 +217,147 @@ export default function HomeScreen() {
     return null;
   };
 
-  // Fetch wallet balance from backend
-  const fetchWalletBalance = async (userID: string) => {
+  // Fetch dashboard data from backend
+  const fetchDashboardData = async (userID: string) => {
+    console.log(`📊 Fetching dashboard data for user: ${userID}`);
     try {
-      const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-
-      // Get database balance
-      const dbResult = await apiClient.getWalletBalance(userID, false);
-
-      // Get live balance
-      const liveResult = await apiClient.getWalletBalance(userID, true);
-
-      // Get live crypto prices
-      const pricesResult = await apiClient.request('/prices');
-
-      if (dbResult?.success) {
-        // Handle the updated multi-chain API response structure
-        const addresses = {
-          bitcoin: dbResult.addresses?.bitcoin || '',
-          algorand: dbResult.addresses?.algorand || '',
-          solana: (dbResult.addresses as any)?.solana || '',
-        };
-        const dbBalance = dbResult.balance?.databaseBalance || {
-          btc: 0,
-          algo: 0,
-          usdca: 0,
-          sol: 0,
-        };
-        const liveBalance = dbResult.balance?.onChainBalance ||
-          (liveResult?.success ? liveResult.balance?.onChainBalance : null) || {
-            btc: 0,
-            algo: 0,
-            usdca: 0,
-            sol: 0,
+      // Get both dashboard data AND live wallet balance for reconciliation
+      const [dashboardResponse, walletResponse] = await Promise.all([
+        apiClient.getDashboardData(userID),
+        apiClient.getWalletBalance(userID, true) // Live balance
+      ]);
+      
+      if (dashboardResponse.success && dashboardResponse.data) {
+        console.log('✅ Dashboard response received');
+        
+        // Process and enhance the data
+        const rawData = dashboardResponse.data as DashboardData;
+        
+                 // Get live wallet balances for reconciliation
+         let liveBalances = { btc: 0, algo: 0, usdca: 0, sol: 0 };
+         if (walletResponse.success && walletResponse.balance?.onChainBalance) {
+           const balance = walletResponse.balance.onChainBalance;
+           liveBalances = {
+             btc: balance.btc || 0,
+             algo: balance.algo || 0,
+             usdca: balance.usdca || 0,
+             sol: (balance as any).sol || 0 // SOL might not be in the type yet
+           };
+           console.log('✅ Live wallet balances:', liveBalances);
+         }
+        
+        // Check if backend investment data is empty (after migration/reset)
+        const hasInvestmentData = rawData.balance > 0 || rawData.portfolio || rawData.investments.summary.totalInvestedUSD > 0;
+        
+        if (!hasInvestmentData) {
+          console.log('🧹 No investment data - showing wallet-only mode');
+          // Create wallet-only dashboard state
+          const walletOnlyData: DashboardData = {
+            userID: rawData.userID,
+            balance: 0, // No tracked investments
+            dailyYield: 0,
+            investments: {
+              bitcoin: { count: 0, totalInvested: 0, estimatedBTC: 0, currentBalance: 0 },
+              solana: { count: 0, totalInvested: 0, estimatedSOL: 0, currentBalance: 0 },
+              algorand: { count: 0, totalInvested: 0, currentBalance: { algo: 0, usdca: 0 } },
+              summary: { totalInvested: 0, positionCount: 0, hasPortfolio: false, totalInvestedUSD: 0, assetCount: 0 }
+            },
+            balances: liveBalances, // Use live balances
+            moneyTree: { leaves: 0, growthStage: 'seedling', nextMilestone: 10, level: 1 },
+            analytics: { 
+              diversificationScore: 0, 
+              isMultiChain: false, 
+              supportedChains: ['Bitcoin', 'Solana', 'Algorand'], 
+              activeChains: [
+                ...(liveBalances.btc > 0 ? ['Bitcoin'] : []),
+                ...(liveBalances.sol > 0 ? ['Solana'] : []),
+                ...((liveBalances.algo > 0 || liveBalances.usdca > 0) ? ['Algorand'] : [])
+              ]
+            }
           };
-
-        // Use live balance if available, fallback to database
-        const btcBalance = liveBalance.btc || dbBalance.btc || 0;
-        const algoBalance = liveBalance.algo || dbBalance.algo || 0;
-        const usdcaBalance = liveBalance.usdca || dbBalance.usdca || 0;
-        const solBalance =
-          (liveBalance as any).sol || (dbBalance as any).sol || 0;
-
-        // Get live cryptocurrency prices with fallbacks
-        let btcPriceUSD = 97000; // Fallback price
-        let algoPriceUSD = 0.4; // Fallback price
-        let solPriceUSD = 95; // Fallback price
-
-        if (pricesResult?.success && (pricesResult as any).prices) {
-          btcPriceUSD =
-            (pricesResult as any).prices.bitcoin?.usd || btcPriceUSD;
-          algoPriceUSD =
-            (pricesResult as any).prices.algorand?.usd || algoPriceUSD;
-          solPriceUSD = (pricesResult as any).prices.solana?.usd || solPriceUSD;
-          console.log('✅ Using live prices:', {
-            BTC: `$${btcPriceUSD.toLocaleString()}`,
-            ALGO: `$${algoPriceUSD.toFixed(4)}`,
-            SOL: `$${solPriceUSD.toFixed(2)}`,
-          });
-        } else {
-          console.log('⚠️ Using fallback prices due to API error');
+          setDashboardData(walletOnlyData);
+          console.log('✅ Dashboard set to wallet-only mode with live balances');
+          return;
         }
-
-        const btcValueUSD = btcBalance * btcPriceUSD;
-        const algoValueUSD = algoBalance * algoPriceUSD;
-        const usdcValueUSD = usdcaBalance * 1.0;
-        const solValueUSD = solBalance * solPriceUSD;
-        const totalValueUSD =
-          btcValueUSD + algoValueUSD + usdcValueUSD + solValueUSD;
-
-        // Calculate portfolio allocation percentages
-        const bitcoinPercentage =
-          totalValueUSD > 0 ? (btcValueUSD / totalValueUSD) * 100 : 0;
-        const algorandPercentage =
-          totalValueUSD > 0 ? (algoValueUSD / totalValueUSD) * 100 : 0;
-        const usdcPercentage =
-          totalValueUSD > 0 ? (usdcValueUSD / totalValueUSD) * 100 : 0;
-        const solanaPercentage =
-          totalValueUSD > 0 ? (solValueUSD / totalValueUSD) * 100 : 0;
-
-        console.log('💰 Parsed multi-chain balances:', {
-          btcBalance,
-          algoBalance,
-          usdcaBalance,
-          solBalance,
-          btcValueUSD,
-          algoValueUSD,
-          usdcValueUSD,
-          solValueUSD,
-          totalValueUSD,
-          addresses,
-        });
-
-        setDashboardData((prev) => ({
-          ...prev,
-          balanceBTC: btcBalance,
-          balanceUSDCa: usdcaBalance,
-          balanceALGO: algoBalance,
-          balanceSOL: solBalance,
-          totalBalanceUSD: totalValueUSD,
-          btcValueUSD: btcValueUSD,
-          usdcaValueUSD: usdcValueUSD,
-          algoValueUSD: algoValueUSD,
-          solValueUSD: solValueUSD,
-          addresses: addresses,
-          portfolioAllocation: {
-            bitcoinPercentage: bitcoinPercentage,
-            algorandPercentage: algorandPercentage,
-            usdcPercentage: usdcPercentage,
-            solanaPercentage: solanaPercentage,
-          },
-        }));
-
-        // Update user info with wallet addresses
-        setUserInfo((prev) =>
-          prev
-            ? {
-                ...prev,
-                walletAddress:
-                  addresses.algorand ||
-                  addresses.bitcoin ||
-                  addresses.solana ||
-                  '',
+        
+        // If we have investment data, enhance it with live balances
+        let enhancedData = { 
+          ...rawData,
+          balances: liveBalances // Always use live balances for accuracy
+        };
+        
+        if (rawData.portfolio?.positions && rawData.portfolio.positions.length > 0) {
+          // Calculate actual investment totals from portfolio positions
+          const bitcoinPositions = rawData.portfolio.positions.filter(p => p.assetTypeName === 'Bitcoin');
+          const solanaPositions = rawData.portfolio.positions.filter(p => p.assetTypeName === 'Solana');
+          const algorandPositions = rawData.portfolio.positions.filter(p => p.assetTypeName === 'Algorand');
+          
+          const bitcoinInvested = bitcoinPositions.reduce((sum, pos) => sum + parseFloat(pos.purchaseValue), 0);
+          const solanaInvested = solanaPositions.reduce((sum, pos) => sum + parseFloat(pos.purchaseValue), 0);
+          const algorandInvested = algorandPositions.reduce((sum, pos) => sum + parseFloat(pos.purchaseValue), 0);
+          
+          // Calculate estimated holdings (simplified conversion)
+          const bitcoinHoldings = bitcoinPositions.reduce((sum, pos) => sum + parseFloat(pos.holdings), 0) / 100000000; // Convert satoshis to BTC
+          const solanaHoldings = solanaPositions.reduce((sum, pos) => sum + parseFloat(pos.holdings), 0) / 1000000000; // Convert lamports to SOL
+          
+          enhancedData = {
+            ...enhancedData,
+            investments: {
+              ...rawData.investments,
+              bitcoin: {
+                count: bitcoinPositions.length,
+                totalInvested: bitcoinInvested,
+                estimatedBTC: bitcoinHoldings,
+                currentBalance: bitcoinInvested // Simplified - would need real-time prices
+              },
+              solana: {
+                count: solanaPositions.length,
+                totalInvested: solanaInvested,
+                estimatedSOL: solanaHoldings,
+                currentBalance: solanaInvested // Simplified - would need real-time prices
+              },
+              algorand: {
+                count: algorandPositions.length,
+                totalInvested: algorandInvested,
+                currentBalance: {
+                  algo: 0, // Would need to parse from holdings
+                  usdca: algorandInvested // Simplified
+                }
               }
-            : null
-        );
+            },
+            analytics: {
+              ...rawData.analytics,
+              activeChains: [
+                ...(liveBalances.btc > 0 ? ['Bitcoin'] : []),
+                ...(liveBalances.sol > 0 ? ['Solana'] : []),
+                ...((liveBalances.algo > 0 || liveBalances.usdca > 0) ? ['Algorand'] : [])
+              ],
+              isMultiChain: [
+                liveBalances.btc > 0 ? 1 : 0,
+                liveBalances.sol > 0 ? 1 : 0,
+                (liveBalances.algo > 0 || liveBalances.usdca > 0) ? 1 : 0
+              ].filter(x => x).length > 1
+            }
+          };
+        }
+        
+        setDashboardData(enhancedData);
+        
+        console.log('✅ Dashboard data reconciled:', {
+          investmentBalance: enhancedData.balance,
+          liveWalletBalances: liveBalances,
+          portfolioPositions: enhancedData.portfolio?.positionCount || 0,
+          activeChains: enhancedData.analytics.activeChains,
+          reconciliationMode: hasInvestmentData ? 'investment+wallet' : 'wallet-only'
+        });
+        
       } else {
-        console.error(
-          'Failed to fetch wallet balance:',
-          dbResult?.error || 'Database request failed'
-        );
-
-        console.error('Failed to fetch wallet balance:', dbResult?.error);
+        console.error('❌ Failed to fetch dashboard data:', dashboardResponse.error);
+        Alert.alert('API Error', `Dashboard data failed: ${dashboardResponse.error}`);
       }
     } catch (error) {
-      console.error('Error fetching wallet balance:', error);
-      Alert.alert('Error', 'Failed to load wallet balance. Please try again.');
+      console.error('❌ Error fetching dashboard data:', error);
+      Alert.alert('Network Error', `Failed to connect to API: ${error}`);
     }
   };
 
@@ -286,7 +368,7 @@ export default function HomeScreen() {
       const userID = await loadUserInfo();
       if (userID) {
         console.log('✅ Dashboard: User ID loaded:', userID);
-        await fetchWalletBalance(userID);
+        await fetchDashboardData(userID);
       } else {
         console.log('⚠️ Dashboard: No user ID found, user may need to login');
         // Could redirect to login here if needed
@@ -306,7 +388,7 @@ export default function HomeScreen() {
       const userID = await AsyncStorage.getItem('user_id');
       if (userID) {
         // Refresh all dashboard data including wallet balance, investments, and portfolio
-        await fetchWalletBalance(userID);
+        await fetchDashboardData(userID);
 
         // TODO: Add investment/portfolio data refresh here when needed
         // Example: await fetchInvestmentData(userID);
@@ -476,153 +558,435 @@ export default function HomeScreen() {
 
               <Text style={styles.balanceAmount}>
                 {balanceVisible
-                  ? `$${dashboardData.totalBalanceUSD.toFixed(2)}`
+                  ? (() => {
+                      // Calculate total wallet value from live balances
+                      const totalWalletValue = (dashboardData.balances.btc * 97000) + 
+                                              dashboardData.balances.usdca + 
+                                              (dashboardData.balances.sol * 95) + 
+                                              (dashboardData.balances.algo * 0.4);
+                      
+                      const totalValue = dashboardData.balance + totalWalletValue;
+                      
+                      if (totalValue > 0) {
+                        return `$${totalValue.toFixed(2)}`;
+                      } else {
+                        return '$0.00';
+                      }
+                    })()
                   : '••••••'}
               </Text>
 
-              {/* Multi-Chain Asset Breakdown */}
-              {balanceVisible && (
-                <View style={styles.assetsBreakdown}>
-                  <View style={[styles.assetItem, styles.bitcoinAsset]}>
-                    <View style={styles.assetTopRow}>
-                      <View style={[styles.assetIcon, styles.bitcoinIcon]}>
-                        <Text
-                          style={[styles.assetSymbol, styles.bitcoinSymbol]}
-                        >
-                          ₿
-                        </Text>
+              {/* Wallet Crypto Section - DETAILED */}
+              {balanceVisible && (() => {
+                const totalWalletValue = (dashboardData.balances.btc * 97000) + 
+                                        dashboardData.balances.usdca + 
+                                        (dashboardData.balances.sol * 95) + 
+                                        (dashboardData.balances.algo * 0.4);
+                
+                if (totalWalletValue > 0) {
+                  return (
+                    <View style={styles.walletSection}>
+                      <View style={styles.sectionHeaderRow}>
+                        <Text style={styles.sectionTitleProfessional}>Wallet Crypto</Text>
+                        <Text style={styles.sectionValueProfessional}>${totalWalletValue.toFixed(2)}</Text>
                       </View>
-                      <Text style={[styles.assetLabel, styles.bitcoinLabel]}>
-                        Bitcoin
-                      </Text>
-                    </View>
-                    <View style={styles.assetBottomRow}>
-                      <View style={styles.assetAmountContainer}>
-                        <Text
-                          style={[styles.assetAmount, styles.bitcoinAmount]}
-                        >
-                          {dashboardData.balanceBTC.toFixed(8)} BTC
-                        </Text>
-                        <Text
-                          style={[styles.assetUsdValue, styles.bitcoinUsdValue]}
-                        >
-                          ${dashboardData.btcValueUSD.toFixed(2)}
-                        </Text>
-                      </View>
-                      <Text
-                        style={[
-                          styles.assetPercentage,
-                          styles.bitcoinPercentage,
-                        ]}
-                      >
-                        {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(
-                          1
+                      <Text style={styles.sectionSubtitleProfessional}>Direct transfers & deposits</Text>
+                      
+                      {/* Wallet Crypto Cards */}
+                      <View style={styles.assetsBreakdown}>
+                                                 {/* Bitcoin Wallet */}
+                         {dashboardData.balances.btc > 0 && (
+                           <TouchableOpacity style={styles.cryptoCard}>
+                             <View style={styles.cryptoCardHeader}>
+                               <View style={[styles.cryptoIcon, { backgroundColor: '#FFF8E1' }]}>
+                                 <Image source={cryptoIcons.bitcoin} style={styles.cryptoIconImage} />
+                               </View>
+                              <View style={styles.cryptoInfo}>
+                                <Text style={styles.cryptoName}>Bitcoin</Text>
+                                <Text style={styles.cryptoSymbol}>BTC</Text>
+                              </View>
+                              <View style={styles.cryptoValue}>
+                                <Text style={styles.cryptoBalance}>
+                                  {dashboardData.balances.btc.toFixed(8)} BTC
+                                </Text>
+                                <Text style={styles.cryptoUSD}>
+                                  ${(dashboardData.balances.btc * 97000).toFixed(2)}
+                                </Text>
+                              </View>
+                            </View>
+                            <View>
+                              <View style={styles.cryptoChart}>
+                                <View
+                                  style={[
+                                    styles.chartFill,
+                                    {
+                                      width: `${totalWalletValue > 0 
+                                        ? ((dashboardData.balances.btc * 97000) / totalWalletValue) * 100 
+                                        : 0
+                                      }%`,
+                                      backgroundColor: '#F7931A',
+                                    },
+                                  ]}
+                                />
+                              </View>
+                              <Text style={styles.chartPercentage}>
+                                {totalWalletValue > 0 
+                                  ? ((dashboardData.balances.btc * 97000) / totalWalletValue * 100).toFixed(1)
+                                  : '0.0'
+                                }%
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
                         )}
-                        %
-                      </Text>
+
+                                                 {/* USDC Wallet */}
+                         {dashboardData.balances.usdca > 0 && (
+                           <TouchableOpacity style={styles.cryptoCard}>
+                             <View style={styles.cryptoCardHeader}>
+                               <View style={[styles.cryptoIcon, { backgroundColor: '#E3F2FD' }]}>
+                                 <Image source={cryptoIcons.usdc} style={styles.cryptoIconImage} />
+                               </View>
+                              <View style={styles.cryptoInfo}>
+                                <Text style={styles.cryptoName}>USD Coin</Text>
+                                <Text style={styles.cryptoSymbol}>USDC</Text>
+                              </View>
+                              <View style={styles.cryptoValue}>
+                                <Text style={styles.cryptoBalance}>
+                                  {dashboardData.balances.usdca.toFixed(2)} USDC
+                                </Text>
+                                <Text style={styles.cryptoUSD}>
+                                  ${dashboardData.balances.usdca.toFixed(2)}
+                                </Text>
+                              </View>
+                            </View>
+                            <View>
+                              <View style={styles.cryptoChart}>
+                                <View
+                                  style={[
+                                    styles.chartFill,
+                                    {
+                                      width: `${totalWalletValue > 0 
+                                        ? (dashboardData.balances.usdca / totalWalletValue) * 100 
+                                        : 0
+                                      }%`,
+                                      backgroundColor: '#2196F3',
+                                    },
+                                  ]}
+                                />
+                              </View>
+                              <Text style={styles.chartPercentage}>
+                                {totalWalletValue > 0 
+                                  ? (dashboardData.balances.usdca / totalWalletValue * 100).toFixed(1)
+                                  : '0.0'
+                                }%
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        )}
+
+                                                 {/* Solana Wallet */}
+                         {dashboardData.balances.sol > 0 && (
+                           <TouchableOpacity style={styles.cryptoCard}>
+                             <View style={styles.cryptoCardHeader}>
+                               <View style={[styles.cryptoIcon, { backgroundColor: '#E8F5E8' }]}>
+                                 <Image source={cryptoIcons.solana} style={styles.cryptoIconImage} />
+                               </View>
+                              <View style={styles.cryptoInfo}>
+                                <Text style={styles.cryptoName}>Solana</Text>
+                                <Text style={styles.cryptoSymbol}>SOL</Text>
+                              </View>
+                              <View style={styles.cryptoValue}>
+                                <Text style={styles.cryptoBalance}>
+                                  {dashboardData.balances.sol.toFixed(4)} SOL
+                                </Text>
+                                <Text style={styles.cryptoUSD}>
+                                  ${(dashboardData.balances.sol * 95).toFixed(2)}
+                                </Text>
+                              </View>
+                            </View>
+                            <View>
+                              <View style={styles.cryptoChart}>
+                                <View
+                                  style={[
+                                    styles.chartFill,
+                                    {
+                                      width: `${totalWalletValue > 0 
+                                        ? ((dashboardData.balances.sol * 95) / totalWalletValue) * 100 
+                                        : 0
+                                      }%`,
+                                      backgroundColor: '#58CC02',
+                                    },
+                                  ]}
+                                />
+                              </View>
+                              <Text style={styles.chartPercentage}>
+                                {totalWalletValue > 0 
+                                  ? ((dashboardData.balances.sol * 95) / totalWalletValue * 100).toFixed(1)
+                                  : '0.0'
+                                }%
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        )}
+
+                                                 {/* Algorand Wallet */}
+                         {dashboardData.balances.algo > 0 && (
+                           <TouchableOpacity style={styles.cryptoCard}>
+                             <View style={styles.cryptoCardHeader}>
+                               <View style={[styles.cryptoIcon, { backgroundColor: '#E8F5E8' }]}>
+                                 <Image source={cryptoIcons.algorand} style={styles.cryptoIconImage} />
+                               </View>
+                              <View style={styles.cryptoInfo}>
+                                <Text style={styles.cryptoName}>Algorand</Text>
+                                <Text style={styles.cryptoSymbol}>ALGO</Text>
+                              </View>
+                              <View style={styles.cryptoValue}>
+                                <Text style={styles.cryptoBalance}>
+                                  {dashboardData.balances.algo.toFixed(4)} ALGO
+                                </Text>
+                                <Text style={styles.cryptoUSD}>
+                                  ${(dashboardData.balances.algo * 0.4).toFixed(2)}
+                                </Text>
+                              </View>
+                            </View>
+                            <View>
+                              <View style={styles.cryptoChart}>
+                                <View
+                                  style={[
+                                    styles.chartFill,
+                                    {
+                                      width: `${totalWalletValue > 0 
+                                        ? ((dashboardData.balances.algo * 0.4) / totalWalletValue) * 100 
+                                        : 0
+                                      }%`,
+                                      backgroundColor: '#58CC02',
+                                    },
+                                  ]}
+                                />
+                              </View>
+                              <Text style={styles.chartPercentage}>
+                                {totalWalletValue > 0 
+                                  ? ((dashboardData.balances.algo * 0.4) / totalWalletValue * 100).toFixed(1)
+                                  : '0.0'
+                                }%
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        )}
+                      </View>
                     </View>
+                  );
+                }
+                return null;
+              })()}
+
+              {/* Cultivest Investments Section - DETAILED */}
+              {balanceVisible && dashboardData.balance > 0 && (
+                <View style={styles.investmentSection}>
+                  <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionTitleProfessional}>Cultivest Investments</Text>
+                    <Text style={styles.sectionValueProfessional}>${dashboardData.balance.toFixed(2)}</Text>
                   </View>
-                  <View style={[styles.assetItem, styles.standardAsset]}>
-                    <View style={styles.assetTopRow}>
-                      <View style={styles.assetIcon}>
-                        <Text style={styles.assetSymbol}>💰</Text>
+                  <Text style={styles.sectionSubtitleProfessional}>Tracked through the app</Text>
+                  
+                  {dashboardData.portfolio && (
+                    <Text style={styles.portfolioTextProfessional}>
+                      Portfolio NFT #{dashboardData.portfolio.tokenId} • {dashboardData.portfolio.positionCount} positions
+                    </Text>
+                  )}
+
+                  {/* Detailed Investment Cards */}
+                  <View style={styles.assetsBreakdown}>
+                    {/* Bitcoin Position */}
+                     <TouchableOpacity style={styles.cryptoCard}>
+                       <View style={styles.cryptoCardHeader}>
+                         <View style={[styles.cryptoIcon, { backgroundColor: '#FFF8E1' }]}>
+                           <Image source={cryptoIcons.bitcoin} style={styles.cryptoIconImage} />
+                         </View>
+                        <View style={styles.cryptoInfo}>
+                          <Text style={styles.cryptoName}>Bitcoin</Text>
+                          <Text style={styles.cryptoSymbol}>BTC</Text>
+                        </View>
+                        <View style={styles.cryptoValue}>
+                          <Text style={styles.cryptoBalance}>
+                            {dashboardData.investments.bitcoin.estimatedBTC.toFixed(8)} BTC
+                          </Text>
+                          <Text style={styles.cryptoUSD}>
+                            ${dashboardData.investments.bitcoin.totalInvested.toFixed(2)}
+                          </Text>
+                        </View>
                       </View>
-                      <Text style={styles.assetLabel}>USDCa</Text>
-                    </View>
-                    <View style={styles.assetBottomRow}>
-                      <View style={styles.assetAmountContainer}>
-                        <Text style={styles.assetAmount}>
-                          {dashboardData.balanceUSDCa.toFixed(2)} USDC
-                        </Text>
-                        <Text style={styles.assetUsdValue}>
-                          ${dashboardData.usdcaValueUSD.toFixed(2)}
-                        </Text>
-                      </View>
-                      <Text style={styles.assetPercentage}>
-                        {dashboardData.portfolioAllocation.usdcPercentage.toFixed(
-                          1
-                        )}
-                        %
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={[styles.assetItem, styles.standardAsset]}>
-                    <View style={styles.assetTopRow}>
-                      <View style={styles.assetIcon}>
-                        <Text style={styles.assetSymbol}>⚡</Text>
-                      </View>
-                      <Text style={styles.assetLabel}>ALGO</Text>
-                    </View>
-                    <View style={styles.assetBottomRow}>
-                      <View style={styles.assetAmountContainer}>
-                        <Text style={styles.assetAmount}>
-                          {dashboardData.balanceALGO.toFixed(2)} ALGO
-                        </Text>
-                        <Text style={styles.assetUsdValue}>
-                          ${dashboardData.algoValueUSD.toFixed(2)}
-                        </Text>
-                      </View>
-                      <Text style={styles.assetPercentage}>
-                        {dashboardData.portfolioAllocation.algorandPercentage.toFixed(
-                          1
-                        )}
-                        %
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={[styles.assetItem, styles.standardAsset]}>
-                    <View style={styles.assetTopRow}>
-                      <View style={styles.assetIcon}>
-                        <Text style={styles.assetSymbol}>🌟</Text>
-                      </View>
-                      <Text style={styles.assetLabel}>SOL</Text>
-                    </View>
-                    <View style={styles.assetBottomRow}>
-                      <View style={styles.assetAmountContainer}>
-                        <Text style={styles.assetAmount}>
-                          {dashboardData.balanceSOL.toFixed(2)} SOL
-                        </Text>
-                        <Text style={styles.assetUsdValue}>
-                          ${dashboardData.solValueUSD.toFixed(2)}
+                      <View>
+                        <View style={styles.cryptoChart}>
+                          <View
+                            style={[
+                              styles.chartFill,
+                              {
+                                width: `${(() => {
+                                  const totalInvested = dashboardData.investments.bitcoin.totalInvested + 
+                                                       dashboardData.investments.solana.totalInvested + 
+                                                       dashboardData.investments.algorand.totalInvested;
+                                  return totalInvested > 0 
+                                    ? (dashboardData.investments.bitcoin.totalInvested / totalInvested) * 100 
+                                    : 0;
+                                })()}%`,
+                                backgroundColor: '#F7931A',
+                              },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.chartPercentage}>
+                          {(() => {
+                            const totalInvested = dashboardData.investments.bitcoin.totalInvested + 
+                                                 dashboardData.investments.solana.totalInvested + 
+                                                 dashboardData.investments.algorand.totalInvested;
+                            return totalInvested > 0 
+                              ? ((dashboardData.investments.bitcoin.totalInvested / totalInvested) * 100).toFixed(1)
+                              : '0.0';
+                          })()}%
                         </Text>
                       </View>
-                      <Text style={styles.assetPercentage}>
-                        {dashboardData.portfolioAllocation.solanaPercentage.toFixed(
-                          1
-                        )}
-                        %
-                      </Text>
-                    </View>
+                    </TouchableOpacity>
+
+                    {/* USDC Position */}
+                     <TouchableOpacity style={styles.cryptoCard}>
+                       <View style={styles.cryptoCardHeader}>
+                         <View style={[styles.cryptoIcon, { backgroundColor: '#E3F2FD' }]}>
+                           <Image source={cryptoIcons.usdc} style={styles.cryptoIconImage} />
+                         </View>
+                        <View style={styles.cryptoInfo}>
+                          <Text style={styles.cryptoName}>USD Coin</Text>
+                          <Text style={styles.cryptoSymbol}>USDC</Text>
+                        </View>
+                        <View style={styles.cryptoValue}>
+                          <Text style={styles.cryptoBalance}>
+                            {dashboardData.investments.algorand.currentBalance.usdca.toFixed(2)} USDC
+                          </Text>
+                          <Text style={styles.cryptoUSD}>
+                            ${dashboardData.investments.algorand.totalInvested.toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                      <View>
+                        <View style={styles.cryptoChart}>
+                          <View
+                            style={[
+                              styles.chartFill,
+                              {
+                                width: `${(() => {
+                                  const totalInvested = dashboardData.investments.bitcoin.totalInvested + 
+                                                       dashboardData.investments.solana.totalInvested + 
+                                                       dashboardData.investments.algorand.totalInvested;
+                                  return totalInvested > 0 
+                                    ? (dashboardData.investments.algorand.totalInvested / totalInvested) * 100 
+                                    : 0;
+                                })()}%`,
+                                backgroundColor: '#2196F3',
+                              },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.chartPercentage}>
+                          {(() => {
+                            const totalInvested = dashboardData.investments.bitcoin.totalInvested + 
+                                                 dashboardData.investments.solana.totalInvested + 
+                                                 dashboardData.investments.algorand.totalInvested;
+                            return totalInvested > 0 
+                              ? ((dashboardData.investments.algorand.totalInvested / totalInvested) * 100).toFixed(1)
+                              : '0.0';
+                          })()}%
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* Solana Position */}
+                    <TouchableOpacity style={styles.cryptoCard}>
+                      <View style={styles.cryptoCardHeader}>
+                        <View style={[styles.cryptoIcon, { backgroundColor: '#E8F5E8' }]}>
+                          <Image source={cryptoIcons.solana} style={styles.cryptoIconImage} />
+                        </View>
+                        <View style={styles.cryptoInfo}>
+                          <Text style={styles.cryptoName}>Solana</Text>
+                          <Text style={styles.cryptoSymbol}>SOL</Text>
+                        </View>
+                        <View style={styles.cryptoValue}>
+                          <Text style={styles.cryptoBalance}>
+                            {dashboardData.investments.solana.estimatedSOL.toFixed(4)} SOL
+                          </Text>
+                          <Text style={styles.cryptoUSD}>
+                            ${dashboardData.investments.solana.totalInvested.toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                      <View>
+                        <View style={styles.cryptoChart}>
+                          <View
+                            style={[
+                              styles.chartFill,
+                              {
+                                width: `${(() => {
+                                  const totalInvested = dashboardData.investments.bitcoin.totalInvested + 
+                                                       dashboardData.investments.solana.totalInvested + 
+                                                       dashboardData.investments.algorand.totalInvested;
+                                  return totalInvested > 0 
+                                    ? (dashboardData.investments.solana.totalInvested / totalInvested) * 100 
+                                    : 0;
+                                })()}%`,
+                                backgroundColor: '#58CC02',
+                              },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.chartPercentage}>
+                          {(() => {
+                            const totalInvested = dashboardData.investments.bitcoin.totalInvested + 
+                                                 dashboardData.investments.solana.totalInvested + 
+                                                 dashboardData.investments.algorand.totalInvested;
+                            return totalInvested > 0 
+                              ? ((dashboardData.investments.solana.totalInvested / totalInvested) * 100).toFixed(1)
+                              : '0.0';
+                          })()}%
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
                   </View>
                 </View>
               )}
 
+              {/* Multi-Chain Yield Indicator */}
               <View style={styles.yieldContainer}>
                 <View style={styles.yieldItem}>
                   <Target size={16} color="#FF9500" />
                   <Text style={styles.yieldLabel}>Multi-Chain</Text>
                   <Text style={styles.yieldValue}>
-                    {dashboardData.addresses.bitcoin &&
-                    dashboardData.addresses.algorand &&
-                    dashboardData.addresses.solana
+                    {dashboardData.analytics.activeChains.length === 3
                       ? '✅✅✅'
-                      : dashboardData.addresses.bitcoin &&
-                        dashboardData.addresses.algorand
+                      : dashboardData.analytics.activeChains.length === 2
                       ? '✅✅⏳'
-                      : dashboardData.addresses.bitcoin &&
-                        dashboardData.addresses.solana
-                      ? '✅⏳✅'
-                      : dashboardData.addresses.algorand &&
-                        dashboardData.addresses.solana
-                      ? '⏳✅✅'
-                      : dashboardData.addresses.bitcoin ||
-                        dashboardData.addresses.algorand ||
-                        dashboardData.addresses.solana
+                      : dashboardData.analytics.activeChains.length === 1
                       ? '✅⏳⏳'
                       : '⏳⏳⏳'}
                   </Text>
                 </View>
               </View>
+
+              {/* Empty State */}
+              {balanceVisible && dashboardData.balance === 0 && (() => {
+                const totalWalletValue = (dashboardData.balances.btc * 97000) + 
+                                        dashboardData.balances.usdca + 
+                                        (dashboardData.balances.sol * 95) + 
+                                        (dashboardData.balances.algo * 0.4);
+                
+                if (totalWalletValue === 0) {
+                  return (
+                    <View style={styles.emptyState}>
+                      <Text style={styles.emptyTitle}>Ready to Start</Text>
+                      <Text style={styles.emptySubtitle}>Buy crypto or make your first investment</Text>
+                    </View>
+                  );
+                }
+                return null;
+              })()}
             </LinearGradient>
           </View>
 
@@ -665,7 +1029,7 @@ export default function HomeScreen() {
 
           {/* Quick Actions */}
           <View style={styles.quickActionsSection}>
-            <Text style={styles.sectionTitle}>Quick Actions 🚀</Text>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
             <View style={styles.quickActionsGrid}>
               {quickActions.map((action, index) => (
                 <TouchableOpacity
@@ -695,7 +1059,7 @@ export default function HomeScreen() {
 
           {/* Recent Activity */}
           <View style={styles.activitySection}>
-            <Text style={styles.sectionTitle}>Garden Activity 🌱</Text>
+            <Text style={styles.sectionTitle}>Recent Activity</Text>
             <View style={styles.activityContainer}>
               {recentActivity.map((activity) => (
                 <View key={activity.id} style={styles.activityItem}>
@@ -760,7 +1124,7 @@ export default function HomeScreen() {
                     // Refresh balance after a short delay
                     setTimeout(() => {
                       if (userInfo?.userID) {
-                        fetchWalletBalance(userInfo.userID);
+                        fetchDashboardData(userInfo.userID);
                       }
                     }, 3000);
                   },
@@ -1120,7 +1484,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.7)',
   },
   quickActionsSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   quickActionsGrid: {
     flexDirection: 'row',
@@ -1129,23 +1493,23 @@ const styles = StyleSheet.create({
   },
   quickActionCard: {
     width: (width - 60) / 2,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 12,
+    padding: 12,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    minHeight: 120,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+    minHeight: 100,
   },
   quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   quickActionTitle: {
     fontSize: 16,
@@ -1161,7 +1525,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   activitySection: {
-    marginBottom: 24,
+    marginBottom: 12,
   },
   activityContainer: {
     backgroundColor: 'rgba(255,255,255,0.9)',
@@ -1208,5 +1572,134 @@ const styles = StyleSheet.create({
   activityAmountText: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  cryptoCard: {
+    marginBottom: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  cryptoCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  cryptoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  cryptoIconImage: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+  cryptoInfo: {
+    flex: 1,
+  },
+  cryptoName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
+  cryptoSymbol: {
+    fontSize: 14,
+    color: '#5A5A5A',
+    fontWeight: '500',
+  },
+  cryptoValue: {
+    alignItems: 'flex-end',
+  },
+  cryptoBalance: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
+  cryptoUSD: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#5A5A5A',
+    marginTop: 2,
+  },
+  cryptoChart: {
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  chartFill: {
+    height: '100%',
+    backgroundColor: '#58CC02',
+  },
+  chartPercentage: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#2E7D32',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  balanceSubtitle: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  walletSection: {
+    marginBottom: 12,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  sectionTitleProfessional: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2E7D32',
+  },
+  sectionValueProfessional: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2E7D32',
+  },
+  sectionSubtitleProfessional: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '400',
+    marginBottom: 8,
+  },
+  investmentSection: {
+    marginBottom: 16,
+  },
+  portfolioTextProfessional: {
+    fontSize: 12,
+    color: '#5A5A5A',
+    fontWeight: '400',
+    marginBottom: 12,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#5A5A5A',
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });

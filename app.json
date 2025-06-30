@@ -1,31 +1,43 @@
 {
   "expo": {
-    "name": "cultivest-react-native",
+    "name": "Cultivest",
     "slug": "cultivest-react-native",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "cultivest",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "description": "Multi-crypto micro-investment platform for Bitcoin, Ethereum, Solana, Algorand, and USDC",
+    "splash": {
+      "image": "./assets/images/bolt/icon-text.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#58CC02"
+    },
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio."
+        "NSMicrophoneUsageDescription": "Cultivest uses the microphone for voice accessibility features and investment guidance.",
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "bundleIdentifier": "com.nel349.cultivestreactnative"
+      "bundleIdentifier": "com.cultivest.app"
     },
     "android": {
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.INTERNET"
       ],
-      "package": "com.nel349.cultivestreactnative"
+      "package": "com.nel349.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/bolt/icon-text.png",
+        "backgroundColor": "#000000"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/bolt/cultivest_icons.png"
     },
     "plugins": [
       "expo-router",
@@ -42,7 +54,11 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "https://cultivest.loca.lt/api/v1"
+      "apiUrl": "https://cultivest-backend.vercel.app/api/v1",
+      "router": {},
+      "eas": {
+        "projectId": "72d753a3-b571-46d6-9f1d-7c6b2760c778"
+      }
     }
   }
 }

@@ -35,6 +35,7 @@ import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
 import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
+import { getCurrentUser } from '@/utils/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -172,49 +173,25 @@ export default function HomeScreen() {
     },
   });
 
-  // Load user info from storage with retry logic
-  const loadUserInfo = async (retryCount = 0): Promise<string | null> => {
+  // Load user info from storage
+  const loadUserInfo = async (): Promise<string | null> => {
     try {
-      // Check multiple possible keys
-      const userDataStr = await AsyncStorage.getItem('userData');
-      const userIdStr = await AsyncStorage.getItem('user_id');
-      const userNameStr = await AsyncStorage.getItem('user_name');
-      const authTokenStr = await AsyncStorage.getItem('auth_token');
+      const { userId, userName } = await getCurrentUser();
 
-      console.log('🔍 Dashboard: Loading user info attempt', retryCount + 1, {
-        hasUserData: !!userDataStr,
-        hasUserId: !!userIdStr,
-        hasUserName: !!userNameStr,
-        hasAuthToken: !!authTokenStr
-      });
-
-      if (userDataStr) {
-        const userData = JSON.parse(userDataStr);
-
+      if (userId) {
+        console.log('🔍 Dashboard: User info loaded:', { userId, userName });
         setUserInfo({
-          name: userData.name || userNameStr || 'User',
-          walletAddress: userData.walletAddress || '',
-          userID: userData.userID || userData.userId || userIdStr || '',
+          name: userName || 'User',
+          walletAddress: '', // Wallet address will be populated by fetchDashboardData
+          userID: userId,
         });
-        return userData.userID || userData.userId || userIdStr;
-      } else if (userIdStr) {
-        // Fallback: use individual stored values
-        setUserInfo({
-          name: userNameStr || 'User',
-          walletAddress: '',
-          userID: userIdStr,
-        });
-        return userIdStr;
-      } else if (retryCount < 2) {
-        // Retry up to 2 times with a small delay for AsyncStorage timing issues
-        console.log('⏳ Dashboard: No user data found, retrying in 500ms...');
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return loadUserInfo(retryCount + 1);
+        return userId;
       }
     } catch (error) {
       console.error('Error loading user info:', error);
     }
 
+    console.log('⚠️ Dashboard: No user ID found from getCurrentUser, user may need to login');
     return null;
   };
 

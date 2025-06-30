@@ -19,7 +19,6 @@ export const signOut = async (): Promise<void> => {
       AUTH_KEYS.TOKEN,
       AUTH_KEYS.USER_ID,
       AUTH_KEYS.USER_NAME,
-      'userData', // Also clear the userData object
     ]);
     
     console.log('🚪 User signed out successfully - all auth data cleared');
@@ -92,13 +91,7 @@ export const storeAuthData = async (
       [AUTH_KEYS.USER_NAME, userName],
     ]);
 
-    // Also store complete userData object for dashboard compatibility
-    const userData = {
-      userID: userId,
-      name: userName,
-      walletAddress: '', // Will be populated when wallet balance is fetched
-    };
-    await AsyncStorage.setItem('userData', JSON.stringify(userData));
+    // Removed userData object storage for standardization
     
     console.log('✅ Auth data stored successfully');
   } catch (error) {

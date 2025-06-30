@@ -107,10 +107,10 @@ class ApiClient {
     });
   }
 
-  async verifyOtp(userID: string, otpCode: string) {
+  async verifyOtp(userId: string, otpCode: string) {
     return this.request('/auth/verify-otp', {
       method: 'POST',
-      body: JSON.stringify({ userID, otpCode }),
+      body: JSON.stringify({ userID: userId, otpCode }),
     });
   }
 
@@ -122,28 +122,28 @@ class ApiClient {
   }
 
   // User endpoints
-  async getUserProfile(userID: string) {
-    return this.request(`/user/profile?userID=${userID}`);
+  async getUserProfile(userId: string) {
+    return this.request(`/user/profile?userId=${userId}`);
   }
 
-  async submitKyc(userID: string, kycData: any) {
+  async submitKyc(userId: string, kycData: any) {
     return this.request('/user/kyc', {
       method: 'POST',
-      body: JSON.stringify({ userID, kycData }),
+      body: JSON.stringify({ userId, kycData }),
     });
   }
 
   // Wallet endpoints (Updated for backend integration)
-  async createWallet(userID: string) {
+  async createWallet(userId: string) {
     return this.request('/wallet/create', {
       method: 'POST',
-      body: JSON.stringify({ userId: userID }), // Backend expects 'userId', not 'userID'
+      body: JSON.stringify({ userId }), // Backend expects 'userId', not 'userID'
     }, true);
   }
 
-  async getWalletBalance(userID: string, live: boolean = false) {
+  async getWalletBalance(userId: string, live: boolean = false) {
     // Try userId (lowercase i) to match createWallet expectation
-    return this.request(`/wallet/balance?userId=${userID}&live=${live}`);
+    return this.request(`/wallet/balance?userId=${userId}&live=${live}`);
   }
 
   // DEPRECATED: MoonPay Deposit endpoints (use unified invest endpoint instead)
@@ -166,78 +166,78 @@ class ApiClient {
   }
 
   // Investment endpoints
-  async initiateInvestment(userID: string, amount: number) {
+  async initiateInvestment(userId: string, amount: number) {
     return this.request('/investment/initiate', {
       method: 'POST',
-      body: JSON.stringify({ userID, amount }),
+      body: JSON.stringify({ userId, amount }),
     });
   }
 
-  async getInvestmentPositions(userID: string) {
-    return this.request(`/investment/positions?userID=${userID}`);
+  async getInvestmentPositions(userId: string) {
+    return this.request(`/investment/positions?userId=${userId}`);
   }
 
   // DEPRECATED: Bitcoin Investment endpoints (use unified invest endpoint instead)
-  async initiateBitcoinInvestment(userID: string, amountUSD: number, riskAccepted: boolean = true) {
+  async initiateBitcoinInvestment(userId: string, amountUSD: number, riskAccepted: boolean = true) {
     console.warn('⚠️ DEPRECATED: Use createUserInvestment() instead');
     return this.request('/investment/bitcoin/initiate', {
       method: 'POST',
-      body: JSON.stringify({ userID, amountUSD, riskAccepted, investmentType: 'market_buy' }),
+      body: JSON.stringify({ userId, amountUSD, riskAccepted, investmentType: 'market_buy' }),
     });
   }
 
-  async getBitcoinPositions(userID: string) {
+  async getBitcoinPositions(userId: string) {
     return this.request('/investment/bitcoin/positions', {
       method: 'POST',
-      body: JSON.stringify({ userID }),
+      body: JSON.stringify({ userId }),
     });
   }
 
-  async getPortfolioOverview(userID: string) {
+  async getPortfolioOverview(userId: string) {
     return this.request('/investment/portfolio', {
       method: 'POST',
-      body: JSON.stringify({ userID }),
+      body: JSON.stringify({ userId }),
     });
   }
 
   // NEW: Unified User Investment endpoints
-  async createUserInvestment(userID: string, investmentData: any) {
-    return this.request(`/users/${userID}/invest`, {
+  async createUserInvestment(userId: string, investmentData: any) {
+    return this.request(`/users/${userId}/invest`, {
       method: 'POST',
       body: JSON.stringify(investmentData),
     });
   }
 
-  async getUserInvestments(userID: string) {
-    return this.request(`/users/${userID}/investments`);
+  async getUserInvestments(userId: string) {
+    return this.request(`/users/${userId}/investments`);
   }
 
-  async getUserInvestmentById(userID: string, positionTokenId: string) {
-    return this.request(`/users/${userID}/investments/${positionTokenId}`);
+  async getUserInvestmentById(userId: string, positionTokenId: string) {
+    return this.request(`/users/${userId}/investments/${positionTokenId}`);
   }
 
   // User Portfolio endpoints
-  async getUserPortfolio(userID: string) {
-    return this.request(`/users/${userID}/portfolio`);
+  async getUserPortfolio(userId: string) {
+    return this.request(`/users/${userId}/portfolio`);
   }
 
-  async getUserPrimaryPortfolio(userID: string) {
-    return this.request(`/users/${userID}/portfolio/primary`);
+  async getUserPrimaryPortfolio(userId: string) {
+    return this.request(`/users/${userId}/portfolio/primary`);
   }
 
-  async getUserPortfolioPositions(userID: string) {
-    return this.request(`/users/${userID}/portfolio/positions`);
+  async getUserPortfolioPositions(userId: string) {
+    return this.request(`/users/${userId}/portfolio/positions`);
   }
 
-  async createUserPortfolio(userID: string, portfolioData: any) {
-    return this.request(`/users/${userID}/portfolio`, {
+  async createUserPortfolio(userId: string, portfolioData: any) {
+    return this.request(`/users/${userId}/portfolio`, {
       method: 'POST',
       body: JSON.stringify(portfolioData),
     });
   }
 
-  async updatePortfolioName(userID: string, portfolioId: string, customName: string) {
-    return this.request(`/users/${userID}/portfolio/${portfolioId}`, {
+  async updatePortfolioName(userId: string, portfolioId: string, customName: string) {
+    return this.request(`/users/${userId}/portfolio/${portfolioId}`, {
       method: 'PUT',
       body: JSON.stringify({ customName }),
     });
@@ -249,8 +249,8 @@ class ApiClient {
   }
 
   // Dashboard endpoints
-  async getDashboardData(userID: string) {
-    return this.request(`/dashboard/data?userID=${userID}`);
+  async getDashboardData(userId: string) {
+    return this.request(`/dashboard/data?userId=${userId}`);
   }
 
   // Education endpoints
@@ -258,42 +258,42 @@ class ApiClient {
     return this.request('/education/content');
   }
 
-  async submitQuiz(userID: string, contentID: string, answers: number[]) {
+  async submitQuiz(userId: string, contentID: string, answers: number[]) {
     return this.request('/education/quiz/submit', {
       method: 'POST',
-      body: JSON.stringify({ userID, contentID, answers }),
+      body: JSON.stringify({ userId, contentID, answers }),
     });
   }
 
   // Withdrawal endpoints
-  async initiateWithdrawal(userID: string, amount: number, provider: string, bankDetails?: any) {
+  async initiateWithdrawal(userId: string, amount: number, provider: string, bankDetails?: any) {
     return this.request('/withdrawal/initiate', {
       method: 'POST',
-      body: JSON.stringify({ userID, amount, provider, bankDetails }),
+      body: JSON.stringify({ userId, amount, provider, bankDetails }),
     });
   }
 
   // AI endpoints
-  async getRoundUpSuggestion(userID: string, transactionAmount: number, merchantName?: string) {
+  async getRoundUpSuggestion(userId: string, transactionAmount: number, merchantName?: string) {
     return this.request('/ai/roundup-suggestion', {
       method: 'POST',
-      body: JSON.stringify({ userID, transactionAmount, merchantName }),
+      body: JSON.stringify({ userId, transactionAmount, merchantName }),
     });
   }
 
   // Notification endpoints
-  async sendDailyYieldNotification(userID: string, yieldAmount: number) {
+  async sendDailyYieldNotification(userId: string, yieldAmount: number) {
     return this.request('/notifications/send-daily-yield', {
       method: 'POST',
-      body: JSON.stringify({ userID, yieldAmount }),
+      body: JSON.stringify({ userId, yieldAmount }),
     });
   }
 
   // Transaction receipt endpoints
-  async sendTransactionReceipt(userID: string, transactionID: string, email: string, transactionType: string) {
+  async sendTransactionReceipt(userId: string, transactionID: string, email: string, transactionType: string) {
     return this.request('/transaction/receipt/send', {
       method: 'POST',
-      body: JSON.stringify({ userID, transactionID, email, transactionType }),
+      body: JSON.stringify({ userId, transactionID, email, transactionType }),
     });
   }
 

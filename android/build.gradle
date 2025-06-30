@@ -6,7 +6,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath('com.android.tools.build:gradle')
+    classpath('com.android.tools.build:gradle:8.9.1')
     classpath('com.facebook.react:react-native-gradle-plugin')
     classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
   }
@@ -34,7 +34,10 @@ allprojects {
   
   configurations.all {
     resolutionStrategy {
+      // Force compatible versions to avoid API level conflicts
       force 'androidx.browser:browser:1.8.0'
+      force 'androidx.activity:activity:1.8.2'
+      force 'androidx.fragment:fragment:1.6.2'
     }
   }
 }

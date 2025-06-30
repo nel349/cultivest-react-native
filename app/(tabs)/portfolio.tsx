@@ -13,6 +13,7 @@ import { NFTPortfolioCard } from '@/components/NFTPortfolioCard';
 import { PositionNFTList } from '@/components/PositionNFTList';
 import { useCelebrationCheck } from '@/hooks/useCelebrationCheck';
 import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
+import { getCurrentUser } from '@/utils/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -45,17 +46,17 @@ export default function PortfolioScreen() {
 
   const loadPortfolioData = async () => {
     try {
-      const currentUserID = await AsyncStorage.getItem('user_id');
-      if (!currentUserID) {
+      const { userId } = await getCurrentUser();
+      if (!userId) {
         console.log('No user ID found');
         return;
       }
 
       // Set userID state for celebration hook
-      setUserID(currentUserID);
+      setUserID(userId);
 
       // Load user investments (NFT data)
-      const investmentsResponse = await apiClient.getUserInvestments(currentUserID);
+      const investmentsResponse = await apiClient.getUserInvestments(userId);
       if (investmentsResponse.success && investmentsResponse.data) {
         setUserInvestments(investmentsResponse.data as any);
         

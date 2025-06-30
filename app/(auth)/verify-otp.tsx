@@ -8,6 +8,7 @@ import { apiClient } from '@/utils/api';
 import { storeAuthData } from '@/utils/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
+import { ApiResponse } from '@/types/api';
 
 const { width } = Dimensions.get('window');
 
@@ -93,14 +94,17 @@ export default function VerifyOTPScreen() {
     try {
       console.log('🔐 Attempting OTP verification:', { userID, otpCode });
       
-      const response = await apiClient.verifyOtp(userID as string, otpCode);
+      const response: ApiResponse<any> = await apiClient.verifyOtp(userID as string, otpCode);
       
       if (response.success && (response.authToken || response.token)) {
         console.log('✅ OTP verification successful');
         
+        // Use the userID from the backend response, not from local params
+        const authenticatedUserID = response.userID || response.data?.userID || userID as string;
+
         // Store authentication data using the proper utility function
         const token = response.authToken || response.token;
-        await storeAuthData(token || '', userID as string, name as string || '');
+        await storeAuthData(token || '', authenticatedUserID, name as string || '');
         
         // Different flow for login vs signup
         if (isLogin === 'true') {

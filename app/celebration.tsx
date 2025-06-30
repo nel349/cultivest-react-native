@@ -3,6 +3,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FirstInvestmentCelebration } from '@/components/FirstInvestmentCelebration';
 import { celebrationManager } from '@/utils/celebration';
+import { getCurrentUser } from '@/utils/auth';
 
 export default function CelebrationScreen() {
   const router = useRouter();
@@ -20,10 +21,10 @@ export default function CelebrationScreen() {
   useEffect(() => {
     const markCelebrationCompleted = async () => {
       try {
-        const userID = await AsyncStorage.getItem('user_id');
-        if (userID) {
-          console.log('🎯 Marking first investment celebration as completed for user:', userID);
-          await celebrationManager.markCelebrationAsCompleted(userID);
+        const { userId } = await getCurrentUser();
+        if (userId) {
+          console.log('🎯 Marking first investment celebration as completed for user:', userId);
+          await celebrationManager.markCelebrationAsCompleted(userId);
         }
       } catch (error) {
         console.error('❌ Error marking celebration as completed:', error);

@@ -40,6 +40,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "https://cultivest.loca.lt/api/v1"
     }
   }
 }

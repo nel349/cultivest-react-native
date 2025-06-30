@@ -97,11 +97,9 @@ export default function VerifyOTPScreen() {
       if (response.success && (response.authToken || response.token)) {
         console.log('✅ OTP verification successful');
         
-        // Store JWT token securely
+        // Store authentication data using the proper utility function
         const token = response.authToken || response.token;
-        await AsyncStorage.setItem('auth_token', token || '');
-        await AsyncStorage.setItem('user_id', userID as string);
-        await AsyncStorage.setItem('user_name', name as string || '');
+        await storeAuthData(token || '', userID as string, name as string || '');
         
         // Different flow for login vs signup
         if (isLogin === 'true') {

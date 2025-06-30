@@ -113,7 +113,7 @@ class ApiClient {
 
   async getWalletBalance(userID: string, live: boolean = false) {
     // Try userId (lowercase i) to match createWallet expectation
-    return this.request(`/wallet/balance?userId=${userID}&live=${live}`, {}, true);
+    return this.request(`/wallet/balance?userId=${userID}&live=${live}`);
   }
 
   // DEPRECATED: MoonPay Deposit endpoints (use unified invest endpoint instead)

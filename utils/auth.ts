@@ -84,11 +84,21 @@ export const storeAuthData = async (
   userName: string
 ): Promise<void> => {
   try {
+    // Store individual keys for backward compatibility
     await AsyncStorage.multiSet([
       [AUTH_KEYS.TOKEN, token],
       [AUTH_KEYS.USER_ID, userId],
       [AUTH_KEYS.USER_NAME, userName],
     ]);
+
+    // Also store complete userData object for dashboard compatibility
+    const userData = {
+      userID: userId,
+      name: userName,
+      walletAddress: '', // Will be populated when wallet balance is fetched
+    };
+    await AsyncStorage.setItem('userData', JSON.stringify(userData));
+    
     console.log('✅ Auth data stored successfully');
   } catch (error) {
     console.error('❌ Error storing auth data:', error);

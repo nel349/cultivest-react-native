@@ -1,16 +1,37 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  Dimensions,
+  Alert,
+  StatusBar,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { 
-  Eye, EyeOff, Plus, TrendingUp, Leaf, 
-  ArrowUpRight, Bell, Settings, TreePine, 
-  Sprout, Flower, Star, Trophy, Zap, Target
+import {
+  Eye,
+  EyeOff,
+  Plus,
+  TrendingUp,
+  Leaf,
+  ArrowUpRight,
+  TreePine,
+  Sprout,
+  Flower,
+  Star,
+  Trophy,
+  Zap,
+  Target,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
+import VoiceComboComponent from '@/components/VoiceComboComponent';
 
 const { width } = Dimensions.get('window');
 
@@ -64,41 +85,54 @@ export default function HomeScreen() {
     addresses: {
       bitcoin: '',
       algorand: '',
-      solana: ''
+      solana: '',
     },
     portfolioAllocation: {
       bitcoinPercentage: 0,
       algorandPercentage: 0,
       usdcPercentage: 0,
-      solanaPercentage: 0
-    }
+      solanaPercentage: 0,
+    },
   });
 
-  // Load user info from storage
-  const loadUserInfo = async (): Promise<string | null> => {
+  // Load user info from storage with retry logic
+  const loadUserInfo = async (retryCount = 0): Promise<string | null> => {
     try {
       // Check multiple possible keys
       const userDataStr = await AsyncStorage.getItem('userData');
       const userIdStr = await AsyncStorage.getItem('user_id');
+      const userNameStr = await AsyncStorage.getItem('user_name');
       const authTokenStr = await AsyncStorage.getItem('auth_token');
-      
+
+      console.log('🔍 Dashboard: Loading user info attempt', retryCount + 1, {
+        hasUserData: !!userDataStr,
+        hasUserId: !!userIdStr,
+        hasUserName: !!userNameStr,
+        hasAuthToken: !!authTokenStr
+      });
+
       if (userDataStr) {
         const userData = JSON.parse(userDataStr);
 
         setUserInfo({
-          name: userData.name || 'User',
+          name: userData.name || userNameStr || 'User',
           walletAddress: userData.walletAddress || '',
-          userID: userData.userID || userData.userId || userIdStr || ''
+          userID: userData.userID || userData.userId || userIdStr || '',
         });
         return userData.userID || userData.userId || userIdStr;
       } else if (userIdStr) {
-        // Fallback: just use userID if no full userData
+        // Fallback: use individual stored values
         setUserInfo({
-          name: 'User',
+          name: userNameStr || 'User',
           walletAddress: '',
-          userID: userIdStr
+          userID: userIdStr,
         });
         return userIdStr;
+      } else if (retryCount < 2) {
+        // Retry up to 2 times with a small delay for AsyncStorage timing issues
+        console.log('⏳ Dashboard: No user data found, retrying in 500ms...');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return loadUserInfo(retryCount + 1);
       }
     } catch (error) {
       console.error('Error loading user info:', error);
@@ -111,18 +145,14 @@ export default function HomeScreen() {
   const fetchWalletBalance = async (userID: string) => {
     try {
       const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-      
-
 
       // Get database balance
       const dbResult = await apiClient.getWalletBalance(userID, false);
-      
 
-      
       // Get live balance
       const liveResult = await apiClient.getWalletBalance(userID, true);
-      
-      // Get live crypto prices 
+
+      // Get live crypto prices
       const pricesResult = await apiClient.request('/prices');
 
       if (dbResult?.success) {
@@ -130,54 +160,80 @@ export default function HomeScreen() {
         const addresses = {
           bitcoin: dbResult.addresses?.bitcoin || '',
           algorand: dbResult.addresses?.algorand || '',
-          solana: (dbResult.addresses as any)?.solana || ''
+          solana: (dbResult.addresses as any)?.solana || '',
         };
-        const dbBalance = dbResult.balance?.databaseBalance || { btc: 0, algo: 0, usdca: 0, sol: 0 };
-        const liveBalance = dbResult.balance?.onChainBalance || (liveResult?.success ? liveResult.balance?.onChainBalance : null) || { btc: 0, algo: 0, usdca: 0, sol: 0 };
-        
+        const dbBalance = dbResult.balance?.databaseBalance || {
+          btc: 0,
+          algo: 0,
+          usdca: 0,
+          sol: 0,
+        };
+        const liveBalance = dbResult.balance?.onChainBalance ||
+          (liveResult?.success ? liveResult.balance?.onChainBalance : null) || {
+            btc: 0,
+            algo: 0,
+            usdca: 0,
+            sol: 0,
+          };
+
         // Use live balance if available, fallback to database
         const btcBalance = liveBalance.btc || dbBalance.btc || 0;
         const algoBalance = liveBalance.algo || dbBalance.algo || 0;
         const usdcaBalance = liveBalance.usdca || dbBalance.usdca || 0;
-        const solBalance = (liveBalance as any).sol || (dbBalance as any).sol || 0;
-        
+        const solBalance =
+          (liveBalance as any).sol || (dbBalance as any).sol || 0;
+
         // Get live cryptocurrency prices with fallbacks
-        let btcPriceUSD = 97000;  // Fallback price
-        let algoPriceUSD = 0.40;  // Fallback price
-        let solPriceUSD = 95;     // Fallback price
-        
+        let btcPriceUSD = 97000; // Fallback price
+        let algoPriceUSD = 0.4; // Fallback price
+        let solPriceUSD = 95; // Fallback price
+
         if (pricesResult?.success && (pricesResult as any).prices) {
-          btcPriceUSD = (pricesResult as any).prices.bitcoin?.usd || btcPriceUSD;
-          algoPriceUSD = (pricesResult as any).prices.algorand?.usd || algoPriceUSD;
+          btcPriceUSD =
+            (pricesResult as any).prices.bitcoin?.usd || btcPriceUSD;
+          algoPriceUSD =
+            (pricesResult as any).prices.algorand?.usd || algoPriceUSD;
           solPriceUSD = (pricesResult as any).prices.solana?.usd || solPriceUSD;
-          console.log('✅ Using live prices:', { 
-            BTC: `$${btcPriceUSD.toLocaleString()}`, 
+          console.log('✅ Using live prices:', {
+            BTC: `$${btcPriceUSD.toLocaleString()}`,
             ALGO: `$${algoPriceUSD.toFixed(4)}`,
-            SOL: `$${solPriceUSD.toFixed(2)}`
+            SOL: `$${solPriceUSD.toFixed(2)}`,
           });
         } else {
           console.log('⚠️ Using fallback prices due to API error');
         }
-        
+
         const btcValueUSD = btcBalance * btcPriceUSD;
         const algoValueUSD = algoBalance * algoPriceUSD;
         const usdcValueUSD = usdcaBalance * 1.0;
         const solValueUSD = solBalance * solPriceUSD;
-        const totalValueUSD = btcValueUSD + algoValueUSD + usdcValueUSD + solValueUSD;
-        
+        const totalValueUSD =
+          btcValueUSD + algoValueUSD + usdcValueUSD + solValueUSD;
+
         // Calculate portfolio allocation percentages
-        const bitcoinPercentage = totalValueUSD > 0 ? (btcValueUSD / totalValueUSD) * 100 : 0;
-        const algorandPercentage = totalValueUSD > 0 ? (algoValueUSD / totalValueUSD) * 100 : 0;
-        const usdcPercentage = totalValueUSD > 0 ? (usdcValueUSD / totalValueUSD) * 100 : 0;
-        const solanaPercentage = totalValueUSD > 0 ? (solValueUSD / totalValueUSD) * 100 : 0;
-        
-        console.log('💰 Parsed multi-chain balances:', { 
-          btcBalance, algoBalance, usdcaBalance, solBalance,
-          btcValueUSD, algoValueUSD, usdcValueUSD, solValueUSD, totalValueUSD,
-          addresses 
+        const bitcoinPercentage =
+          totalValueUSD > 0 ? (btcValueUSD / totalValueUSD) * 100 : 0;
+        const algorandPercentage =
+          totalValueUSD > 0 ? (algoValueUSD / totalValueUSD) * 100 : 0;
+        const usdcPercentage =
+          totalValueUSD > 0 ? (usdcValueUSD / totalValueUSD) * 100 : 0;
+        const solanaPercentage =
+          totalValueUSD > 0 ? (solValueUSD / totalValueUSD) * 100 : 0;
+
+        console.log('💰 Parsed multi-chain balances:', {
+          btcBalance,
+          algoBalance,
+          usdcaBalance,
+          solBalance,
+          btcValueUSD,
+          algoValueUSD,
+          usdcValueUSD,
+          solValueUSD,
+          totalValueUSD,
+          addresses,
         });
-        
-        setDashboardData(prev => ({
+
+        setDashboardData((prev) => ({
           ...prev,
           balanceBTC: btcBalance,
           balanceUSDCa: usdcaBalance,
@@ -193,18 +249,29 @@ export default function HomeScreen() {
             bitcoinPercentage: bitcoinPercentage,
             algorandPercentage: algorandPercentage,
             usdcPercentage: usdcPercentage,
-            solanaPercentage: solanaPercentage
-          }
+            solanaPercentage: solanaPercentage,
+          },
         }));
-        
+
         // Update user info with wallet addresses
-        setUserInfo(prev => prev ? {
-          ...prev,
-          walletAddress: addresses.algorand || addresses.bitcoin || addresses.solana || ''
-        } : null);
+        setUserInfo((prev) =>
+          prev
+            ? {
+                ...prev,
+                walletAddress:
+                  addresses.algorand ||
+                  addresses.bitcoin ||
+                  addresses.solana ||
+                  '',
+              }
+            : null
+        );
       } else {
-        console.error('Failed to fetch wallet balance:', dbResult?.error || 'Database request failed');
-        
+        console.error(
+          'Failed to fetch wallet balance:',
+          dbResult?.error || 'Database request failed'
+        );
+
         console.error('Failed to fetch wallet balance:', dbResult?.error);
       }
     } catch (error) {
@@ -219,7 +286,12 @@ export default function HomeScreen() {
     try {
       const userID = await loadUserInfo();
       if (userID) {
+        console.log('✅ Dashboard: User ID loaded:', userID);
         await fetchWalletBalance(userID);
+      } else {
+        console.log('⚠️ Dashboard: No user ID found, user may need to login');
+        // Could redirect to login here if needed
+        // router.replace('/(auth)/welcome');
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -236,11 +308,11 @@ export default function HomeScreen() {
       if (userID) {
         // Refresh all dashboard data including wallet balance, investments, and portfolio
         await fetchWalletBalance(userID);
-        
+
         // TODO: Add investment/portfolio data refresh here when needed
         // Example: await fetchInvestmentData(userID);
         // Example: await fetchPortfolioData(userID);
-        
+
         console.log('✅ Dashboard data refreshed successfully');
       }
     } catch (error) {
@@ -262,7 +334,7 @@ export default function HomeScreen() {
       icon: TrendingUp,
       color: '#F7931A',
       bgColor: '#FFF8E1',
-      onPress: () => router.push('/(tabs)/invest')
+      onPress: () => router.push('/(tabs)/invest'),
     },
     {
       title: 'Other Crypto',
@@ -272,7 +344,7 @@ export default function HomeScreen() {
       bgColor: '#E8F5E8',
       onPress: () => {
         setShowFundingModal(true);
-      }
+      },
     },
     {
       title: 'Portfolio View',
@@ -280,7 +352,7 @@ export default function HomeScreen() {
       icon: ArrowUpRight,
       color: '#00D4AA',
       bgColor: '#E0F7FA',
-      onPress: () => router.push('/(tabs)/portfolio')
+      onPress: () => router.push('/(tabs)/portfolio'),
     },
     {
       title: 'Learn & Grow',
@@ -288,8 +360,8 @@ export default function HomeScreen() {
       icon: Star,
       color: '#FFD900',
       bgColor: '#FFFDE7',
-      onPress: () => router.push('/education')
-    }
+      onPress: () => router.push('/education'),
+    },
   ];
 
   const achievements = [
@@ -307,16 +379,16 @@ export default function HomeScreen() {
       description: 'Daily garden growth',
       timestamp: '2 hours ago',
       status: 'completed',
-      icon: Leaf
+      icon: Leaf,
     },
     {
       id: '2',
       type: 'investment',
-      amount: 25.00,
+      amount: 25.0,
       description: 'Planted new seeds',
       timestamp: 'Yesterday',
       status: 'completed',
-      icon: Sprout
+      icon: Sprout,
     },
     {
       id: '3',
@@ -325,34 +397,51 @@ export default function HomeScreen() {
       description: 'Daily garden growth',
       timestamp: '1 day ago',
       status: 'completed',
-      icon: Leaf
-    }
+      icon: Leaf,
+    },
   ];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <LinearGradient
         colors={['#89E5AB', '#58CC02', '#46A302']}
-        style={styles.gradient}
+        style={[styles.gradient, { paddingTop: insets.top }]}
       >
         {/* Floating Plant Decorations */}
         <View style={styles.decorationContainer}>
-          <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+          <View
+            style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}
+          >
             <Leaf size={20} color="#FFFFFF" />
           </View>
-          <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+          <View
+            style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}
+          >
             <Flower size={16} color="#FFFFFF" />
           </View>
-          <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
+          <View
+            style={[
+              styles.plantDecor,
+              { top: 200, left: width - 80, opacity: 0.25 },
+            ]}
+          >
             <Sprout size={18} color="#FFFFFF" />
           </View>
         </View>
 
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 120 },
+          ]}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#FFFFFF"
+            />
           }
           showsVerticalScrollIndicator={false}
         >
@@ -360,24 +449,11 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <Text style={styles.greeting}>Good morning! 🌅</Text>
-              <Text style={styles.userName}>
+              <Text style={styles.userName} numberOfLines={2}>
                 Keep growing, {userInfo?.name || 'Gardener'}
               </Text>
             </View>
-            <View style={styles.headerRight}>
-              <TouchableOpacity style={styles.iconButton}>
-                <Bell size={24} color="#FFFFFF" />
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationText}>2</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
-                <Settings size={24} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
           </View>
-
-
 
           {/* Balance Card */}
           <View style={styles.balanceCard}>
@@ -398,32 +474,52 @@ export default function HomeScreen() {
                   )}
                 </TouchableOpacity>
               </View>
-              
+
               <Text style={styles.balanceAmount}>
-                {balanceVisible ? `$${dashboardData.totalBalanceUSD.toFixed(2)}` : '••••••'}
+                {balanceVisible
+                  ? `$${dashboardData.totalBalanceUSD.toFixed(2)}`
+                  : '••••••'}
               </Text>
-              
+
               {/* Multi-Chain Asset Breakdown */}
               {balanceVisible && (
                 <View style={styles.assetsBreakdown}>
                   <View style={[styles.assetItem, styles.bitcoinAsset]}>
                     <View style={styles.assetTopRow}>
                       <View style={[styles.assetIcon, styles.bitcoinIcon]}>
-                        <Text style={[styles.assetSymbol, styles.bitcoinSymbol]}>₿</Text>
+                        <Text
+                          style={[styles.assetSymbol, styles.bitcoinSymbol]}
+                        >
+                          ₿
+                        </Text>
                       </View>
-                      <Text style={[styles.assetLabel, styles.bitcoinLabel]}>Bitcoin</Text>
+                      <Text style={[styles.assetLabel, styles.bitcoinLabel]}>
+                        Bitcoin
+                      </Text>
                     </View>
                     <View style={styles.assetBottomRow}>
                       <View style={styles.assetAmountContainer}>
-                        <Text style={[styles.assetAmount, styles.bitcoinAmount]}>
+                        <Text
+                          style={[styles.assetAmount, styles.bitcoinAmount]}
+                        >
                           {dashboardData.balanceBTC.toFixed(8)} BTC
                         </Text>
-                        <Text style={[styles.assetUsdValue, styles.bitcoinUsdValue]}>
+                        <Text
+                          style={[styles.assetUsdValue, styles.bitcoinUsdValue]}
+                        >
                           ${dashboardData.btcValueUSD.toFixed(2)}
                         </Text>
                       </View>
-                      <Text style={[styles.assetPercentage, styles.bitcoinPercentage]}>
-                        {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(1)}%
+                      <Text
+                        style={[
+                          styles.assetPercentage,
+                          styles.bitcoinPercentage,
+                        ]}
+                      >
+                        {dashboardData.portfolioAllocation.bitcoinPercentage.toFixed(
+                          1
+                        )}
+                        %
                       </Text>
                     </View>
                   </View>
@@ -444,7 +540,10 @@ export default function HomeScreen() {
                         </Text>
                       </View>
                       <Text style={styles.assetPercentage}>
-                        {dashboardData.portfolioAllocation.usdcPercentage.toFixed(1)}%
+                        {dashboardData.portfolioAllocation.usdcPercentage.toFixed(
+                          1
+                        )}
+                        %
                       </Text>
                     </View>
                   </View>
@@ -465,7 +564,10 @@ export default function HomeScreen() {
                         </Text>
                       </View>
                       <Text style={styles.assetPercentage}>
-                        {dashboardData.portfolioAllocation.algorandPercentage.toFixed(1)}%
+                        {dashboardData.portfolioAllocation.algorandPercentage.toFixed(
+                          1
+                        )}
+                        %
                       </Text>
                     </View>
                   </View>
@@ -486,23 +588,39 @@ export default function HomeScreen() {
                         </Text>
                       </View>
                       <Text style={styles.assetPercentage}>
-                        {dashboardData.portfolioAllocation.solanaPercentage.toFixed(1)}%
+                        {dashboardData.portfolioAllocation.solanaPercentage.toFixed(
+                          1
+                        )}
+                        %
                       </Text>
                     </View>
                   </View>
                 </View>
               )}
-              
+
               <View style={styles.yieldContainer}>
                 <View style={styles.yieldItem}>
                   <Target size={16} color="#FF9500" />
                   <Text style={styles.yieldLabel}>Multi-Chain</Text>
                   <Text style={styles.yieldValue}>
-                    {dashboardData.addresses.bitcoin && dashboardData.addresses.algorand && dashboardData.addresses.solana ? '✅✅✅' : 
-                     dashboardData.addresses.bitcoin && dashboardData.addresses.algorand ? '✅✅⏳' :
-                     dashboardData.addresses.bitcoin && dashboardData.addresses.solana ? '✅⏳✅' :
-                     dashboardData.addresses.algorand && dashboardData.addresses.solana ? '⏳✅✅' :
-                     dashboardData.addresses.bitcoin || dashboardData.addresses.algorand || dashboardData.addresses.solana ? '✅⏳⏳' : '⏳⏳⏳'}
+                    {dashboardData.addresses.bitcoin &&
+                    dashboardData.addresses.algorand &&
+                    dashboardData.addresses.solana
+                      ? '✅✅✅'
+                      : dashboardData.addresses.bitcoin &&
+                        dashboardData.addresses.algorand
+                      ? '✅✅⏳'
+                      : dashboardData.addresses.bitcoin &&
+                        dashboardData.addresses.solana
+                      ? '✅⏳✅'
+                      : dashboardData.addresses.algorand &&
+                        dashboardData.addresses.solana
+                      ? '⏳✅✅'
+                      : dashboardData.addresses.bitcoin ||
+                        dashboardData.addresses.algorand ||
+                        dashboardData.addresses.solana
+                      ? '✅⏳⏳'
+                      : '⏳⏳⏳'}
                   </Text>
                 </View>
               </View>
@@ -512,20 +630,33 @@ export default function HomeScreen() {
           {/* Achievements Row */}
           <View style={styles.achievementsSection}>
             <Text style={styles.sectionTitle}>Your Achievements 🏆</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.achievementsScroll}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.achievementsScroll}
+            >
               {achievements.map((achievement, index) => (
-                <View key={index} style={[
-                  styles.achievementBadge,
-                  achievement.completed ? styles.achievementCompleted : styles.achievementLocked
-                ]}>
-                  <achievement.icon 
-                    size={24} 
-                    color={achievement.completed ? "#58CC02" : "#C0C0C0"} 
+                <View
+                  key={index}
+                  style={[
+                    styles.achievementBadge,
+                    achievement.completed
+                      ? styles.achievementCompleted
+                      : styles.achievementLocked,
+                  ]}
+                >
+                  <achievement.icon
+                    size={24}
+                    color={achievement.completed ? '#58CC02' : '#C0C0C0'}
                   />
-                  <Text style={[
-                    styles.achievementText,
-                    achievement.completed ? styles.achievementTextCompleted : styles.achievementTextLocked
-                  ]}>
+                  <Text
+                    style={[
+                      styles.achievementText,
+                      achievement.completed
+                        ? styles.achievementTextCompleted
+                        : styles.achievementTextLocked,
+                    ]}
+                  >
                     {achievement.title}
                   </Text>
                 </View>
@@ -540,14 +671,24 @@ export default function HomeScreen() {
               {quickActions.map((action, index) => (
                 <TouchableOpacity
                   key={index}
-                  style={[styles.quickActionCard, { backgroundColor: action.bgColor }]}
+                  style={[
+                    styles.quickActionCard,
+                    { backgroundColor: action.bgColor },
+                  ]}
                   onPress={action.onPress}
                 >
-                  <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
+                  <View
+                    style={[
+                      styles.quickActionIcon,
+                      { backgroundColor: action.color },
+                    ]}
+                  >
                     <action.icon size={24} color="#FFFFFF" />
                   </View>
                   <Text style={styles.quickActionTitle}>{action.title}</Text>
-                  <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
+                  <Text style={styles.quickActionSubtitle}>
+                    {action.subtitle}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -559,21 +700,41 @@ export default function HomeScreen() {
             <View style={styles.activityContainer}>
               {recentActivity.map((activity) => (
                 <View key={activity.id} style={styles.activityItem}>
-                  <View style={[styles.activityIcon, 
-                    { backgroundColor: activity.type === 'yield_credit' ? '#E8F5E8' : '#E0F7FA' }
-                  ]}>
+                  <View
+                    style={[
+                      styles.activityIcon,
+                      {
+                        backgroundColor:
+                          activity.type === 'yield_credit'
+                            ? '#E8F5E8'
+                            : '#E0F7FA',
+                      },
+                    ]}
+                  >
                     <activity.icon size={20} color="#58CC02" />
                   </View>
                   <View style={styles.activityContent}>
-                    <Text style={styles.activityDescription}>{activity.description}</Text>
-                    <Text style={styles.activityTimestamp}>{activity.timestamp}</Text>
+                    <Text style={styles.activityDescription}>
+                      {activity.description}
+                    </Text>
+                    <Text style={styles.activityTimestamp}>
+                      {activity.timestamp}
+                    </Text>
                   </View>
                   <View style={styles.activityAmount}>
-                    <Text style={[
-                      styles.activityAmountText,
-                      { color: activity.type === 'yield_credit' ? '#58CC02' : '#FF9500' }
-                    ]}>
-                      {activity.type === 'yield_credit' ? '+' : ''}${activity.amount.toFixed(2)}
+                    <Text
+                      style={[
+                        styles.activityAmountText,
+                        {
+                          color:
+                            activity.type === 'yield_credit'
+                              ? '#58CC02'
+                              : '#FF9500',
+                        },
+                      ]}
+                    >
+                      {activity.type === 'yield_credit' ? '+' : ''}$
+                      {activity.amount.toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -587,28 +748,41 @@ export default function HomeScreen() {
           visible={showFundingModal}
           onClose={() => setShowFundingModal(false)}
           userID={userInfo?.userID || ''}
-            onFundingInitiated={(transactionId) => {
-              console.log('Funding initiated:', transactionId);
-              // Could add transaction tracking here
-              Alert.alert(
-                'Crypto Purchase Started! 💳',
-                'Complete your payment with MoonPay. You can choose from various cryptocurrencies to diversify your portfolio.',
-                [
-                  {
-                    text: 'Got it!',
-                    onPress: () => {
-                      // Refresh balance after a short delay
-                      setTimeout(() => {
-                        if (userInfo?.userID) {
-                          fetchWalletBalance(userInfo.userID);
-                        }
-                      }, 3000);
-                    }
-                  }
-                ]
-              );
+                      onFundingInitiated={() => {
+              console.log('Funding initiated');
+            // Could add transaction tracking here
+            Alert.alert(
+              'Crypto Purchase Started! 💳',
+              'Complete your payment with MoonPay. You can choose from various cryptocurrencies to diversify your portfolio.',
+              [
+                {
+                  text: 'Got it!',
+                  onPress: () => {
+                    // Refresh balance after a short delay
+                    setTimeout(() => {
+                      if (userInfo?.userID) {
+                        fetchWalletBalance(userInfo.userID);
+                      }
+                    }, 3000);
+                  },
+                },
+              ]
+            );
+          }}
+        />
+
+        {/* Floating Voice Assistant */}
+        <View style={styles.floatingVoiceContainer}>
+          <VoiceComboComponent
+            userID={userInfo?.userID || ''}
+            onActivate={(isActive) => {
+              console.log('Voice assistant activated:', isActive);
+            }}
+            onDeactivate={(isActive) => {
+              console.log('Voice assistant deactivated:', isActive);
             }}
           />
+        </View>
       </LinearGradient>
     </View>
   );
@@ -640,12 +814,14 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingBottom: 20,
+    paddingRight: 120, // Make space for the compact voice component
   },
   headerLeft: {
     flex: 1,
+    maxWidth: '75%', // Ensure text doesn't overflow into voice button area
   },
   greeting: {
     fontSize: 16,
@@ -659,38 +835,9 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+    flexWrap: 'wrap',
   },
-  headerRight: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  notificationBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#FF4444',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  notificationText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
+
   treeCard: {
     marginBottom: 20,
     borderRadius: 20,
@@ -1075,5 +1222,13 @@ const styles = StyleSheet.create({
   activityAmountText: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  // Floating Voice Assistant
+  floatingVoiceContainer: {
+    position: 'absolute',
+    top: 80, // Positioned within the green gradient area
+    right: 15,
+    zIndex: 1000,
+    elevation: 10,
   },
 });

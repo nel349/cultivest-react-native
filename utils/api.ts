@@ -5,21 +5,30 @@ import Constants from 'expo-constants';
 // For React Native development on physical devices, use local IP
 // For simulators/emulators, use localhost
 const getApiBaseUrl = () => {
+  // TEMPORARY: Hardcode the production URL for testing
+  console.log('🌐 Using hardcoded production URL');
+  return 'https://cultivest-backend.vercel.app/api/v1';
+  
   // First try environment variable
   if (process.env.EXPO_PUBLIC_API_URL) {
+    console.log('🌐 Using API URL from env:', process.env.EXPO_PUBLIC_API_URL);
     return process.env.EXPO_PUBLIC_API_URL;
   }
   
   // Then try expo config
-  if (Constants.expoConfig?.extra?.apiUrl) {
-    return Constants.expoConfig.extra.apiUrl;
+  const apiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (apiUrl) {
+    console.log('🌐 Using API URL from expo config:', apiUrl);
+    return apiUrl;
   }
   
   // Fallback to localhost for development
+  console.log('🌐 Using fallback API URL: http://localhost:3000/api/v1');
   return 'http://localhost:3000/api/v1';
 };
 
 const API_BASE_URL = getApiBaseUrl();
+console.log('🌐 Final API_BASE_URL:', API_BASE_URL);
 
 class ApiClient {
   private async getAuthHeaders(): Promise<Record<string, string>> {
@@ -39,6 +48,9 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     try {
       const url = `${API_BASE_URL}${endpoint}`;
+      console.log('🌐 Making request to:', url);
+      console.log('🌐 Request options:', { method: options.method || 'GET', body: options.body });
+      
       const authHeaders = requireAuth ? await this.getAuthHeaders() : {};
       const headers = {
         'Content-Type': 'application/json',
@@ -51,7 +63,24 @@ class ApiClient {
         ...options,
       });
 
-      const data = await response.json();
+      console.log('🌐 Response status:', response.status);
+      console.log('🌐 Response headers:', response.headers);
+      
+      // Get response text first to debug what we're receiving
+      const responseText = await response.text();
+      console.log('🌐 Raw response:', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('🌐 JSON Parse Error:', parseError);
+        console.error('🌐 Response was:', responseText);
+        return {
+          success: false,
+          error: `Invalid JSON response: ${responseText.substring(0, 100)}`,
+        };
+      }
       
       if (!response.ok) {
         return {
@@ -62,6 +91,7 @@ class ApiClient {
 
       return data;
     } catch (error) {
+      console.error('🌐 Network error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',

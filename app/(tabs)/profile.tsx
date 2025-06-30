@@ -7,6 +7,7 @@ import {
   ChevronRight, TreePine, Trophy, Target, Star,
   Leaf, Sprout, Flower, Crown
 } from 'lucide-react-native';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -67,166 +68,173 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <LinearGradient
-      colors={['#89E5AB', '#58CC02', '#46A302']}
-      style={styles.container}
-    >
-      {/* Floating Plant Decorations */}
-      <View style={styles.decorationContainer}>
-        <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
-          <Crown size={20} color="#FFFFFF" />
-        </View>
-        <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
-          <Star size={18} color="#FFFFFF" />
-        </View>
-        <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
-          <Trophy size={22} color="#FFFFFF" />
-        </View>
-      </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Your Garden Profile 👤</Text>
-          <Text style={styles.subtitle}>Master gardener in training</Text>
-        </View>
-
-        {/* Profile Card */}
-        <View style={styles.profileCard}>
-          <LinearGradient
-            colors={['#FFFFFF', '#F8F8F8']}
-            style={styles.profileCardGradient}
-          >
-            <View style={styles.profileHeader}>
-              <View style={styles.avatarContainer}>
-                <View style={styles.avatar}>
-                  <User size={32} color="#58CC02" />
-                </View>
-                <View style={styles.levelBadge}>
-                  <Text style={styles.levelText}>{userStats.level}</Text>
-                </View>
-              </View>
-              
-              <View style={styles.profileInfo}>
-                <Text style={styles.userName}>Garden Master</Text>
-                <Text style={styles.userSubtitle}>Member since {userStats.joinDate}</Text>
-              </View>
-            </View>
-
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <TreePine size={20} color="#58CC02" />
-                <Text style={styles.statValue}>{userStats.plantsGrown}</Text>
-                <Text style={styles.statLabel}>Plants Grown</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Target size={20} color="#FF9500" />
-                <Text style={styles.statValue}>{userStats.streakDays}</Text>
-                <Text style={styles.statLabel}>Day Streak</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Trophy size={20} color="#FFD900" />
-                <Text style={styles.statValue}>${userStats.totalEarned.toFixed(2)}</Text>
-                <Text style={styles.statLabel}>Total Earned</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/* Achievements Section */}
-        <View style={styles.achievementsSection}>
-          <Text style={styles.sectionTitle}>Your Achievements 🏆</Text>
-          <View style={styles.achievementsGrid}>
-            {achievements.map((achievement) => (
-              <View 
-                key={achievement.id} 
-                style={[
-                  styles.achievementCard,
-                  achievement.unlocked ? styles.achievementUnlocked : styles.achievementLocked
-                ]}
-              >
-                <View style={[
-                  styles.achievementIcon,
-                  { backgroundColor: achievement.unlocked ? '#58CC02' : '#C0C0C0' }
-                ]}>
-                  <achievement.icon size={24} color="#FFFFFF" />
-                </View>
-                <Text style={[
-                  styles.achievementTitle,
-                  { color: achievement.unlocked ? '#2E7D32' : '#A0A0A0' }
-                ]}>
-                  {achievement.title}
-                </Text>
-                <Text style={[
-                  styles.achievementDescription,
-                  { color: achievement.unlocked ? '#5A5A5A' : '#C0C0C0' }
-                ]}>
-                  {achievement.description}
-                </Text>
-                {achievement.unlocked && (
-                  <View style={styles.unlockedBadge}>
-                    <Star size={12} color="#FFD900" />
-                  </View>
-                )}
-              </View>
-            ))}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={Colors.gradients.backgroundPrimary}
+        style={styles.gradient}
+      >
+        {/* Floating decorative elements - updated for dark theme */}
+        <View style={styles.decorationContainer}>
+          <View style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}>
+            <Crown size={20} color={Colors.brand.green} />
+          </View>
+          <View style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}>
+            <Star size={18} color={Colors.brand.green} />
+          </View>
+          <View style={[styles.plantDecor, { top: 200, left: width - 80, opacity: 0.25 }]}>
+            <Trophy size={22} color={Colors.brand.green} />
           </View>
         </View>
 
-        {/* Menu Items */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Settings ⚙️</Text>
-          <View style={styles.menuContainer}>
-            {menuItems.map((item, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={styles.menuItem}
-                onPress={item.action}
-              >
-                <View style={styles.menuItemLeft}>
-                  <View style={[
-                    styles.menuItemIcon,
-                    { backgroundColor: item.danger ? '#FF444420' : '#58CC0220' }
-                  ]}>
-                    <item.icon 
-                      size={20} 
-                      color={item.danger ? '#FF4444' : '#58CC02'} 
-                    />
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Garden Profile 👤</Text>
+            <Text style={styles.subtitle}>Master gardener in training</Text>
+          </View>
+
+          {/* Profile Card - Updated to dark theme */}
+          <View style={styles.profileCard}>
+            <LinearGradient
+              colors={[Colors.background.secondary, Colors.background.tertiary]}
+              style={styles.profileCardGradient}
+            >
+              <View style={styles.profileHeader}>
+                <View style={styles.avatarContainer}>
+                  <View style={styles.avatar}>
+                    <User size={32} color={Colors.brand.green} />
                   </View>
-                  <Text style={[
-                    styles.menuItemText,
-                    { color: item.danger ? '#FF4444' : '#2E7D32' }
-                  ]}>
-                    {item.title}
-                  </Text>
+                  <View style={styles.levelBadge}>
+                    <Text style={styles.levelText}>{userStats.level}</Text>
+                  </View>
                 </View>
                 
-                {item.toggle ? (
-                  <Switch
-                    value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
-                    trackColor={{ false: '#E0E0E0', true: '#58CC02' }}
-                    thumbColor={notificationsEnabled ? '#FFFFFF' : '#FFFFFF'}
-                  />
-                ) : (
-                  <ChevronRight size={20} color="#C0C0C0" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+                <View style={styles.profileInfo}>
+                  <Text style={styles.userName}>Garden Master</Text>
+                  <Text style={styles.userSubtitle}>Member since {userStats.joinDate}</Text>
+                </View>
+              </View>
 
-        <View style={styles.bottomSpacing} />
-      </ScrollView>
-    </LinearGradient>
+              <View style={styles.statsContainer}>
+                <View style={styles.statItem}>
+                  <TreePine size={20} color={Colors.brand.green} />
+                  <Text style={styles.statValue}>{userStats.plantsGrown}</Text>
+                  <Text style={styles.statLabel}>Plants Grown</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Target size={20} color={Colors.crypto.bitcoin} />
+                  <Text style={styles.statValue}>{userStats.streakDays}</Text>
+                  <Text style={styles.statLabel}>Day Streak</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Trophy size={20} color={Colors.crypto.solana} />
+                  <Text style={styles.statValue}>${userStats.totalEarned.toFixed(2)}</Text>
+                  <Text style={styles.statLabel}>Total Earned</Text>
+                </View>
+              </View>
+            </LinearGradient>
+          </View>
+
+          {/* Achievements Section - Updated to dark theme */}
+          <View style={styles.achievementsSection}>
+            <Text style={styles.sectionTitle}>Your Achievements 🏆</Text>
+            <View style={styles.achievementsGrid}>
+              {achievements.map((achievement) => (
+                <View 
+                  key={achievement.id} 
+                  style={[
+                    styles.achievementCard,
+                    achievement.unlocked ? styles.achievementUnlocked : styles.achievementLocked
+                  ]}
+                >
+                  <View style={[
+                    styles.achievementIcon,
+                    { backgroundColor: achievement.unlocked ? Colors.brand.green : Colors.background.tertiary }
+                  ]}>
+                    <achievement.icon size={24} color={Colors.brand.white} />
+                  </View>
+                  <Text style={[
+                    styles.achievementTitle,
+                    { color: achievement.unlocked ? Colors.text.primary : Colors.text.tertiary }
+                  ]}>
+                    {achievement.title}
+                  </Text>
+                  <Text style={[
+                    styles.achievementDescription,
+                    { color: achievement.unlocked ? Colors.text.secondary : Colors.text.tertiary }
+                  ]}>
+                    {achievement.description}
+                  </Text>
+                  {achievement.unlocked && (
+                    <View style={styles.unlockedBadge}>
+                      <Star size={12} color={Colors.crypto.solana} />
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Menu Items - Updated to dark theme */}
+          <View style={styles.menuSection}>
+            <Text style={styles.sectionTitle}>Settings ⚙️</Text>
+            <View style={styles.menuContainer}>
+              {menuItems.map((item, index) => (
+                <TouchableOpacity 
+                  key={index} 
+                  style={styles.menuItem}
+                  onPress={item.action}
+                >
+                  <View style={styles.menuItemLeft}>
+                    <View style={[
+                      styles.menuItemIcon,
+                      { backgroundColor: item.danger ? `${Colors.status.error}20` : `${Colors.brand.green}20` }
+                    ]}>
+                      <item.icon 
+                        size={20} 
+                        color={item.danger ? Colors.status.error : Colors.brand.green} 
+                      />
+                    </View>
+                    <Text style={[
+                      styles.menuItemText,
+                      { color: item.danger ? Colors.status.error : Colors.text.primary }
+                    ]}>
+                      {item.title}
+                    </Text>
+                  </View>
+                  
+                  {item.toggle ? (
+                    <Switch
+                      value={notificationsEnabled}
+                      onValueChange={setNotificationsEnabled}
+                      trackColor={{ false: Colors.background.tertiary, true: Colors.brand.green }}
+                      thumbColor={Colors.brand.white}
+                    />
+                  ) : (
+                    <ChevronRight size={20} color={Colors.text.tertiary} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.bottomSpacing} />
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
+  },
+  gradient: {
+    flex: 1,
+    paddingTop: 60,
   },
   decorationContainer: {
     position: 'absolute',
@@ -242,94 +250,87 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 8,
+    fontSize: Typography.size['3xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.lg,
+    color: Colors.text.secondary,
     textAlign: 'center',
-    fontWeight: '500',
   },
   profileCard: {
-    marginHorizontal: 24,
-    marginBottom: 24,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.xl,
+    borderRadius: Spacing.lg,
+    overflow: 'hidden',
+    ...Shadow.lg,
   },
   profileCardGradient: {
-    borderRadius: 20,
-    padding: 20,
+    padding: Spacing.lg,
   },
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   avatarContainer: {
     position: 'relative',
-    marginRight: 16,
+    marginRight: Spacing.lg,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#E8F5E8',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 3,
+    borderColor: Colors.brand.green,
   },
   levelBadge: {
     position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#58CC02',
-    borderRadius: 12,
-    minWidth: 24,
+    top: -5,
+    right: -5,
+    width: 24,
     height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.brand.green,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
   },
   levelText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.bold,
+    color: Colors.brand.white,
   },
   profileInfo: {
     flex: 1,
   },
   userName: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 4,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
   },
   userSubtitle: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    paddingTop: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.background.tertiary,
   },
   statItem: {
     alignItems: 'center',
@@ -337,63 +338,52 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    height: 24,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 8,
+    height: 40,
+    backgroundColor: Colors.background.tertiary,
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginTop: 4,
-    marginBottom: 2,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.xs,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
     textAlign: 'center',
   },
   achievementsSection: {
-    marginBottom: 24,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.lg,
   },
   achievementsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 24,
-    gap: 12,
+    justifyContent: 'space-between',
   },
   achievementCard: {
-    width: (width - 72) / 2,
-    borderRadius: 16,
-    padding: 16,
+    width: '48%',
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
     alignItems: 'center',
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadow.sm,
   },
   achievementUnlocked: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderWidth: 2,
-    borderColor: '#58CC02',
+    borderWidth: 1,
+    borderColor: Colors.brand.green,
   },
   achievementLocked: {
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
+    opacity: 0.6,
   },
   achievementIcon: {
     width: 48,
@@ -401,52 +391,41 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.sm,
   },
   achievementTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
   },
   achievementDescription: {
-    fontSize: 12,
+    fontSize: Typography.size.sm,
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 18,
   },
   unlockedBadge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#FFD900',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   menuSection: {
-    marginBottom: 24,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
   menuContainer: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    marginHorizontal: 24,
-    borderRadius: 16,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadow.sm,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    padding: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.background.tertiary,
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -459,13 +438,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   menuItemText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.medium,
   },
   bottomSpacing: {
-    height: 100,
+    height: 50,
   },
 });

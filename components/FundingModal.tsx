@@ -25,6 +25,7 @@ import { useMoonPaySdk } from '@moonpay/react-native-moonpay-sdk';
 import 'react-native-url-polyfill/auto';
 import * as WebBrowser from 'expo-web-browser';
 import TestnetFundingModal from './TestnetFundingModal';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 // Type definitions for wallet responses
 // Import types from organized type files
@@ -502,7 +503,7 @@ export default function FundingModal({
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { paddingTop: insets.top + 20 }]}>
           <LinearGradient
-            colors={['#89E5AB', '#58CC02']}
+            colors={[Colors.background.primary, Colors.background.secondary]}
             style={styles.modalGradient}
           >
             {/* Header */}
@@ -511,7 +512,7 @@ export default function FundingModal({
                 {purchaseType === 'bitcoin' ? 'Buy Bitcoin ₿' : 'Buy Cryptocurrency 🚀'}
               </Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <X size={24} color="#FFFFFF" />
+                <X size={24} color={Colors.text.primary} />
               </TouchableOpacity>
             </View>
 
@@ -519,7 +520,7 @@ export default function FundingModal({
               {/* How it works info */}
               <View style={styles.infoSection}>
                 <View style={styles.infoHeader}>
-                  <Info size={20} color="#58CC02" />
+                  <Info size={20} color={Colors.brand.green} />
                   <Text style={styles.infoTitle}>How Funding Works</Text>
                 </View>
                 <Text style={styles.infoText}>
@@ -534,7 +535,7 @@ export default function FundingModal({
               {purchaseType === 'crypto' && (
                 <View style={styles.cryptoSection}>
                   <Text style={styles.sectionTitle}>Choose Cryptocurrency</Text>
-                                  <View style={styles.cryptoGrid}>
+                  <View style={styles.cryptoGrid}>
                   {[
                     { 
                       key: 'btc', 
@@ -648,11 +649,11 @@ export default function FundingModal({
                   style={[styles.customAmountContainer, useCustomAmount && styles.customAmountSelected]}
                   onPress={() => setUseCustomAmount(true)}
                 >
-                  <DollarSign size={20} color={useCustomAmount ? "#58CC02" : "#8B9DC3"} />
+                  <DollarSign size={20} color={useCustomAmount ? Colors.brand.green : Colors.text.tertiary} />
                   <TextInput
                     style={[styles.customAmountInput, useCustomAmount && styles.customAmountInputSelected]}
                     placeholder="Custom amount"
-                    placeholderTextColor="#8B9DC3"
+                    placeholderTextColor={Colors.text.tertiary}
                     value={customAmount}
                     onChangeText={setCustomAmount}
                     keyboardType="numeric"
@@ -683,7 +684,7 @@ export default function FundingModal({
               {/* Benefits */}
               <View style={styles.benefitsSection}>
                 <View style={styles.benefitItem}>
-                  <Zap size={16} color="#58CC02" />
+                  <Zap size={16} color={Colors.brand.green} />
                   <Text style={styles.benefitText}>
                     {purchaseType === 'bitcoin' 
                       ? 'Direct Bitcoin ownership - no intermediaries'
@@ -692,7 +693,7 @@ export default function FundingModal({
                   </Text>
                 </View>
                 <View style={styles.benefitItem}>
-                  <CreditCard size={16} color="#58CC02" />
+                  <CreditCard size={16} color={Colors.brand.green} />
                   <Text style={styles.benefitText}>Credit card, bank transfer, Apple Pay</Text>
                 </View>
               </View>
@@ -704,7 +705,7 @@ export default function FundingModal({
                 disabled={isLoading || walletLoading || getActualAmount() < 1 || !walletAddress}
               >
                 <LinearGradient
-                  colors={(isLoading || walletLoading) ? ['#C0C0C0', '#C0C0C0'] : ['#FFFFFF', '#F0F0F0']}
+                  colors={(isLoading || walletLoading) ? [Colors.text.tertiary, Colors.text.tertiary] : Colors.gradients.primary}
                   style={styles.fundButtonGradient}
                 >
                   <Text style={styles.fundButtonText}>
@@ -713,7 +714,7 @@ export default function FundingModal({
                      !walletAddress ? 'Wallet required' :
                      `Fund with $${getActualAmount().toFixed(2)}`}
                   </Text>
-                  {!isLoading && !walletLoading && walletAddress && <ArrowRight size={20} color="#58CC02" />}
+                  {!isLoading && !walletLoading && walletAddress && <ArrowRight size={20} color={Colors.text.primary} />}
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -742,37 +743,36 @@ export default function FundingModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    height: '100%',
-    width: '100%',
-    overflow: 'scroll',
+    height: '90%',
+    borderTopLeftRadius: Spacing.xl,
+    borderTopRightRadius: Spacing.xl,
+    overflow: 'hidden',
+    backgroundColor: Colors.background.primary,
   },
   modalGradient: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 20,
-    paddingTop: 20,
+    paddingBottom: Spacing.lg,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    fontSize: Typography.size['2xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
   },
   closeButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -780,213 +780,59 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoSection: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadow.md,
   },
   infoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.md,
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginLeft: 8,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginLeft: Spacing.sm,
   },
   infoText: {
-    fontSize: 14,
-    color: '#5A5A5A',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
     lineHeight: 20,
   },
-  amountSection: {
-    marginBottom: 24,
+  cryptoSection: {
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  presetGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 16,
-  },
-  presetButton: {
-    width: (width - 72) / 3,
-    paddingVertical: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  presetButtonSelected: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderColor: '#58CC02',
-  },
-  presetButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: 'rgba(255,255,255,0.9)',
-  },
-  presetButtonTextSelected: {
-    color: '#58CC02',
-  },
-  customAmountContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  customAmountSelected: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderColor: '#58CC02',
-  },
-  customAmountInput: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingLeft: 12,
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.9)',
-  },
-  customAmountInputSelected: {
-    color: '#2E7D32',
-  },
-  feeSection: {
-    marginBottom: 24,
-  },
-  feeBreakdown: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 16,
-    padding: 16,
-  },
-  feeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  feeRowTotal: {
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    marginTop: 8,
-    paddingTop: 12,
-  },
-  feeLabel: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
-  },
-  feeValue: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '600',
-  },
-  feeLabelTotal: {
-    fontSize: 16,
-    color: '#2E7D32',
-    fontWeight: '700',
-  },
-  feeValueTotal: {
-    fontSize: 18,
-    color: '#58CC02',
-    fontWeight: '800',
-  },
-  benefitsSection: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-  },
-  benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  benefitText: {
-    fontSize: 14,
-    color: '#2E7D32',
-    fontWeight: '500',
-    marginLeft: 12,
-  },
-  fundButton: {
-    borderRadius: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  fundButtonDisabled: {
-    opacity: 0.6,
-  },
-  fundButtonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    borderRadius: 20,
-    gap: 8,
-  },
-  fundButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#58CC02',
-  },
-  disclaimer: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
-    lineHeight: 16,
-    fontWeight: '500',
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  // Crypto selection styles
-  cryptoSection: {
-    marginBottom: 24,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.md,
   },
   cryptoGrid: {
-    gap: 12,
+    gap: Spacing.md,
   },
   cryptoOption: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
     borderWidth: 2,
     borderColor: 'transparent',
+    ...Shadow.sm,
   },
   cryptoOptionSelected: {
-    borderColor: '#58CC02',
-    backgroundColor: 'rgba(255,255,255,1)',
-    shadowColor: '#58CC02',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    borderColor: Colors.brand.green,
+    backgroundColor: Colors.background.tertiary,
   },
   cryptoOptionDisabled: {
     opacity: 0.5,
-    backgroundColor: 'rgba(255,255,255,0.5)',
   },
   cryptoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   cryptoIcon: {
     width: 40,
@@ -994,56 +840,185 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   cryptoSymbol: {
     fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: Colors.text.primary,
   },
   cryptoInfo: {
     flex: 1,
   },
   cryptoName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 2,
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
   cryptoNameSelected: {
-    color: '#58CC02',
+    color: Colors.brand.green,
   },
   cryptoNameDisabled: {
-    color: '#8B9DC3',
+    color: Colors.text.tertiary,
   },
   cryptoCode: {
-    fontSize: 12,
-    color: '#8B9DC3',
-    fontWeight: '600',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    textTransform: 'uppercase',
   },
   selectedIndicator: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#58CC02',
+    backgroundColor: Colors.brand.green,
     justifyContent: 'center',
     alignItems: 'center',
   },
   selectedCheckmark: {
-    fontSize: 12,
-    color: '#FFFFFF',
+    color: Colors.text.primary,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   walletAddress: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
     fontFamily: 'monospace',
   },
   walletUnavailable: {
-    fontSize: 12,
-    color: '#FF6B6B',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
     fontStyle: 'italic',
+  },
+  amountSection: {
+    marginBottom: Spacing.lg,
+  },
+  presetGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  presetButton: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.md,
+    padding: Spacing.md,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  presetButtonSelected: {
+    borderColor: Colors.brand.green,
+    backgroundColor: Colors.background.tertiary,
+  },
+  presetButtonText: {
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+  },
+  presetButtonTextSelected: {
+    color: Colors.brand.green,
+  },
+  customAmountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.md,
+    padding: Spacing.md,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  customAmountSelected: {
+    borderColor: Colors.brand.green,
+    backgroundColor: Colors.background.tertiary,
+  },
+  customAmountInput: {
+    flex: 1,
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
+    marginLeft: Spacing.sm,
+  },
+  customAmountInputSelected: {
+    color: Colors.text.primary,
+  },
+  feeSection: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadow.sm,
+  },
+  feeBreakdown: {
+    gap: Spacing.sm,
+  },
+  feeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  feeRowTotal: {
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.background.tertiary,
+  },
+  feeLabel: {
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+  },
+  feeValue: {
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
+  },
+  feeLabelTotal: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+  },
+  feeValueTotal: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.green,
+  },
+  benefitsSection: {
+    marginBottom: Spacing['2xl'],
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  benefitText: {
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    marginLeft: Spacing.sm,
+    flex: 1,
+  },
+  fundButton: {
+    borderRadius: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadow.md,
+  },
+  fundButtonDisabled: {
+    opacity: 0.5,
+  },
+  fundButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.lg,
+    borderRadius: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  fundButtonText: {
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+  },
+  disclaimer: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    marginBottom: Spacing['2xl'],
+    lineHeight: 18,
   },
 });

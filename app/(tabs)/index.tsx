@@ -34,6 +34,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -413,16 +414,16 @@ export default function HomeScreen() {
       title: 'Buy Bitcoin',
       subtitle: 'Digital gold investment',
       icon: TrendingUp,
-      color: '#F7931A',
-      bgColor: '#FFF8E1',
+      color: Colors.crypto.bitcoin,
+      bgColor: Colors.background.tertiary,
       onPress: () => router.push('/(tabs)/invest'),
     },
     {
       title: 'Other Crypto',
       subtitle: 'ETH, SOL, USDC & more',
       icon: Plus,
-      color: '#58CC02',
-      bgColor: '#E8F5E8',
+      color: Colors.brand.green,
+      bgColor: Colors.background.tertiary,
       onPress: () => {
         setShowFundingModal(true);
       },
@@ -431,16 +432,16 @@ export default function HomeScreen() {
       title: 'Portfolio View',
       subtitle: 'View positions',
       icon: ArrowUpRight,
-      color: '#00D4AA',
-      bgColor: '#E0F7FA',
+      color: Colors.crypto.algorand,
+      bgColor: Colors.background.tertiary,
       onPress: () => router.push('/(tabs)/portfolio'),
     },
     {
       title: 'Learn & Grow',
       subtitle: 'Financial tips',
       icon: Star,
-      color: '#FFD900',
-      bgColor: '#FFFDE7',
+      color: Colors.crypto.ethereum,
+      bgColor: Colors.background.tertiary,
       onPress: () => router.push('/education'),
     },
   ];
@@ -486,30 +487,9 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <LinearGradient
-        colors={['#89E5AB', '#58CC02', '#46A302']}
+        colors={Colors.gradients.backgroundPrimary}
         style={[styles.gradient, { paddingTop: insets.top }]}
       >
-        {/* Floating Plant Decorations */}
-        <View style={styles.decorationContainer}>
-          <View
-            style={[styles.plantDecor, { top: 100, left: 30, opacity: 0.3 }]}
-          >
-            <Leaf size={20} color="#FFFFFF" />
-          </View>
-          <View
-            style={[styles.plantDecor, { top: 140, right: 40, opacity: 0.2 }]}
-          >
-            <Flower size={16} color="#FFFFFF" />
-          </View>
-          <View
-            style={[
-              styles.plantDecor,
-              { top: 200, left: width - 80, opacity: 0.25 },
-            ]}
-          >
-            <Sprout size={18} color="#FFFFFF" />
-          </View>
-        </View>
 
         <ScrollView
           style={styles.scrollView}
@@ -537,11 +517,8 @@ export default function HomeScreen() {
           </View>
 
           {/* Balance Card */}
-          <View style={styles.balanceCard}>
-            <LinearGradient
-              colors={['#FFFFFF', '#F8F8F8']}
-              style={styles.balanceCardGradient}
-            >
+                      <View style={styles.balanceCard}>
+              <View style={styles.balanceCardGradient}>
               <View style={styles.balanceHeader}>
                 <Text style={styles.balanceLabel}>Portfolio Value</Text>
                 <TouchableOpacity
@@ -549,9 +526,9 @@ export default function HomeScreen() {
                   style={styles.eyeButton}
                 >
                   {balanceVisible ? (
-                    <Eye size={20} color="#58CC02" />
+                    <Eye size={20} color={Colors.brand.green} />
                   ) : (
-                    <EyeOff size={20} color="#58CC02" />
+                    <EyeOff size={20} color={Colors.brand.green} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -987,7 +964,7 @@ export default function HomeScreen() {
                 }
                 return null;
               })()}
-            </LinearGradient>
+            </View>
           </View>
 
           {/* Achievements Row */}
@@ -1010,7 +987,7 @@ export default function HomeScreen() {
                 >
                   <achievement.icon
                     size={24}
-                    color={achievement.completed ? '#58CC02' : '#C0C0C0'}
+                    color={achievement.completed ? Colors.brand.green : Colors.text.tertiary}
                   />
                   <Text
                     style={[
@@ -1046,7 +1023,7 @@ export default function HomeScreen() {
                       { backgroundColor: action.color },
                     ]}
                   >
-                    <action.icon size={24} color="#FFFFFF" />
+                    <action.icon size={24} color={Colors.brand.white} />
                   </View>
                   <Text style={styles.quickActionTitle}>{action.title}</Text>
                   <Text style={styles.quickActionSubtitle}>
@@ -1069,12 +1046,12 @@ export default function HomeScreen() {
                       {
                         backgroundColor:
                           activity.type === 'yield_credit'
-                            ? '#E8F5E8'
-                            : '#E0F7FA',
+                            ? Colors.background.tertiary
+                            : Colors.background.secondary,
                       },
                     ]}
                   >
-                    <activity.icon size={20} color="#58CC02" />
+                    <activity.icon size={20} color={Colors.brand.green} />
                   </View>
                   <View style={styles.activityContent}>
                     <Text style={styles.activityDescription}>
@@ -1091,8 +1068,8 @@ export default function HomeScreen() {
                         {
                           color:
                             activity.type === 'yield_credit'
-                              ? '#58CC02'
-                              : '#FF9500',
+                              ? Colors.brand.green
+                              : Colors.crypto.bitcoin,
                         },
                       ]}
                     >
@@ -1134,7 +1111,6 @@ export default function HomeScreen() {
           }}
         />
 
-
       </LinearGradient>
     </View>
   );
@@ -1143,78 +1119,64 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background.primary,
   },
   gradient: {
     flex: 1,
   },
-  decorationContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
-  },
-  plantDecor: {
-    position: 'absolute',
-  },
   scrollView: {
     flex: 1,
-    zIndex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   headerLeft: {
     flex: 1,
   },
   greeting: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
-    fontWeight: '500',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
   },
   userName: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    fontSize: Typography.size['2xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
     flexWrap: 'wrap',
   },
 
   treeCard: {
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadow.md,
   },
   treeCardGradient: {
     borderRadius: 20,
-    padding: 20,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
   },
   treeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.base,
   },
   treeIconContainer: {
     position: 'relative',
-    marginRight: 16,
+    marginRight: Spacing.base,
   },
   levelBadge: {
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#58CC02',
+    backgroundColor: Colors.brand.green,
     borderRadius: 12,
     minWidth: 24,
     height: 24,
@@ -1264,44 +1226,45 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   balanceCard: {
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadow.md,
   },
   balanceCardGradient: {
     borderRadius: 20,
-    padding: 20,
+    padding: Spacing.lg,
+    backgroundColor: Colors.background.secondary,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
   },
   balanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   balanceLabel: {
-    fontSize: 16,
-    color: '#5A5A5A',
-    fontWeight: '600',
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.semibold,
   },
   eyeButton: {
-    padding: 4,
+    padding: Spacing.xs,
   },
   balanceAmount: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#2E7D32',
-    marginBottom: 16,
+    fontSize: Typography.size['4xl'],
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.base,
   },
   assetsBreakdown: {
-    marginBottom: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#F8F8F8',
+    marginBottom: Spacing.base,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.base,
+    backgroundColor: Colors.background.tertiary,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
   },
   assetItem: {
     flexDirection: 'row',
@@ -1326,39 +1289,39 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.sm,
   },
   assetSymbol: {
     fontSize: 16,
   },
   assetLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2E7D32',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
     flex: 1,
   },
   assetAmount: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   assetAmountContainer: {
     flex: 1,
   },
   assetUsdValue: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#5A5A5A',
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.secondary,
     marginTop: 2,
   },
   assetPercentage: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#5A5A5A',
-    marginLeft: 8,
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.secondary,
+    marginLeft: Spacing.sm,
   },
   // Bitcoin-specific emphasis styles
   bitcoinAsset: {
@@ -1441,13 +1404,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.base,
   },
   achievementsScroll: {
     paddingLeft: 0,
@@ -1525,24 +1485,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   activitySection: {
-    marginBottom: 12,
+    marginBottom: Spacing.sm,
   },
   activityContainer: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Colors.background.secondary,
     borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    padding: Spacing.base,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
+    ...Shadow.sm,
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.border.primary,
   },
   activityIcon: {
     width: 40,
@@ -1550,43 +1508,41 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.sm,
   },
   activityContent: {
     flex: 1,
   },
   activityDescription: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2E7D32',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
     marginBottom: 2,
   },
   activityTimestamp: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.xs,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
   },
   activityAmount: {
     alignItems: 'flex-end',
   },
   activityAmountText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.bold,
   },
   cryptoCard: {
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: Colors.background.tertiary,
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
+    ...Shadow.sm,
   },
   cryptoCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: Spacing.base,
   },
   cryptoIcon: {
     width: 40,
@@ -1594,7 +1550,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: Spacing.base,
   },
   cryptoIconImage: {
     width: 24,
@@ -1605,27 +1561,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cryptoName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   cryptoSymbol: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
   },
   cryptoValue: {
     alignItems: 'flex-end',
   },
   cryptoBalance: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   cryptoUSD: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#5A5A5A',
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.secondary,
     marginTop: 2,
   },
   cryptoChart: {

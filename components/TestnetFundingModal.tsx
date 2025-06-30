@@ -23,6 +23,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import * as Clipboard from 'expo-clipboard';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 interface TestnetFundingModalProps {
   visible: boolean;
@@ -659,14 +660,14 @@ export default function TestnetFundingModal({
       <View style={styles.modalOverlay}>
         <View style={[styles.modalContent, { paddingTop: insets.top + 20 }]}>
           <LinearGradient
-            colors={['#1E3A8A', '#3B82F6']}
+            colors={[Colors.background.primary, Colors.background.secondary]}
             style={styles.modalGradient}
           >
             {/* Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Testnet Funding</Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <X size={24} color="#FFFFFF" />
+                <X size={24} color={Colors.text.primary} />
               </TouchableOpacity>
             </View>
 
@@ -683,35 +684,36 @@ export default function TestnetFundingModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     height: '90%',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: Spacing.xl,
+    borderTopRightRadius: Spacing.xl,
     overflow: 'hidden',
+    backgroundColor: Colors.background.primary,
   },
   modalGradient: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontSize: Typography.size['2xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
   },
   closeButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -721,93 +723,258 @@ const styles = StyleSheet.create({
   warningBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.radius.lg,
+    padding: Spacing.padding.lg,
+    marginBottom: Spacing.margin.lg,
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
   },
   warningText: {
-    fontSize: 14,
+    ...Typography.body.medium,
     color: '#F59E0B',
     fontWeight: '600',
-    marginLeft: 8,
+    marginLeft: Spacing.margin.sm,
   },
   description: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    ...Typography.body.large,
+    color: Colors.text.secondary,
     lineHeight: 24,
-    marginBottom: 24,
+    marginBottom: Spacing.margin.lg,
   },
   stepCard: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.radius.lg,
+    padding: Spacing.padding.lg,
+    marginBottom: Spacing.margin.lg,
+    ...Shadow.md,
   },
   stepHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.margin.lg,
   },
   stepTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginLeft: 12,
+    ...Typography.heading.h3,
+    color: Colors.text.primary,
+    marginLeft: Spacing.margin.md,
   },
   addressContainer: {
-    marginBottom: 16,
+    marginBottom: Spacing.margin.lg,
   },
   addressLabel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-    marginBottom: 8,
+    ...Typography.body.medium,
+    color: Colors.text.secondary,
+    marginBottom: Spacing.margin.sm,
   },
   addressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.radius.md,
+    padding: Spacing.padding.md,
+  },
+  highlightedAddress: {
+    borderWidth: 2,
+    borderColor: Colors.brand.green,
   },
   addressText: {
     flex: 1,
-    fontSize: 14,
-    color: '#FFFFFF',
+    ...Typography.body.medium,
+    color: Colors.text.primary,
     fontFamily: 'monospace',
-    marginRight: 12,
+    marginRight: Spacing.margin.md,
   },
   copyButton: {
-    backgroundColor: '#58CC02',
-    borderRadius: 8,
-    padding: 8,
+    width: 32,
+    height: 32,
+    borderRadius: Spacing.radius.md,
+    backgroundColor: Colors.brand.green,
     justifyContent: 'center',
     alignItems: 'center',
   },
   copyHint: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
+    ...Typography.body.small,
+    color: Colors.text.tertiary,
     textAlign: 'center',
-    marginTop: 8,
-    fontStyle: 'italic',
+    marginTop: Spacing.margin.sm,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#58CC02',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    gap: 8,
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.radius.md,
+    padding: Spacing.padding.lg,
+    gap: Spacing.margin.sm,
+    ...Shadow.sm,
+  },
+  primaryButton: {
+    backgroundColor: Colors.brand.green,
   },
   actionButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.body.large,
+    fontWeight: '600',
+    color: Colors.text.primary,
   },
-  actionButtonDisabled: {
-    backgroundColor: '#9CA3AF',
+  continueButton: {
+    backgroundColor: Colors.brand.green,
+    borderRadius: Spacing.radius.md,
+    padding: Spacing.padding.lg,
+    alignItems: 'center',
+    marginTop: Spacing.margin.lg,
+    ...Shadow.md,
+  },
+  continueButtonText: {
+    ...Typography.body.large,
+    fontWeight: '600',
+    color: Colors.text.primary,
+  },
+  refreshButton: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.radius.md,
+    padding: Spacing.padding.lg,
+    alignItems: 'center',
+    marginBottom: Spacing.margin.md,
+    ...Shadow.sm,
+  },
+  refreshButtonText: {
+    ...Typography.body.medium,
+    color: Colors.text.primary,
+  },
+  successCard: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.radius.lg,
+    padding: Spacing.padding.xl,
+    alignItems: 'center',
+    marginBottom: Spacing.margin.lg,
+    borderWidth: 2,
+    borderColor: Colors.brand.green,
+    ...Shadow.md,
+  },
+  successTitle: {
+    ...Typography.heading.h3,
+    color: Colors.text.primary,
+    marginTop: Spacing.margin.md,
+    marginBottom: Spacing.margin.sm,
+  },
+  successText: {
+    ...Typography.body.medium,
+    color: Colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  pendingCard: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.radius.lg,
+    padding: Spacing.padding.xl,
+    alignItems: 'center',
+    marginBottom: Spacing.margin.lg,
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+    ...Shadow.md,
+  },
+  pendingTitle: {
+    ...Typography.heading.h3,
+    color: Colors.text.primary,
+    marginTop: Spacing.margin.md,
+    marginBottom: Spacing.margin.sm,
+  },
+  pendingText: {
+    ...Typography.body.medium,
+    color: Colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: Spacing.margin.lg,
+  },
+  guidanceCard: {
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.radius.md,
+    padding: Spacing.padding.lg,
+    marginTop: Spacing.margin.lg,
+    width: '100%',
+  },
+  guidanceTitle: {
+    ...Typography.body.large,
+    fontWeight: '600',
+    color: Colors.text.primary,
+    marginBottom: Spacing.margin.sm,
+  },
+  guidanceText: {
+    ...Typography.body.medium,
+    color: Colors.text.secondary,
+    lineHeight: 20,
+    marginBottom: Spacing.margin.md,
+  },
+  faucetSteps: {
+    marginBottom: Spacing.margin.md,
+  },
+  stepsTitle: {
+    ...Typography.body.medium,
+    fontWeight: '600',
+    color: Colors.text.primary,
+    marginBottom: Spacing.margin.sm,
+  },
+  stepText: {
+    ...Typography.body.small,
+    color: Colors.text.secondary,
+    marginBottom: Spacing.margin.xs,
+    paddingLeft: Spacing.padding.sm,
+  },
+  balanceCard: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.radius.lg,
+    padding: Spacing.padding.lg,
+    marginBottom: Spacing.margin.lg,
+    ...Shadow.sm,
+  },
+  balanceTitle: {
+    ...Typography.body.large,
+    fontWeight: '600',
+    color: Colors.text.primary,
+    marginBottom: Spacing.margin.md,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.margin.sm,
+  },
+  balanceLabel: {
+    ...Typography.body.medium,
+    color: Colors.text.secondary,
+  },
+  balanceValue: {
+    ...Typography.body.medium,
+    fontWeight: '600',
+    color: Colors.text.primary,
+    fontFamily: 'monospace',
+  },
+  stepsList: {
+    marginTop: 16,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  stepNumber: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#58CC02',
+    backgroundColor: 'rgba(88, 204, 2, 0.2)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginRight: 12,
+  },
+  stepDescription: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 20,
+    flex: 1,
   },
   secondaryButton: {
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -867,157 +1034,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
-  successCard: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderRadius: 16,
-    padding: 32,
-    marginBottom: 24,
-  },
-  successTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  successText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
-  },
-  pendingCard: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-    borderRadius: 16,
-    padding: 32,
-    marginBottom: 24,
-  },
-  pendingTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  pendingText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
-  },
-  balanceCard: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-  },
-  balanceTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 12,
-  },
-  balanceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  balanceLabel: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-  },
-  balanceValue: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  refreshButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  refreshButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  continueButton: {
-    backgroundColor: '#10B981',
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-  },
-  continueButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  stepsList: {
-    marginTop: 16,
-  },
-  stepItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  stepNumber: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#58CC02',
-    backgroundColor: 'rgba(88, 204, 2, 0.2)',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginRight: 12,
-  },
-  stepDescription: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    lineHeight: 20,
-    flex: 1,
-  },
-  primaryButton: {
-    backgroundColor: '#58CC02',
-  },
-  guidanceCard: {
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
-  },
-  guidanceTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#58CC02',
-    marginBottom: 8,
-  },
-  guidanceText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 12,
-  },
-  commandContainer: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 8,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  commandText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontFamily: 'monospace',
-    flex: 1,
-  },
-  copyCommandButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
   warningNote: {
     fontSize: 12,
     color: '#F59E0B',
@@ -1035,29 +1051,6 @@ const styles = StyleSheet.create({
   methodDescription: {
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
-    lineHeight: 20,
-  },
-  highlightedAddress: {
-    borderWidth: 2,
-    borderColor: '#58CC02',
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
-  },
-  faucetSteps: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
-  },
-  stepsTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 12,
-  },
-  stepText: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 6,
     lineHeight: 20,
   },
   methodCard: {

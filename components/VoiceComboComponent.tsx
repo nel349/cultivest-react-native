@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatGPTDots from './ChatGPTDots';
 import VoiceAccessibilityGuide from './VoiceAccessibilityGuide';
 import VoiceButton from './VoiceButton';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 interface VoiceComboComponentProps {
   userID: string;
@@ -132,7 +133,7 @@ export default function VoiceComboComponent({
           <ChatGPTDots 
             isAnimating={isActive} 
             size={3} 
-            color="#FFFFFF" 
+            color={Colors.text.primary} 
             speed={600} 
           />
         </View>
@@ -145,42 +146,35 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    ...Shadow.sm,
     borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: Colors.background.tertiary,
   },
   containerPressed: {
     transform: [{ scale: 0.98 }],
     opacity: 0.8,
   },
   containerActive: {
-    borderColor: 'rgba(88, 204, 2, 0.6)',
-    backgroundColor: 'rgba(88, 204, 2, 0.1)',
+    borderColor: Colors.brand.green,
+    backgroundColor: Colors.background.tertiary,
   },
   bannerContainer: {
-    marginRight: 8,
+    marginRight: Spacing.sm,
     alignItems: 'flex-start',
   },
   bannerText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
   },
   bannerSubtext: {
-    fontSize: 9,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.tertiary,
     marginTop: 1,
   },
   buttonContainer: {
@@ -196,17 +190,18 @@ const styles = StyleSheet.create({
     top: -25,
     left: '50%',
     transform: [{ translateX: -50 }],
-    backgroundColor: 'rgba(0,0,0,0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: Colors.background.primary,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing.xs,
+    ...Shadow.sm,
   },
   statusText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
 });

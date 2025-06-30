@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface ChatGPTDotsProps {
   isAnimating: boolean;
@@ -11,7 +12,7 @@ interface ChatGPTDotsProps {
 export default function ChatGPTDots({
   isAnimating,
   size = 8,
-  color = '#58CC02',
+  color = Colors.brand.green,
   speed = 600,
 }: ChatGPTDotsProps) {
   const dot1 = useRef(new Animated.Value(0.3)).current;

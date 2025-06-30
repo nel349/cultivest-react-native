@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, Animated } from 'react-native';
 import ChatGPTDots from './ChatGPTDots';
+import { Colors } from '@/constants/Colors';
 
 interface VoiceButtonProps {
   onPress: () => void;
@@ -165,10 +166,10 @@ export default function VoiceButton({
             height: size,
             borderRadius: size / 2,
             backgroundColor: disabled 
-              ? '#FFFFFF' 
+              ? Colors.background.tertiary 
               : isActive 
-                ? 'black' 
-                : '#1F2937',
+                ? Colors.brand.green 
+                : Colors.background.secondary,
           },
           pressed && styles.buttonPressed,
         ]}
@@ -229,20 +230,15 @@ export default function VoiceButton({
               ]}
             />
           </View>
+
+          {/* Dots when processing */}
+          {isActive && (
+            <View style={styles.dotsOverlay}>
+              <ChatGPTDots isAnimating={true} size={12} />
+            </View>
+          )}
         </Animated.View>
       </Pressable>
-
-      {/* Status dots when active */}
-      {isActive && (
-        <View style={styles.statusDots}>
-          <ChatGPTDots 
-            isAnimating={isActive} 
-            size={4} 
-            color="#FFFFFF" 
-            speed={800}
-          />
-        </View>
-      )}
     </View>
   );
 }
@@ -255,40 +251,44 @@ const styles = StyleSheet.create({
   pulseRing: {
     position: 'absolute',
     borderWidth: 2,
-    borderColor: 'rgba(198, 191, 191, 0.3)',
-    backgroundColor: 'rgba(234, 229, 229, 0.1)',
+    borderColor: Colors.brand.green,
+    opacity: 0.3,
   },
   button: {
-    alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    alignItems: 'center',
+    shadowColor: Colors.brand.green,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowRadius: 8,
     elevation: 8,
+    borderWidth: 2,
+    borderColor: Colors.background.tertiary,
   },
   buttonPressed: {
-    shadowOpacity: 0.5,
-    elevation: 12,
+    opacity: 0.8,
   },
   buttonContent: {
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
   },
   soundWaves: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    height: 30,
     gap: 3,
   },
   wave: {
     width: 3,
     height: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.text.primary,
     borderRadius: 1.5,
   },
-  statusDots: {
+  dotsOverlay: {
     position: 'absolute',
-    bottom: -25,
+    bottom: 8,
   },
 }); 

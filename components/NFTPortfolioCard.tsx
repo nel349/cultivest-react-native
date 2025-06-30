@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { 
-  TreePine, Award, Hash, TrendingUp, Coins 
+  TrendingUp, Award, Hash, Coins 
 } from 'lucide-react-native';
 import { PortfolioNFT } from '@/types/api';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 interface NFTPortfolioCardProps {
   portfolioNFT: PortfolioNFT;
@@ -19,17 +19,14 @@ export function NFTPortfolioCard({ portfolioNFT, onPress }: NFTPortfolioCardProp
 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
-      <LinearGradient
-        colors={['#FFFFFF', '#F8F8F8']}
-        style={styles.cardGradient}
-      >
+      <View style={styles.cardContent}>
         {/* Header with NFT Icon */}
         <View style={styles.header}>
           <View style={styles.nftIcon}>
-            <Award size={24} color="#58CC02" />
+            <Award size={24} color={Colors.brand.green} />
           </View>
           <View style={styles.headerInfo}>
-            <Text style={styles.title}>Portfolio Deed 🏡</Text>
+            <Text style={styles.title}>Portfolio Deed</Text>
             <Text style={styles.subtitle}>Your Digital Garden Certificate</Text>
           </View>
           {portfolioNFT.isPrimary && (
@@ -49,134 +46,131 @@ export function NFTPortfolioCard({ portfolioNFT, onPress }: NFTPortfolioCardProp
         {/* NFT Stats */}
         <View style={styles.statsSection}>
           <View style={styles.statItem}>
-            <TreePine size={16} color="#58CC02" />
+            <TrendingUp size={16} color={Colors.brand.green} />
             <Text style={styles.statText}>{portfolioNFT.positionCount} Plants</Text>
           </View>
           <View style={styles.statItem}>
-            <Hash size={16} color="#8B9DC3" />
+            <Hash size={16} color={Colors.text.tertiary} />
             <Text style={styles.statText}>NFT #{portfolioNFT.tokenId}</Text>
           </View>
           <View style={styles.statItem}>
-            <Coins size={16} color="#FF9500" />
+            <Coins size={16} color={Colors.crypto.bitcoin} />
             <Text style={styles.statText}>Certified</Text>
           </View>
         </View>
 
         {/* Growth Indicator */}
         <View style={styles.growthIndicator}>
-          <TrendingUp size={20} color="#58CC02" />
-          <Text style={styles.growthText}>Your garden is growing! 🌱</Text>
+          <TrendingUp size={20} color={Colors.brand.green} />
+          <Text style={styles.growthText}>Your garden is growing!</Text>
         </View>
-      </LinearGradient>
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 24,
-    marginBottom: 16,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.base,
+    borderRadius: Spacing.lg,
+    ...Shadow.md,
   },
-  cardGradient: {
-    borderRadius: 20,
-    padding: 20,
+  cardContent: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
     borderWidth: 2,
-    borderColor: '#E8F5E8',
+    borderColor: Colors.background.tertiary,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.base,
   },
   nftIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#E8F5E8',
+    backgroundColor: Colors.background.tertiary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   headerInfo: {
     flex: 1,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2E7D32',
+    fontSize: Typography.size.lg,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
     marginBottom: 2,
   },
   subtitle: {
-    fontSize: 12,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    fontWeight: Typography.weight.medium,
   },
   primaryBadge: {
-    backgroundColor: '#58CC02',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    backgroundColor: Colors.brand.green,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Spacing.md,
   },
   primaryText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
   valueSection: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.base,
   },
   portfolioName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2E7D32',
-    marginBottom: 8,
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
   },
   totalValue: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#2E7D32',
-    marginBottom: 4,
+    fontSize: Typography.size['4xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
+    marginBottom: Spacing.xs,
   },
   valueLabel: {
-    fontSize: 14,
-    color: '#5A5A5A',
-    fontWeight: '500',
+    fontSize: Typography.size.sm,
+    color: Colors.text.tertiary,
+    fontWeight: Typography.weight.medium,
   },
   statsSection: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 16,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(88, 204, 2, 0.05)',
-    borderRadius: 12,
+    marginBottom: Spacing.base,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.md,
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: Spacing.xs,
   },
   statText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#2E7D32',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
   },
   growthIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 8,
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
   },
   growthText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#58CC02',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.green,
   },
 });

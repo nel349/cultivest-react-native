@@ -7,6 +7,7 @@ import {
   Bitcoin, Zap, Target, Award, Lock, DollarSign
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors, Typography, Spacing, Shadow } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
@@ -24,68 +25,68 @@ export default function EducationScreen() {
   const educationContent = {
     bitcoin: [
       {
-        title: 'What is Bitcoin? 🪙',
+        title: 'What is Bitcoin?',
         content: 'Bitcoin is digital gold - the first and most trusted cryptocurrency. It\'s scarce (only 21M will ever exist), decentralized, and has been growing in value since 2009.',
         keyPoints: ['Digital gold standard', 'Limited supply (21M max)', 'Decentralized network', 'Store of value']
       },
       {
-        title: 'Why Bitcoin Matters 🚀',
+        title: 'Why Bitcoin Matters',
         content: 'Major institutions like Tesla, MicroStrategy, and countries like El Salvador hold Bitcoin. It\'s becoming digital property for the internet age.',
         keyPoints: ['Institutional adoption', 'Inflation hedge', 'Global accessibility', 'Future of money']
       },
       {
-        title: 'Bitcoin vs Traditional Assets 📊',
+        title: 'Bitcoin vs Traditional Assets',
         content: 'Bitcoin has outperformed stocks, bonds, and gold over the past decade. It\'s the best-performing asset class of the 21st century.',
         keyPoints: ['Higher long-term returns', 'Lower correlation to stocks', 'Digital scarcity', '24/7 markets']
       }
     ],
     investing: [
       {
-        title: 'Dollar-Cost Averaging 📈',
+        title: 'Dollar-Cost Averaging',
         content: 'Invest small amounts regularly instead of timing the market. This reduces volatility and builds wealth consistently over time.',
         keyPoints: ['Reduces timing risk', 'Builds discipline', 'Lower average cost', 'Stress-free investing']
       },
       {
-        title: 'The HODLing Strategy 💎',
+        title: 'The HODLing Strategy',
         content: 'HODL (Hold On for Dear Life) means buying and holding Bitcoin long-term, regardless of short-term price movements.',
         keyPoints: ['Long-term mindset', 'Ignore short-term noise', 'Compound growth', 'Proven strategy']
       },
       {
-        title: 'Risk Management 🛡️',
+        title: 'Risk Management',
         content: 'Only invest what you can afford to lose. Start small, learn, and gradually increase your Bitcoin allocation as you get comfortable.',
         keyPoints: ['Start with small amounts', 'Never invest borrowed money', 'Diversify gradually', 'Understand volatility']
       }
     ],
     security: [
       {
-        title: 'Custodial vs Self-Custody 🔐',
+        title: 'Custodial vs Self-Custody',
         content: 'Cultivest provides secure custodial wallets. As you grow, consider learning about self-custody with hardware wallets.',
         keyPoints: ['Custodial = easy to start', 'Self-custody = you control keys', 'Both have their place', 'Start simple, grow complex']
       },
       {
-        title: 'Protecting Your Accounts 🔒',
+        title: 'Protecting Your Accounts',
         content: 'Use strong passwords, enable 2FA, and never share your login details. Be wary of phishing attempts and scams.',
         keyPoints: ['Strong unique passwords', 'Two-factor authentication', 'Verify all communications', 'Trust but verify']
       },
       {
-        title: 'Avoiding Scams 🚨',
+        title: 'Avoiding Scams',
         content: 'If it sounds too good to be true, it probably is. Bitcoin doesn\'t need get-rich-quick schemes - it IS the long-term wealth builder.',
         keyPoints: ['No guaranteed returns', 'Avoid "double your Bitcoin"', 'Stick to reputable platforms', 'Education is protection']
       }
     ],
     strategies: [
       {
-        title: '80/20 Portfolio Strategy 🎯',
+        title: '80/20 Portfolio Strategy',
         content: 'Consider 80% stable investments (like USDCa earning yield) and 20% Bitcoin for growth. Adjust based on your risk tolerance.',
         keyPoints: ['Balance stability & growth', 'Customize to your risk level', 'Rebalance periodically', 'Stay disciplined']
       },
       {
-        title: 'The Bitcoin Standard 🥇',
+        title: 'The Bitcoin Standard',
         content: 'Some investors go "Bitcoin-only" - holding 100% Bitcoin. This is higher risk but potentially higher reward for true believers.',
         keyPoints: ['Maximum Bitcoin exposure', 'Higher volatility', 'Conviction-based', 'Not for beginners']
       },
       {
-        title: 'Building Your Stack 🔗',
+        title: 'Building Your Stack',
         content: 'Start with any amount, even $5. Consistency beats timing. Build your Bitcoin stack slowly and steadily over months and years.',
         keyPoints: ['Start with any amount', 'Consistency is key', 'Think in years not days', 'Stack sats steadily']
       }
@@ -95,13 +96,13 @@ export default function EducationScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <LinearGradient
-        colors={['#1A1A1A', '#2E2E2E']}
+        colors={Colors.gradients.backgroundPrimary}
         style={styles.gradient}
       >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ArrowLeft size={24} color="#FFFFFF" />
+            <ArrowLeft size={24} color={Colors.text.primary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Learn & Grow</Text>
           <View style={styles.headerRight} />
@@ -120,7 +121,7 @@ export default function EducationScreen() {
               >
                 <IconComponent 
                   size={20} 
-                  color={isSelected ? '#FFFFFF' : '#8B9DC3'} 
+                  color={isSelected ? Colors.text.primary : Colors.text.tertiary} 
                 />
                 <Text style={[styles.categoryTabText, isSelected && styles.categoryTabTextActive]}>
                   {category.title}
@@ -132,12 +133,9 @@ export default function EducationScreen() {
 
         {/* Content */}
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {educationContent[selectedCategory].map((item, index) => (
+          {educationContent[selectedCategory as keyof typeof educationContent].map((item, index) => (
             <View key={index} style={styles.contentCard}>
-              <LinearGradient
-                colors={['#FFFFFF', '#F8F8F8']}
-                style={styles.cardGradient}
-              >
+              <View style={styles.cardContent}>
                 <Text style={styles.contentTitle}>{item.title}</Text>
                 <Text style={styles.contentText}>{item.content}</Text>
                 
@@ -150,17 +148,17 @@ export default function EducationScreen() {
                     </View>
                   ))}
                 </View>
-              </LinearGradient>
+              </View>
             </View>
           ))}
 
           {/* Call to Action */}
           <View style={styles.ctaCard}>
             <LinearGradient
-              colors={['#F7931A', '#FF9500']}
+              colors={Colors.gradients.primary}
               style={styles.ctaGradient}
             >
-              <Bitcoin size={32} color="#FFFFFF" />
+              <Bitcoin size={32} color={Colors.text.primary} />
               <Text style={styles.ctaTitle}>Ready to Start Your Bitcoin Journey?</Text>
               <Text style={styles.ctaText}>
                 Apply what you've learned and make your first Bitcoin investment today.
@@ -170,7 +168,7 @@ export default function EducationScreen() {
                 onPress={() => router.push('/(tabs)/invest')}
               >
                 <Text style={styles.ctaButtonText}>Start Investing</Text>
-                <TrendingUp size={20} color="#F7931A" />
+                <TrendingUp size={20} color={Colors.text.primary} />
               </TouchableOpacity>
             </LinearGradient>
           </View>
@@ -191,132 +189,138 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
   },
   backButton: {
-    padding: 8,
+    padding: Spacing.sm,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: Typography.size['2xl'],
+    fontWeight: Typography.weight.heavy,
+    color: Colors.text.primary,
   },
   headerRight: {
-    width: 40,
+    width: 40, // Balance the back button
   },
   categoryTabs: {
-    paddingHorizontal: 24,
-    marginBottom: 20,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   categoryTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 12,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    gap: 8,
+    backgroundColor: Colors.background.secondary,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+    borderRadius: Spacing.lg,
+    marginRight: Spacing.md,
+    gap: Spacing.sm,
   },
   categoryTabActive: {
-    backgroundColor: '#F7931A',
+    backgroundColor: Colors.brand.green,
   },
   categoryTabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#8B9DC3',
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.tertiary,
   },
   categoryTabTextActive: {
-    color: '#FFFFFF',
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.semibold,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   contentCard: {
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
+    borderRadius: Spacing.lg,
+    ...Shadow.md,
   },
-  cardGradient: {
-    borderRadius: 16,
-    padding: 20,
+  cardContent: {
+    backgroundColor: Colors.background.secondary,
+    borderRadius: Spacing.lg,
+    padding: Spacing.lg,
   },
   contentTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 12,
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.md,
   },
   contentText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#5A5A5A',
-    marginBottom: 16,
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    lineHeight: 22,
+    marginBottom: Spacing.lg,
   },
   keyPoints: {
-    backgroundColor: '#F0F7FF',
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#F7931A',
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: Spacing.md,
+    padding: Spacing.base,
   },
   keyPointsTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#2E7D32',
-    marginBottom: 8,
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.primary,
+    marginBottom: Spacing.sm,
   },
   keyPointItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: Spacing.xs,
   },
   bullet: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#F7931A',
-    marginRight: 12,
+    backgroundColor: Colors.brand.green,
+    marginRight: Spacing.sm,
   },
   keyPointText: {
-    fontSize: 14,
-    color: '#5A5A5A',
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
     flex: 1,
   },
   ctaCard: {
-    marginBottom: 40,
+    marginBottom: Spacing['2xl'],
+    borderRadius: Spacing.lg,
+    ...Shadow.lg,
   },
   ctaGradient: {
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: Spacing.lg,
+    padding: Spacing.xl,
     alignItems: 'center',
   },
   ctaTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: Typography.size.xl,
+    fontWeight: Typography.weight.bold,
+    color: Colors.text.primary,
     textAlign: 'center',
-    marginTop: 12,
-    marginBottom: 8,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   ctaText: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: Typography.size.base,
+    color: Colors.text.primary,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
+    lineHeight: 22,
   },
   ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-    gap: 8,
+    backgroundColor: Colors.background.primary,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Spacing.md,
+    gap: Spacing.sm,
+    ...Shadow.sm,
   },
   ctaButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#F7931A',
+    fontSize: Typography.size.base,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.brand.green,
   },
 });

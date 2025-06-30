@@ -16,6 +16,7 @@ interface UserAuthData {
 }
 
 interface VoiceAccessibilityGuideProps {
+  dom?: import('expo/dom').DOMProps;
   userID: string;
   authData?: UserAuthData | null;
   onActivate?: (isActive: boolean) => void;
@@ -191,6 +192,7 @@ function createContextAwareTools(authData: UserAuthData | null) {
 }
 
 export default function VoiceAccessibilityGuide({
+  dom,
   userID,
   authData,
   onActivate,
@@ -424,9 +426,9 @@ const styles = StyleSheet.create({
   },
   dot: {
     width: 8,
-    height: 8,
     borderRadius: 4,
     backgroundColor: '#58CC02',
     marginHorizontal: 3,
+    aspectRatio: 1,
   },
 });

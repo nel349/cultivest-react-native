@@ -110,29 +110,29 @@ export default function VoiceButton({
     }).start();
   };
 
-  const waveHeight1 = waveAnim1.interpolate({
+  const waveScale1 = waveAnim1.interpolate({
     inputRange: [0, 1],
-    outputRange: [size * 0.15, size * 0.4],
+    outputRange: [0.3, 1],
   });
 
-  const waveHeight2 = waveAnim2.interpolate({
+  const waveScale2 = waveAnim2.interpolate({
     inputRange: [0, 1],
-    outputRange: [size * 0.2, size * 0.5],
+    outputRange: [0.4, 1.25],
   });
 
-  const waveHeight3 = waveAnim3.interpolate({
+  const waveScale3 = waveAnim3.interpolate({
     inputRange: [0, 1],
-    outputRange: [size * 0.25, size * 0.6],
+    outputRange: [0.5, 1.5],
   });
 
-  const waveHeight4 = waveAnim4.interpolate({
+  const waveScale4 = waveAnim4.interpolate({
     inputRange: [0, 1],
-    outputRange: [size * 0.18, size * 0.45],
+    outputRange: [0.36, 1.125],
   });
 
-  const waveHeight5 = waveAnim5.interpolate({
+  const waveScale5 = waveAnim5.interpolate({
     inputRange: [0, 1],
-    outputRange: [size * 0.22, size * 0.55],
+    outputRange: [0.44, 1.375],
   });
 
   return (
@@ -187,7 +187,7 @@ export default function VoiceButton({
               style={[
                 styles.wave,
                 {
-                  height: waveHeight1,
+                  transform: [{ scaleY: waveScale1 }],
                   opacity: waveAnim1,
                 },
               ]}
@@ -196,7 +196,7 @@ export default function VoiceButton({
               style={[
                 styles.wave,
                 {
-                  height: waveHeight2,
+                  transform: [{ scaleY: waveScale2 }],
                   opacity: waveAnim2,
                 },
               ]}
@@ -205,7 +205,7 @@ export default function VoiceButton({
               style={[
                 styles.wave,
                 {
-                  height: waveHeight3,
+                  transform: [{ scaleY: waveScale3 }],
                   opacity: waveAnim3,
                 },
               ]}
@@ -214,7 +214,7 @@ export default function VoiceButton({
               style={[
                 styles.wave,
                 {
-                  height: waveHeight4,
+                  transform: [{ scaleY: waveScale4 }],
                   opacity: waveAnim4,
                 },
               ]}
@@ -223,7 +223,7 @@ export default function VoiceButton({
               style={[
                 styles.wave,
                 {
-                  height: waveHeight5,
+                  transform: [{ scaleY: waveScale5 }],
                   opacity: waveAnim5,
                 },
               ]}
@@ -283,9 +283,9 @@ const styles = StyleSheet.create({
   },
   wave: {
     width: 3,
+    height: 20,
     backgroundColor: '#FFFFFF',
     borderRadius: 1.5,
-    minHeight: 4,
   },
   statusDots: {
     position: 'absolute',

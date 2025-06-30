@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatGPTDots from './ChatGPTDots';
 import VoiceAccessibilityGuide from './VoiceAccessibilityGuide';
@@ -58,30 +58,43 @@ export default function VoiceComboComponent({
     }
   };
 
+  const handlePress = () => {
+    console.log('Voice combo component pressed');
+    setIsActive(!isActive);
+    setIsVoiceGuideActive(!isVoiceGuideActive);
+  };
+
   return (
-    <View style={styles.container}>
+    <Pressable 
+      style={({ pressed }) => [
+        styles.container,
+        pressed && styles.containerPressed,
+        isActive && styles.containerActive
+      ]}
+      onPress={handlePress}
+    >
       {/* Ask AI Banner */}
       <View style={styles.bannerContainer}>
         <Text style={styles.bannerText}>Ask AI</Text>
-        <Text style={styles.bannerSubtext}>Tap to speak</Text>
+        <Text style={styles.bannerSubtext}>
+          {isActive ? 'Tap to stop' : 'Tap to speak'}
+        </Text>
       </View>
       
       {/* Voice Button */}
       <View style={styles.buttonContainer}>
         <VoiceButton 
-          onPress={() => {
-            console.log('Voice button pressed');
-            setIsActive(!isActive);
-            setIsVoiceGuideActive(!isVoiceGuideActive);
-          }}
+          onPress={() => {}} // Empty function since container handles press
           isActive={isActive}
           size={40}
+          disabled={false} // Keep animations but container handles interaction
         />
       </View>
 
       {/* Voice Accessibility Guide (hidden, handles the actual conversation) */}
       <View style={styles.guideContainer}>
         <VoiceAccessibilityGuide 
+          dom={{ matchContents: true }}
           userID={userID}
           authData={authData}
           onActivate={(isActive) => {
@@ -110,7 +123,7 @@ export default function VoiceComboComponent({
           />
         </View>
       )}
-    </View>
+    </Pressable>
   );
 }
 
@@ -129,6 +142,14 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+  },
+  containerPressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.8,
+  },
+  containerActive: {
+    borderColor: 'rgba(88, 204, 2, 0.6)',
+    backgroundColor: 'rgba(88, 204, 2, 0.1)',
   },
   bannerContainer: {
     marginRight: 8,

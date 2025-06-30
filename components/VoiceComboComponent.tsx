@@ -59,9 +59,19 @@ export default function VoiceComboComponent({
   };
 
   const handlePress = () => {
-    console.log('Voice combo component pressed');
-    setIsActive(!isActive);
-    setIsVoiceGuideActive(!isVoiceGuideActive);
+    console.log('🎤 Voice combo component pressed, current state:', { isActive, isVoiceGuideActive });
+    
+    if (isActive) {
+      // Deactivating - set everything to false first
+      console.log('🎤 Deactivating voice assistant');
+      setIsActive(false);
+      setIsVoiceGuideActive(false);
+      onDeactivate?.(false);
+    } else {
+      // Activating - set voice guide active, let it handle the rest
+      console.log('🎤 Activating voice assistant');
+      setIsVoiceGuideActive(true);
+    }
   };
 
   return (
@@ -97,15 +107,19 @@ export default function VoiceComboComponent({
           dom={{ matchContents: true }}
           userID={userID}
           authData={authData}
-          onActivate={(isActive) => {
-            console.log('Voice guide is now:', isActive ? 'active' : 'inactive');
-            setIsActive(isActive);
-            onActivate?.(isActive);
+          onActivate={(isGuideActive) => {
+            console.log('🎤 Voice guide onActivate called:', isGuideActive);
+            if (isGuideActive && isVoiceGuideActive) {
+              // Only set active if we're expecting activation
+              setIsActive(true);
+              onActivate?.(true);
+            }
           }} 
           activate={isVoiceGuideActive}
           onDeactivate={() => {
-            console.log('Voice guide is now inactive');
+            console.log('🎤 Voice guide onDeactivate called');
             setIsActive(false);
+            setIsVoiceGuideActive(false);
             onDeactivate?.(false);
           }}
         />

@@ -31,7 +31,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '@/utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
-import VoiceComboComponent from '@/components/VoiceComboComponent';
 
 const { width } = Dimensions.get('window');
 
@@ -771,18 +770,7 @@ export default function HomeScreen() {
           }}
         />
 
-        {/* Floating Voice Assistant */}
-        <View style={styles.floatingVoiceContainer}>
-          <VoiceComboComponent
-            userID={userInfo?.userID || ''}
-            onActivate={(isActive) => {
-              console.log('Voice assistant activated:', isActive);
-            }}
-            onDeactivate={(isActive) => {
-              console.log('Voice assistant deactivated:', isActive);
-            }}
-          />
-        </View>
+
       </LinearGradient>
     </View>
   );
@@ -817,11 +805,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingBottom: 20,
-    paddingRight: 120, // Make space for the compact voice component
   },
   headerLeft: {
     flex: 1,
-    maxWidth: '75%', // Ensure text doesn't overflow into voice button area
   },
   greeting: {
     fontSize: 16,
@@ -1222,13 +1208,5 @@ const styles = StyleSheet.create({
   activityAmountText: {
     fontSize: 16,
     fontWeight: '700',
-  },
-  // Floating Voice Assistant
-  floatingVoiceContainer: {
-    position: 'absolute',
-    top: 80, // Positioned within the green gradient area
-    right: 15,
-    zIndex: 1000,
-    elevation: 10,
   },
 });

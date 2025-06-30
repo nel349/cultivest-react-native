@@ -3,9 +3,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { apiClient } from './api';
 
-// Navigation Tools for Voice Agent
-export const tools = {
-  // Navigate to different screens
+// Auth data interface
+interface AuthData {
+  userID: string;
+  userName: string;
+  authToken: string;
+}
+
+// Core tools that accept auth data as parameters
+export const createTools = (authDataProvider: () => Promise<AuthData | null>) => ({
+  // Navigation Tools for Voice Agent
   navigate_to_dashboard: async () => {
     console.log('🎯 Voice navigation: Going to dashboard');
     try {
@@ -61,7 +68,6 @@ export const tools = {
     }
   },
 
-  // Authentication actions
   navigate_to_login: async () => {
     console.log('🎯 Voice navigation: Going to login');
     try {
@@ -84,7 +90,6 @@ export const tools = {
     }
   },
 
-  // Go back navigation
   go_back: async () => {
     console.log('🎯 Voice navigation: Going back');
     try {
@@ -100,12 +105,9 @@ export const tools = {
     }
   },
 
-  // Get current route information
   get_current_screen: async () => {
     console.log('🎯 Voice navigation: Getting current screen info');
     try {
-      // For now, return a generic message - in a real implementation, 
-      // you could track the current route in state management
       return 'Screen information available via voice navigation';
     } catch (error) {
       console.error('Error getting current screen:', error);
@@ -113,18 +115,12 @@ export const tools = {
     }
   },
 
-  // User authentication status
   get_auth_status: async () => {
     console.log('🎯 Voice navigation: Checking auth status');
     try {
-      const token = await AsyncStorage.getItem('auth_token');
-      const userId = await AsyncStorage.getItem('user_id');
-      const userName = await AsyncStorage.getItem('user_name');
-      
-      const isAuthenticated = !!token;
-      
-      return isAuthenticated 
-        ? `User is logged in as ${userName || 'Unknown User'}` 
+      const authData = await authDataProvider();
+      return authData 
+        ? `User is logged in as ${authData.userName || 'Unknown User'}` 
         : 'User is not logged in';
     } catch (error) {
       console.error('Error checking auth status:', error);
@@ -132,7 +128,6 @@ export const tools = {
     }
   },
 
-  // Logout user
   logout_user: async () => {
     console.log('🎯 Voice navigation: Logging out user');
     try {
@@ -145,7 +140,6 @@ export const tools = {
     }
   },
 
-  // Show alert to user
   show_alert: async ({ title, message }: { title: string; message: string }) => {
     console.log('🎯 Voice navigation: Showing alert', { title, message });
     try {
@@ -157,215 +151,299 @@ export const tools = {
     }
   },
 
-  // Get app capabilities
   get_app_capabilities: async () => {
     console.log('🎯 Voice navigation: Getting app capabilities');
     return 'Cultivest supports navigation to: dashboard, invest, portfolio, profile, education, login, signup. Features include: Bitcoin investment, Algorand investment, Portfolio NFTs, Multi-chain portfolio tracking, Voice navigation, Investment education. Authentication options: login, signup, logout, check status.';
   },
 
-  // ===========================================
-  // 🚀 PORTFOLIO VOICE COMMANDS (Phase 1)
-  // ===========================================
-  
-  // Get total portfolio value
+  // Portfolio Tools
   get_portfolio_value: async () => {
     console.log('💰 Voice portfolio: Getting total portfolio value');
     try {
-      // Check authentication more thoroughly
-      const [userId, userName, authToken] = await AsyncStorage.multiGet([
-        'user_id', 'user_name', 'auth_token'
-      ]);
+      const authData = await authDataProvider();
       
-      const userIdValue = userId[1];
-      const userNameValue = userName[1];
-      const tokenValue = authToken[1];
-      
-      console.log('💰 Voice portfolio: Auth check:', {
-        hasUserId: !!userIdValue,
-        hasUserName: !!userNameValue,
-        hasToken: !!tokenValue,
-        userId: userIdValue
-      });
-
-      if (!userIdValue) {
-        console.log('💰 Voice portfolio: No user ID found, user needs to log in');
+      if (!authData) {
+        console.log('💰 Voice portfolio: No auth data, user needs to log in');
         return 'Please log in to view your portfolio value';
       }
 
-      if (!tokenValue) {
-        console.log('💰 Voice portfolio: No auth token found, user needs to log in');
-        return 'Your session has expired. Please log in again to view your portfolio';
-      }
-
-      console.log('💰 Voice portfolio: Fetching wallet balance for authenticated user:', userIdValue);
-      const result = await apiClient.getWalletBalance(userIdValue, true);
-      console.log('💰 Voice portfolio: Wallet balance result:', { success: result?.success, hasBalance: !!result?.balance });
+      console.log('💰 Voice portfolio: Fetching wallet balance for authenticated user:', authData.userID);
       
-      if (result?.success && result.balance) {
-        const btcBalance = result.balance?.onChainBalance?.btc || result.balance?.databaseBalance?.btc || 0;
-        const algoBalance = result.balance?.onChainBalance?.algo || result.balance?.databaseBalance?.algo || 0;
-        const usdcBalance = result.balance?.onChainBalance?.usdca || result.balance?.databaseBalance?.usdca || 0;
-        const solBalance = (result.balance?.onChainBalance as any)?.sol || (result.balance?.databaseBalance as any)?.sol || 0;
+                    const response = await apiClient.getWalletBalance(authData.userID, true);
+       
+       if (!response.success || !response.balance) {
+         console.log('💰 Voice portfolio: Failed to fetch wallet balance:', response.error);
+         return 'Failed to fetch your portfolio balance. Please try again.';
+       }
 
-        console.log('💰 Voice portfolio: Asset balances:', {
-          btc: btcBalance,
-          algo: algoBalance,
-          usdc: usdcBalance,
-          sol: solBalance
-        });
+       const balance = response.balance;
+       const onChainBalance = balance.onChainBalance;
+       const databaseBalance = balance.databaseBalance;
+      
+      console.log('💰 Voice portfolio: Balance data:', {
+        onChainBalance,
+        databaseBalance
+      });
 
-        // Get live prices
-        const pricesResult = await apiClient.request('/prices');
-        let btcPrice = 97000, algoPrice = 0.40, solPrice = 95;
-        
-        if (pricesResult?.success && (pricesResult as any).prices) {
-          btcPrice = (pricesResult as any).prices.bitcoin?.usd || btcPrice;
-          algoPrice = (pricesResult as any).prices.algorand?.usd || algoPrice;
-          solPrice = (pricesResult as any).prices.solana?.usd || solPrice;
-        }
-
-        const btcValue = btcBalance * btcPrice;
-        const algoValue = algoBalance * algoPrice;
-        const usdcValue = usdcBalance * 1.0;
-        const solValue = solBalance * solPrice;
-        const totalValue = btcValue + algoValue + usdcValue + solValue;
-
-        console.log('💰 Voice portfolio: Portfolio calculation:', {
-          btcValue,
-          algoValue,
-          usdcValue,
-          solValue,
-          totalValue
-        });
-
-        if (totalValue === 0) {
-          return `Hello ${userNameValue || 'investor'}! Your portfolio is currently empty. You can start investing by going to the invest tab or asking me to navigate there. Your wallets are ready for Bitcoin, Algorand, USDC, and Solana.`;
-        }
-        
-        return `Hello ${userNameValue || 'investor'}! Your total portfolio is worth $${totalValue.toFixed(2)}. You have ${btcBalance.toFixed(8)} Bitcoin worth $${btcValue.toFixed(2)}, ${algoBalance.toFixed(2)} Algorand worth $${algoValue.toFixed(2)}, ${usdcBalance.toFixed(2)} USDC, and ${solBalance.toFixed(2)} Solana worth $${solValue.toFixed(2)}.`;
-      } else {
-        console.log('💰 Voice portfolio: API call failed or no balance data:', result?.error);
-        return `I'm having trouble accessing your portfolio data right now. This might be a temporary issue. Please try asking again, or check the portfolio tab in the app.`;
+      let totalValue = 0;
+      let valueBreakdown = [];
+      
+      if (onChainBalance && onChainBalance.btc > 0) {
+        totalValue += onChainBalance.btc;
+        valueBreakdown.push(`${onChainBalance.btc.toFixed(6)} Bitcoin`);
       }
+      
+      if (onChainBalance && onChainBalance.algo > 0) {
+        totalValue += onChainBalance.algo;
+        valueBreakdown.push(`${onChainBalance.algo.toFixed(2)} Algorand`);
+      }
+      
+      if (onChainBalance && onChainBalance.usdca > 0) {
+        totalValue += onChainBalance.usdca;
+        valueBreakdown.push(`${onChainBalance.usdca.toFixed(2)} USDC`);
+      }
+
+      const portfolioSummary = valueBreakdown.length > 0 
+        ? `Your portfolio contains: ${valueBreakdown.join(', ')}` 
+        : 'Your portfolio is currently empty. Start investing to build your digital asset portfolio!';
+
+      return `Portfolio Summary for ${authData.userName}: ${portfolioSummary}. Total estimated value: $${totalValue.toFixed(2)} USD equivalent.`;
+      
     } catch (error) {
-      console.error('💰 Voice portfolio: Error getting portfolio value:', error);
-      return 'I encountered an error while fetching your portfolio. Please try again or check the portfolio tab in the app.';
+      console.error('💰 Voice portfolio: Error fetching portfolio value:', error);
+      return 'I encountered an error while fetching your portfolio value. Please try again or check your internet connection.';
     }
   },
 
-  // Get Bitcoin performance specifically
   get_bitcoin_performance: async () => {
     console.log('₿ Voice portfolio: Getting Bitcoin performance');
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      if (!userId) {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
         return 'Please log in to view your Bitcoin performance';
       }
 
-      const result = await apiClient.getWalletBalance(userId, true);
-      const pricesResult = await apiClient.request('/prices');
-      
-      if (result?.success) {
-        const btcBalance = result.balance?.onChainBalance?.btc || 0;
-        let currentPrice = 97000;
-        
-        if (pricesResult?.success && (pricesResult as any).prices) {
-          currentPrice = (pricesResult as any).prices.bitcoin?.usd || currentPrice;
-        }
+             const response = await apiClient.getWalletBalance(authData.userID, true);
+       
+       if (!response.success || !response.balance) {
+         return 'Failed to fetch your Bitcoin performance data';
+       }
 
-        const btcValue = btcBalance * currentPrice;
-        const btcPercentage = btcBalance > 0 ? 'significant portion' : 'no Bitcoin';
-        
-        return `Your Bitcoin performance: You hold ${btcBalance.toFixed(8)} BTC worth $${btcValue.toFixed(2)} at current price of $${currentPrice.toLocaleString()}. Bitcoin represents a ${btcPercentage} of your portfolio.`;
-      }
+       const balance = response.balance;
+      const btcAmount = balance.onChainBalance?.btc || 0;
       
-      return 'Unable to retrieve Bitcoin performance data';
+      if (btcAmount === 0) {
+        return 'You don\'t have any Bitcoin in your portfolio yet. Consider investing in Bitcoin through the Invest tab!';
+      }
+
+      return `You currently hold ${btcAmount.toFixed(6)} Bitcoin in your portfolio. Bitcoin is known for its volatility and potential for long-term growth. Check the Invest tab for current Bitcoin prices and market trends.`;
     } catch (error) {
-      console.error('Error getting Bitcoin performance:', error);
-      return 'Failed to get Bitcoin performance';
+      console.error('₿ Voice portfolio: Error fetching Bitcoin performance:', error);
+      return 'Failed to fetch Bitcoin performance data. Please try again.';
     }
   },
 
-  // Get Algorand balance specifically  
   get_algorand_balance: async () => {
-    console.log('⚡ Voice portfolio: Getting Algorand balance');
+    console.log('🔷 Voice portfolio: Getting Algorand balance');
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      if (!userId) {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
         return 'Please log in to view your Algorand balance';
       }
 
-      const result = await apiClient.getWalletBalance(userId, true);
-      const pricesResult = await apiClient.request('/prices');
-      
-      if (result?.success) {
-        const algoBalance = result.balance?.onChainBalance?.algo || 0;
-        let algoPrice = 0.40;
-        
-        if (pricesResult?.success && (pricesResult as any).prices) {
-          algoPrice = (pricesResult as any).prices.algorand?.usd || algoPrice;
-        }
+             const response = await apiClient.getWalletBalance(authData.userID, true);
+       
+       if (!response.success || !response.balance) {
+         return 'Failed to fetch your Algorand balance';
+       }
 
-        const algoValue = algoBalance * algoPrice;
-        
-        return `Your Algorand balance: You hold ${algoBalance.toFixed(2)} ALGO worth $${algoValue.toFixed(2)} at current price of $${algoPrice.toFixed(4)}. Algorand is a high-performance blockchain supporting smart contracts and decentralized applications.`;
-      }
+       const balance = response.balance;
+      const algoAmount = balance.onChainBalance?.algo || 0;
+      const usdcAmount = balance.onChainBalance?.usdca || 0;
       
-      return 'Unable to retrieve Algorand balance';
+      let algoSummary = [];
+      if (algoAmount > 0) algoSummary.push(`${algoAmount.toFixed(2)} ALGO`);
+      if (usdcAmount > 0) algoSummary.push(`${usdcAmount.toFixed(2)} USDC`);
+      
+      if (algoSummary.length === 0) {
+        return 'You don\'t have any Algorand assets yet. Consider investing in Algorand or USDC through the Invest tab!';
+      }
+
+      return `Your Algorand wallet contains: ${algoSummary.join(' and ')}. Algorand is a fast, secure, and environmentally friendly blockchain perfect for DeFi and smart contracts.`;
     } catch (error) {
-      console.error('Error getting Algorand balance:', error);
-      return 'Failed to get Algorand balance';
+      console.error('🔷 Voice portfolio: Error fetching Algorand balance:', error);
+      return 'Failed to fetch Algorand balance. Please try again.';
     }
   },
 
-  // Get Portfolio NFT information
-  get_portfolio_nft_info: async () => {
-    console.log('🎨 Voice portfolio: Getting Portfolio NFT info');
+    get_portfolio_nft_info: async () => {
+    console.log('🎨 Voice portfolio NFT: Getting portfolio NFT info');
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      if (!userId) {
-        return 'Please log in to view your Portfolio NFT information';
+      const authData = await authDataProvider();
+      
+      console.log('🎨 Voice portfolio NFT: Auth data check:', {
+        hasAuthData: !!authData,
+        hasUserID: !!authData?.userID,
+        userID: authData?.userID
+      });
+      
+      if (!authData) {
+        console.log('🎨 Voice portfolio NFT: No auth data found');
+        return 'Please log in to view your Garden Portfolio Certificate information';
       }
 
-      // This would need to be implemented with actual NFT API endpoint
-      return 'Your Portfolio NFT represents your entire investment portfolio as a tradeable and inheritable digital asset. This revolutionary feature allows you to pass your investments to future generations or trade your entire portfolio position. Your NFT contains metadata about your Bitcoin, Algorand, and USDC holdings, making it truly unique in the crypto investment space.';
+      // Navigate to the portfolio/harvest page first
+      console.log('🎨 Voice portfolio NFT: Navigating to harvest page');
+      try {
+        const { router } = await import('expo-router');
+        router.push('/(tabs)/portfolio');
+        // Small delay to ensure navigation completes
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (navError) {
+        console.error('🎨 Navigation error:', navError);
+      }
+
+      console.log('🎨 Voice portfolio NFT: Making API call for user:', authData.userID);
+      
+      // Debug the API base URL being used
+      const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+      console.log('🔗 Voice portfolio NFT: API Base URL:', API_BASE_URL);
+      console.log('🔗 Voice portfolio NFT: Full URL:', `${API_BASE_URL}/users/${authData.userID}/portfolio/primary`);
+      
+      // Try both the wrapper method and direct request
+      const response = await apiClient.getUserPrimaryPortfolio(authData.userID);
+      
+      // Also try direct API call as backup
+      console.log('🎨 Voice portfolio NFT: Trying direct API call as backup...');
+      const directResponse = await apiClient.request(`/users/${authData.userID}/portfolio/primary`);
+      
+      console.log('🎨 Voice portfolio NFT: Raw API response (wrapper):', response);
+      console.log('🎨 Voice portfolio NFT: Raw API response (direct):', directResponse);
+      
+      // Use direct response if wrapper fails
+      const finalResponse = response.success ? response : directResponse;
+      
+      console.log('🎨 Voice portfolio NFT: Using response:', finalResponse.success ? 'wrapper' : 'direct');
+      console.log('🎨 Voice portfolio NFT: Final response summary:', {
+        success: finalResponse?.success,
+        hasData: !!(finalResponse as any)?.data,
+        hasPortfolio: !!(finalResponse as any)?.data?.portfolio,
+        error: finalResponse?.error || 'none',
+        fullError: finalResponse?.error
+      });
+       
+       if (finalResponse.success && (finalResponse as any).data?.portfolio) {
+         console.log('🎨 Voice portfolio NFT: Processing successful API response');
+         const data = (finalResponse as any).data;
+         const portfolio = data.portfolio;
+         const positionsData = data.positions;
+         const stats = data.stats || null;
+         const positions = positionsData?.positions || [];
+         
+         console.log('🎨 Voice portfolio NFT: Parsed data:', {
+           portfolioName: portfolio?.customName,
+           tokenId: portfolio?.tokenId,
+           appId: portfolio?.appId,
+           positionsCount: positions?.length || 0,
+           hasStats: !!stats
+         });
+        
+                 // Calculate portfolio stats
+        const totalValue = positions.reduce((sum: number, pos: any) => sum + (parseFloat(pos.purchaseValue) || 0), 0);
+        const totalMinted = parseInt(stats?.totalTokensMinted) || 0;
+        
+        // Count positions by asset type
+        const assetCounts: { [key: string]: { count: number, totalValue: number } } = {};
+        positions.forEach((pos: any) => {
+          const assetName = pos.assetTypeName;
+          const purchaseValue = parseFloat(pos.purchaseValue) || 0;
+          
+          if (!assetCounts[assetName]) {
+            assetCounts[assetName] = { count: 0, totalValue: 0 };
+          }
+          
+          assetCounts[assetName].count += 1;
+          assetCounts[assetName].totalValue += purchaseValue;
+        });
+        
+        // Build human-readable response like get_portfolio_value
+        let response = `Portfolio NFT Summary for ${authData.userName}: Your "${portfolio.customName}" is NFT #${portfolio.tokenId} on Algorand blockchain (App ${portfolio.appId}). `;
+        
+        if (positions.length > 0) {
+          response += `It contains ${positions.length} investment positions: `;
+          
+          const assetSummary = Object.entries(assetCounts).map(([asset, data]) => 
+            `${data.count} ${asset} position${data.count > 1 ? 's' : ''} worth $${data.totalValue.toLocaleString()}`
+          ).join(', ');
+          
+          response += `${assetSummary}. Total portfolio value: $${totalValue.toLocaleString()}. `;
+        } else {
+          response += `It currently has no investment positions. `;
+        }
+        
+        response += `This NFT is one of ${totalMinted} minted and represents your investment journey in a unique digital certificate.`;
+        
+        console.log('🎨 Voice portfolio NFT: Returning human-readable response:', response);
+        return response;
+      } else {
+        console.log('🎨 Voice portfolio NFT: No portfolio found, returning no-portfolio message');
+        const noPortfolioMessage = `NO PORTFOLIO NFT FOUND. User has no Garden Portfolio Certificate yet.`;
+        console.log('🎨 Voice portfolio NFT: No-portfolio message length:', noPortfolioMessage.length);
+        return noPortfolioMessage;
+      }
     } catch (error) {
-      console.error('Error getting Portfolio NFT info:', error);
-      return 'Failed to get Portfolio NFT information';
+      console.error('🎨 Voice portfolio NFT error:', error);
+      const errorMessage = 'Error fetching your Portfolio NFT data, but I took you to the Harvest page to view it manually!';
+      console.log('🎨 Voice portfolio NFT: Error message length:', errorMessage.length);
+      return errorMessage;
     }
   },
 
-  // Get total investment gains
   get_investment_gains: async () => {
     console.log('📈 Voice portfolio: Getting investment gains');
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      if (!userId) {
+      const authData = await authDataProvider();
+      
+      if (!authData) {
         return 'Please log in to view your investment gains';
       }
-
-      // This would need historical data to calculate actual gains
-      // For now, we'll provide current portfolio value as a placeholder
-      const result = await apiClient.getWalletBalance(userId, true);
       
-      if (result?.success) {
-        const btcBalance = result.balance?.onChainBalance?.btc || 0;
-        const algoBalance = result.balance?.onChainBalance?.algo || 0;
-        const usdcBalance = result.balance?.onChainBalance?.usdca || 0;
-        
-        if (btcBalance > 0 || algoBalance > 0 || usdcBalance > 0) {
-          return 'Your investment gains tracking is available. Current portfolio shows active positions in multiple cryptocurrencies. For detailed gain and loss analysis, historical purchase data would be needed. Your multi-chain approach with Bitcoin and Algorand demonstrates solid diversification strategy.';
-        } else {
-          return 'No current investments detected. Consider starting with Bitcoin or Algorand to begin tracking your investment gains.';
-        }
-      }
-      
-      return 'Unable to calculate investment gains at this time';
+      return 'Investment gains tracking will show your portfolio performance over time. Please check the portfolio tab for detailed performance metrics.';
     } catch (error) {
-      console.error('Error getting investment gains:', error);
-      return 'Failed to get investment gains';
+      console.error('📈 Voice portfolio: Error getting investment gains:', error);
+      return 'Failed to fetch investment gains data. Please try again.';
     }
+  },
+});
+
+// AsyncStorage-based auth data provider
+const createAsyncStorageAuthProvider = () => async (): Promise<AuthData | null> => {
+  try {
+    const [userIdItem, userNameItem, authTokenItem] = await AsyncStorage.multiGet([
+      'user_id', 'user_name', 'auth_token'
+    ]);
+    
+    const userID = userIdItem[1];
+    const userName = userNameItem[1];
+    const authToken = authTokenItem[1];
+    
+    if (!userID || !authToken) {
+      return null;
+    }
+    
+    return { userID, userName: userName || '', authToken };
+  } catch (error) {
+    console.error('Error loading auth data from AsyncStorage:', error);
+    return null;
   }
 };
 
-export default tools; 
+// Props-based auth data provider
+export const createPropsAuthProvider = (authData: AuthData | null) => async (): Promise<AuthData | null> => {
+  return authData;
+};
+
+// Default tools using AsyncStorage
+export const tools = createTools(createAsyncStorageAuthProvider()); 

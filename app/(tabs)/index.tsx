@@ -113,6 +113,20 @@ interface UserInfo {
   userID: string;
 }
 
+// Debug function to check AsyncStorage contents
+const debugAsyncStorage = async () => {
+  try {
+    const keys = ['auth_token', 'user_id', 'user_name'];
+    const values = await AsyncStorage.multiGet(keys);
+    console.log('🔍 AsyncStorage Debug:', values.reduce((acc, [key, value]) => {
+      acc[key] = value;
+      return acc;
+    }, {} as Record<string, string | null>));
+  } catch (error) {
+    console.error('❌ Debug AsyncStorage error:', error);
+  }
+};
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [balanceVisible, setBalanceVisible] = useState(true);
@@ -180,6 +194,7 @@ export default function HomeScreen() {
 
       if (userId) {
         console.log('🔍 Dashboard: User info loaded:', { userId, userName });
+        console.log('🆔 Dashboard: Using userID for API calls:', userId);
         setUserInfo({
           name: userName || 'User',
           walletAddress: '', // Wallet address will be populated by fetchDashboardData
@@ -195,9 +210,9 @@ export default function HomeScreen() {
     return null;
   };
 
-  // Fetch dashboard data from backend
-  const fetchDashboardData = async (userID: string) => {
-    console.log(`📊 Fetching dashboard data for user: ${userID}`);
+  // Fetch dashboard data from backend with retry mechanism
+  const fetchDashboardData = async (userID: string, retryCount = 0) => {
+    console.log(`📊 Fetching dashboard data for user: ${userID} (attempt ${retryCount + 1})`);
     try {
       // Get both dashboard data AND live wallet balance for reconciliation
       const [dashboardResponse, walletResponse] = await Promise.all([
@@ -331,10 +346,32 @@ export default function HomeScreen() {
         
       } else {
         console.error('❌ Failed to fetch dashboard data:', dashboardResponse.error);
+        console.error('🔍 Full dashboard response:', JSON.stringify(dashboardResponse, null, 2));
+        console.error('💾 UserID used for request:', userID);
+        
+        // Retry logic for "User not found" errors (common after auth timing issues)
+        if (dashboardResponse.error?.includes('User not found') && retryCount < 2) {
+          console.log(`⏳ Retrying dashboard fetch in 2 seconds... (attempt ${retryCount + 2}/3)`);
+          setTimeout(() => {
+            fetchDashboardData(userID, retryCount + 1);
+          }, 2000);
+          return;
+        }
+        
         Alert.alert('API Error', `Dashboard data failed: ${dashboardResponse.error}`);
       }
     } catch (error) {
       console.error('❌ Error fetching dashboard data:', error);
+      
+      // Retry on network errors too
+      if (retryCount < 2) {
+        console.log(`⏳ Retrying dashboard fetch after network error... (attempt ${retryCount + 2}/3)`);
+        setTimeout(() => {
+          fetchDashboardData(userID, retryCount + 1);
+        }, 2000);
+        return;
+      }
+      
       Alert.alert('Network Error', `Failed to connect to API: ${error}`);
     }
   };
@@ -343,9 +380,13 @@ export default function HomeScreen() {
   const loadDashboardData = async () => {
     setIsLoading(true);
     try {
+      // Debug what's stored in AsyncStorage
+      await debugAsyncStorage();
+      
       const userID = await loadUserInfo();
       if (userID) {
         console.log('✅ Dashboard: User ID loaded:', userID);
+        console.log('🚀 Dashboard: About to fetch data for userID:', userID);
         await fetchDashboardData(userID);
       } else {
         console.log('⚠️ Dashboard: No user ID found, user may need to login');
@@ -363,16 +404,19 @@ export default function HomeScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      const userID = await AsyncStorage.getItem('user_id');
-      if (userID) {
+      const { userId } = await getCurrentUser();
+      if (userId) {
+        console.log('🔄 Refreshing dashboard for user:', userId);
         // Refresh all dashboard data including wallet balance, investments, and portfolio
-        await fetchDashboardData(userID);
+        await fetchDashboardData(userId);
 
         // TODO: Add investment/portfolio data refresh here when needed
-        // Example: await fetchInvestmentData(userID);
-        // Example: await fetchPortfolioData(userID);
+        // Example: await fetchInvestmentData(userId);
+        // Example: await fetchPortfolioData(userId);
 
         console.log('✅ Dashboard data refreshed successfully');
+      } else {
+        console.log('⚠️ No user ID found during refresh, user may need to login');
       }
     } catch (error) {
       console.error('Error refreshing dashboard data:', error);

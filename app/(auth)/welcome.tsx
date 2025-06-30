@@ -28,6 +28,14 @@ import { useEffect, useState } from 'react';
 
 const { width } = Dimensions.get('window');
 
+// Import crypto icons
+const cryptoIcons = {
+  bitcoin: require('@/assets/images/crypto/bitcoin.png'),
+  algorand: require('@/assets/images/crypto/algorand.png'),
+  solana: require('@/assets/images/crypto/solana.png'),
+  usdc: require('@/assets/images/crypto/usdc.png'),
+};
+
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
   const [isActive, setIsActive] = useState(false);
@@ -108,7 +116,7 @@ export default function WelcomeScreen() {
         accessibilityLabel="Cultivest welcome screen"
       >
         <LinearGradient
-          colors={['#1E3A8A', '#3B82F6', '#60A5FA']}
+          colors={['#89E5AB', '#58CC02', '#46A302']}
           style={[styles.gradient, { paddingTop: insets.top }]}
           accessible={false}
         >
@@ -202,10 +210,10 @@ export default function WelcomeScreen() {
               >
                 <View style={styles.cryptoContainer}>
                   <View style={styles.bitcoinIcon}>
-                    <Bitcoin size={36} color="#F7931A" />
+                    <Image source={cryptoIcons.bitcoin} style={styles.cryptoIconImage} />
                   </View>
                   <View style={styles.algorandIcon}>
-                    <Coins size={30} color="#00D4AA" />
+                    <Image source={cryptoIcons.algorand} style={styles.cryptoIconImage} />
                   </View>
                   <View
                     style={styles.nftBadge}
@@ -449,49 +457,70 @@ const styles = StyleSheet.create({
   cryptoContainer: {
     position: 'relative',
     alignItems: 'center',
-    width: 90,
-    height: 60,
+    width: 140,
+    height: 100,
+    marginVertical: 0,
   },
   bitcoinIcon: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    backgroundColor: 'rgba(247, 147, 26, 0.2)',
-    borderRadius: 20,
-    padding: 6,
+    top: 5,
+    left: 5,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 14,
+    borderWidth: 3,
+    borderColor: '#F7931A',
+    shadowColor: '#F7931A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   algorandIcon: {
     position: 'absolute',
-    top: 8,
-    right: 0,
-    backgroundColor: 'rgba(0, 212, 170, 0.2)',
-    borderRadius: 18,
-    padding: 4,
+    top: 5,
+    right: 5,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 14,
+    borderWidth: 3,
+    borderColor: '#00D4AA',
+    shadowColor: '#00D4AA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   nftBadge: {
     position: 'absolute',
     bottom: 0,
     left: '50%',
-    transform: [{ translateX: -20 }],
+    transform: [{ translateX: -35 }],
     backgroundColor: '#8B5CF6',
-    borderRadius: 15,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 3,
     borderColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
   },
   nftText: {
-    fontSize: 10,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginLeft: 2,
+    marginLeft: 4,
+    letterSpacing: 0.5,
+  },
+  cryptoIconImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
   },
   featuresContainer: {
     flexDirection: 'row',
@@ -525,7 +554,7 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#1E3A8A',
+    color: '#2E7D32',
     marginBottom: 3,
     textAlign: 'center',
   },
@@ -591,7 +620,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#3B82F6',
+    color: '#58CC02',
   },
   secondaryButton: {
     marginBottom: 12,

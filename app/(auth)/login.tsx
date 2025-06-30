@@ -186,7 +186,7 @@ export default function LoginScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <LinearGradient
-          colors={['#1E3A8A', '#3B82F6', '#60A5FA']}
+          colors={['#89E5AB', '#58CC02', '#46A302']}
           style={[styles.gradient, { paddingTop: insets.top }]}
         >
           {/* Decorative Elements */}
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: 'rgba(88, 204, 2, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   switchAuthLink: {
-    color: '#3B82F6',
+    color: '#58CC02',
     fontWeight: '600',
   },
   modalContainer: {
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     fontSize: 16,
-    color: '#3B82F6',
+    color: '#58CC02',
     fontWeight: '600',
   },
   countryList: {

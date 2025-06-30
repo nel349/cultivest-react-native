@@ -38,5 +38,20 @@ yarn-error.*
 # netlify
 .netlify/
 .cursor/
-android/
-ios/
+# Android - Keep config files, ignore build artifacts and local settings
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/.externalNativeBuild/
+android/.cxx/
+android/app/release/
+
+# iOS - Keep config files, ignore build artifacts
+ios/build/
+ios/Pods/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/DerivedData/

@@ -1,0 +1,21 @@
+# .easignore - files to exclude from EAS Build uploads
+# Keep this minimal to ensure build scripts are included
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts (but not scripts)
+/android/app/build/
+/android/build/
+/ios/build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db 

@@ -36,11 +36,14 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://cultivest-backend.vercel.app/api/v1"
       },
+      "android": {
+        "buildType": "apk",
+        "env": {
+          "NODE_BINARY": "node"
+        }
+      },
       "ios": {
         "resourceClass": "m-medium"
-      },
-      "android": {
-        "buildType": "apk"
       }
     }
   },

@@ -24,7 +24,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FundingModal from '@/components/FundingModal';
-import VoiceComboComponent from '@/components/VoiceComboComponent';
+
 
 const { width } = Dimensions.get('window');
 
@@ -232,19 +232,6 @@ export default function InvestScreen() {
           </View>
         </ScrollView>
 
-        {/* Floating Voice Assistant */}
-        <View style={styles.floatingVoiceContainer}>
-          <VoiceComboComponent
-            userID={userInfo?.userID || ''}
-            onActivate={(isActive) => {
-              console.log('Voice assistant activated:', isActive);
-            }}
-            onDeactivate={(isActive) => {
-              console.log('Voice assistant deactivated:', isActive);
-            }}
-          />
-        </View>
-
         {/* Funding Modal */}
         <FundingModal
           visible={showFundingModal}
@@ -301,7 +288,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingBottom: 20,
-    paddingRight: 120, // Make space for voice component
   },
   backButton: {
     width: 44,
@@ -491,12 +477,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#58CC02',
-  },
-  floatingVoiceContainer: {
-    position: 'absolute',
-    top: 80,
-    right: 15,
-    zIndex: 1000,
-    elevation: 10,
   },
 });

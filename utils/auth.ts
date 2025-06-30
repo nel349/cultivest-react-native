@@ -14,14 +14,15 @@ const AUTH_KEYS = {
  */
 export const signOut = async (): Promise<void> => {
   try {
-    // Clear all authentication data
+    // Clear all authentication data including userData object
     await AsyncStorage.multiRemove([
       AUTH_KEYS.TOKEN,
       AUTH_KEYS.USER_ID,
       AUTH_KEYS.USER_NAME,
+      'userData', // Also clear the userData object
     ]);
     
-    console.log('🚪 User signed out successfully');
+    console.log('🚪 User signed out successfully - all auth data cleared');
     
     // Navigate back to welcome screen (replace to prevent going back)
     router.replace('/(auth)/welcome');
